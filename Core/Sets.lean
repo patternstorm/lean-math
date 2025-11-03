@@ -1,3 +1,4 @@
+import Core.NaturalDeduction
 import Core.Universe
 
 /-!
@@ -69,6 +70,21 @@ theorem set_equality_is_well_defined (A B : Set X) :
     · intro h
       funext x
       exact propext (h x)
+
+/-!
+theorem set_equality_is_well_defined2 (A B : Set X) :
+  A = B ↔ (∀ (x : Particular X), x ∈ A ↔ x ∈ B) := by
+  have hf: A = B → (∀ (x : Particular X), x ∈ A ↔ x ∈ B) := by
+    assume(hf1: A = B)
+    assume (x: Particular X)
+    have hf2: (x ∈ A ↔ x ∈ A) := by eq_refl
+    have hf3: (x ∈ B ↔ x ∈ A) := by eq_subst hf1 in hf2
+    have hf4: (∀ x, x ∈ A ↔ x ∈ B) := by forall_intro hf3
+    sorry
+  have hb: (∀ (x : Particular X), x ∈ A ↔ x ∈ B) → A = B := by sorry
+  and_intro hf, hb
+ -/
+
 
 -- # Foundational *Sets* derived from *Predicates*.
 -- The *Universe Set*

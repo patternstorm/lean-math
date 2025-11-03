@@ -9,7 +9,7 @@ constructed by precise formation rules we call *Types*. Each *Type* defines what
 a well-formed *Particular* representation (valid *Term*).
 
 The *Universe* of our discourse is completely determined by the *Type* that
-construct representations, i.e. *Terms*, of the *Particulars* we want to consider.
+constructs representations, i.e. *Terms*, of the *Particulars* we want to consider.
 -/
 
 namespace Universe
