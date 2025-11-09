@@ -4,7 +4,7 @@
 We want to reason about things by constructing verifiable statements - called *Predicates* - about them.
 These things - called *Particulars* - can be any entities we choose to consider.
 
-Crucially, we represent *Particulars* through formal syntactic entities - called *Terms* -,
+Crucially, we represent *Particulars* through well-defined syntactic entities - called *Terms* -,
 constructed by precise formation rules we call *Types*. Each *Type* defines what counts as
 a well-formed *Particular* representation (valid *Term*).
 
