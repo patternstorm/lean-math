@@ -1,4 +1,5 @@
 import Lean
+import Core.Equality
 
 open Lean Meta Elab Tactic
 
@@ -281,9 +282,9 @@ macro_rules (kind := ndOrElim)
   | `(tactic| or_elimination $hpq , $hpr , $hqr) =>
       `(tactic| exact Or.elim $hpq $hpr $hqr)
 
-/-!
+/-! WE DON?T NEED THIS BECAUSE WE USE PURE FOL, LEAN'S BUILT-IN EQUALITY REASONING NOT ALLOWED
 ## Equality
--/
+
 
 /-- Reflexivity: prove t = t -/
 syntax (name := eq_refl) "eq_refl" : tactic
@@ -306,18 +307,21 @@ macro_rules (kind := eq_subst_with)
   | `(tactic| eq_subst_with $h_eq in $h_target with $pred) =>
     `(tactic| exact eqSubstFn $pred $h_eq $h_target)
 
+-/
 
 namespace pc₀ -- Propositional Calculus 0
-
-theorem eq_symm {α: Sort u} {x y: α}: x = y → y = x := by
-  assume (h₁: x = y)
-  have h₂: x = x := by eq_refl
-  have h₃: y = x := by eq_subst_with h₁ in h₂ with (fun t: α => t = x)
-  iterate h₃
 
 theorem identity_principle {P: Prop}: P → P := by
   assume (h₁ : P)
   implication_intro h₁, h₁
+
+theorem deductive_eq_l2r {P Q: Prop} (h₁: P ↔ Q) (h₂: P) : Q := by
+  have h₃: P → Q := by iff_elim_l2r h₁
+  modus_ponens h₃, h₂
+
+theorem deductive_eq_r2l {P Q: Prop} (h₁: P ↔ Q) (h₂: Q) : P := by
+  have h₃: Q → P := by iff_elim_r2l h₁
+  modus_ponens h₃, h₂
 
 theorem excluded_middle {P: Prop} : P ∨ ¬P := by
   have h₁: ¬(P ∨ ¬P) → False := by
@@ -552,10 +556,26 @@ theorem de_morgan_conjunction {P Q: Prop}: ¬(P ∧ Q) ↔ (¬P ∨ ¬Q) := by
 theorem iff_contrapositiveness {P Q: Prop}: (P ↔ Q) ↔ (¬P ↔ ¬Q) := by
   have h₁: (P ↔ Q) → (¬P ↔ ¬Q) := by
     assume (h₁₁: P ↔ Q)
-    sorry
+    have h₁₁₁: ¬Q → ¬P := by
+      have h₁₁₁₁: P → Q := by iff_elim_l2r h₁₁
+      have h₁₁₁₂: ¬Q →  ¬P := deductive_eq_l2r implication_reversibility h₁₁₁₁
+      iterate h₁₁₁₂
+    have h₁₁₂: ¬P → ¬Q := by
+      have h₁₁₂₁: Q → P := by iff_elim_r2l h₁₁
+      have h₁₁₂₂: ¬P →  ¬Q := deductive_eq_l2r implication_reversibility h₁₁₂₁
+      iterate h₁₁₂₂
+    iff_intro h₁₁₂, h₁₁₁
   have h₂: (¬P ↔ ¬Q) → (P ↔ Q) := by
     assume (h₂₁: ¬P ↔ ¬Q)
-    sorry
+    have h₂₂: (P → Q) := by
+      have h₂₂₁: ¬Q → ¬P := by iff_elim_r2l h₂₁
+      have h₂₂₂: P → Q := deductive_eq_r2l implication_reversibility h₂₂₁
+      iterate h₂₂₂
+    have h₂₃: (Q → P) := by
+      have h₂₃₁: ¬P → ¬Q := by iff_elim_l2r h₂₁
+      have h₂₃₂: Q → P := deductive_eq_r2l implication_reversibility h₂₃₁
+      iterate h₂₃₂
+    iff_intro h₂₂, h₂₃
   iff_intro h₁, h₂
 
 theorem currying {P Q R: Prop}: (P → (Q → R)) ↔ (P ∧ Q → R) := by
@@ -604,9 +624,26 @@ example {P Q R S: Prop} (h₁: P ∧ Q → R) (h₂: (¬P ∧ ¬Q) → S) (h₃:
 
 end pc₀
 
+-- Unique Existence Quantifier
+axiom ExistsUnique {α: Type}: (α → Prop) → Prop
+
+-- Syntax supporting multiple forms
+syntax "∃!" ident "," term : term                              -- ∃! x , P x
+syntax "∃!" ident ":" term ", " term : term                    -- ∃! x : α, P x
+syntax "∃!" "(" ident ":" term ")" ", " term : term            -- ∃! (x : α), P x
+
+macro_rules
+| `(∃! $x:ident, $body) => `(ExistsUnique (fun ($x) => $body))
+| `(∃! $x:ident : $t, $body) => `(ExistsUnique (fun ($x : $t) => $body))
+| `(∃! ($x:ident : $t), $body) => `(ExistsUnique (fun ($x : $t) => $body))
+
+-- Axiom defining its meaning
+axiom exists_unique_def: ∀ {α: Type}, ∀ (P: α → Prop),
+    ExistsUnique P ↔ (∃ x, P x ∧ ∀ y, P y → y =ₚ x)
+
 namespace pc₁ -- Propositional Calculus 1
 
-theorem forall_comm {α: Type} {P: α → α → Prop}: (∀ x, ∀ y, P x y) ↔  (∀ y, ∀ x, P x y) := by
+theorem forall_comm {α: Type} {P: α → α → Prop}: (∀ x, ∀ y, P x y) ↔ (∀ y, ∀ x, P x y) := by
   have h₁: (∀ x, ∀ y, P x y) → (∀ y, ∀ x, P x y) := by
     assume (h₁₁ : ∀ x, ∀ y, P x y)
     have h₁₁: ∀ y, ∀ x, P x y := by forall_intro
