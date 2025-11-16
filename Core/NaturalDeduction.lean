@@ -3,6 +3,12 @@ import Core.Equality
 
 open Lean Meta Elab Tactic
 
+-- FOL-Style Predicate Syntax Enhancement
+-- Allows writing: x: T ↦ body instead of fun x: T => body
+
+macro "(" x:ident ":" t:term " ↦ " y:term ")" : term => do
+    `(fun $x : $t => $y)
+
 -- Assume a premise
 syntax (name := ndAssume) "assume" "(" ident ":" term ")": tactic
 
@@ -639,7 +645,7 @@ macro_rules
 
 -- Axiom defining its meaning
 axiom exists_unique_def: ∀ {α: Type}, ∀ (P: α → Prop),
-    ExistsUnique P ↔ (∃ x, P x ∧ ∀ y, P y → y =ₚ x)
+    ExistsUnique P ↔ (∃ x, P x ∧ (∀ y, P y → y =ₚ x))
 
 namespace pc₁ -- Propositional Calculus 1
 
