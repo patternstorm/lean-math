@@ -1,12 +1,72 @@
 import Lean
 import Core.Equality
 
+/-!
+# Mathematics derives from Logic...
+
+We propose a logical framework to derive mathematics from it only using the primitive notion of predicate within that framework.
+The framework's goal is to provide the "right notion of predicate" from which mathematics can be derived.
+
+**Core Philosophy**: This framework aims to demonstrate that mathematics can be derived directly from logic itself, vindicating
+the logicist program. The key is identifying the right notion of predicate. Standard FOL predicates are too weak—they
+cannot be typed, cannot be recursive, and cannot govern term formation. By enriching predicates with precisely these
+three capabilities, logic becomes sufficient to derive all of mathematics. Unlike set-theoretic foundations (which take
+"set" as primitive) or type-theoretic foundations (which take "type" as primitive), this approach shows that the logical
+notion of predicate—properly understood—is enough. Functions, types, and all mathematical structures emerge as predicates,
+rather than requiring separate foundational primitives beyond logic itself.
+
+The framework is First-Order Logic (FOL) with the following extensions:
+
+  1. Terms are typed. A type determines the valid syntactic structure of a term of the type, as follows:
+    1.1 Term formation is governed by axioms:
+      1.1.1 We introduce explicit `Type Judgments`, i.e. `t : T`, is a binary predicate meaning "term `t` has type `T`."
+      1.1.2 We write axioms defining what are the valid terms of a type.
+        `zero : Nat` (zero is a valid term of type `Nat`)
+        `∀x, (x : Nat) → (succ x : Nat)` (if `x` is a valid term of type `Nat`, then `succ x` is a valid term of type `Nat`).
+    1.2 Quantification is type-restricted: ∀x:T. P(x) is syntactic sugar for ∀x, (x:T) → P(x)
+    1.3 Free variables in predicates are typed, and can only be replaced by terms of the specified type.
+        For example, `P(x : Nat, y : Bool)` as opposed to `P(x, y)` where the types of x and y are not specified.
+
+  2. To support the above, we allow `Recursive Predicate Definitions`, i.e. we allow predicate definitions where the predicate
+  appears in its own definition. Formally, we allow axioms of the form: `∀x₁...xₙ, P(x₁,...,xₙ) ↔ φ(x₁,...,xₙ)` even when `φ`
+  contains occurrences of `P`.
+
+  We use `Natural Deduction` as our proof system.
+
+  **Note 1**: The framework ensures well-typed reasoning through its construction. There's no external type checking needed, beyond
+  substitution of free variables, because the only terms that can be constructed are those explicitly permitted by the introduced judgment
+  axioms like `zero : Nat` and `∀x, (x : Nat) → (succ x : Nat)`, therefore ill-typed terms cannot appear in valid proofs because the
+  corresponding type judgments (e.g., `true : Nat`) would not be derivable from the axioms.
+
+  **Note 2**: Predicates with free variables are not considered functions, e.g. propositional functions, as that would introduce a circularity.
+  Functions will be derived from the notion of predicate itself, so we cannot use functions to define what a predicate with free variables is.
+  A predicate with free variables must be interpreted as a template for a statement that contains placeholders, which becomes
+  a statement when these placeholders are filled with terms. Types impose restrictions on the allowed substitutions for the
+  placeholders. Moreover, Symbols like `zero` or `succ` are syntactic tokens, not function symbols with pre-existing semantics.
+  Their meaning derives entirely from predicate axioms.
+
+  **Note 3**: the framework itself does not enforce well-foundedness or consistency checks on recursive definitions. Users are
+  responsible for ensuring their axioms are consistent. If recursivity does not end, they will not be able to
+  successfully use such definitions in proofs. Similarly, when defining a type T in the framework, users may want to make
+  sure that all axioms that introduce terms of type T don't contain T in contravariant positions inside the definitions.
+
+  **Note 4**: This framework is inspired on Abstract Data Types (ADTs), and can express them, in fact, to define types and terms of formulas
+  we will follow exactly the ADT approach. In the framework, this translates into defining axioms that specify which terms belong
+  to each type, axioms that define the signature of operations on those types, and axioms that define the semantics of those operations.
+  These semantic axioms will be universally quantified and expressed only using equality, exactly as in standard ADTs.
+
+-/
+
 open Lean Meta Elab Tactic
 
--- FOL-Style Predicate Syntax Enhancement
+-- Syntax for `Predicates`with free variables
 -- Allows writing: x: T ↦ body instead of fun x: T => body
-
 macro "(" x:ident ":" t:term " ↦ " y:term ")" : term => do
+    `(fun $x : $t => $y)
+
+-- Notation to define `Sets` from `Predicates` with free variables
+-- Allows writing: { x : T | body } instead of fun x: T => body
+macro "{" x:ident ":" t:term "|" y:term "}" : term => do
     `(fun $x : $t => $y)
 
 -- Assume a premise

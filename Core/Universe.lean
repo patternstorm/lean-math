@@ -17,6 +17,7 @@ namespace Universe
 variable (X : Type)
 
 def Particular := X
-def Predicate := X → Prop
+def UnaryPredicate := X → Prop
+def BinaryPredicate := X → X → Prop
 
 end Universe

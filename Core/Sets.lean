@@ -17,10 +17,12 @@ and match the traditional set-theoretic operations.
 The result is that we derived *Set Theory* from *Logic* (expressed through *Type Theory* via the Curry-Howard
 isomorphism), by defining the meaning of `Set` membership in terms of `Predicate` satisfaction,
 as opposed to introducing it as primitive notion, requiring axioms to define its behavior, like ZFC does.
-All traditional set operations and properties emerge from logical primitives, e.g. the existence of the `Empty Set` is derived
-from falsehood, `Set` equality by extensionality from `Predicate` equality - two `Predicates` are equal if they are logically
-equivalent -, and crucially, we do not need the *Axiom of Infinity* because we show that the `Universe` is a `Set` whether
-it's finite or infinite.
+All traditional `Set` operations and properties emerge from logical primitives: the existence of the `Empty Set` is derived
+from falsehood, `Set` equality by extensionality from `Predicate` equality (two `Predicates` are equal if they are logically
+equivalent), the `Powerset` is simply a predicate over predicates (`Sets` of `Sets`) requiring no additional axiom, and
+crucially, we do not need the *Axiom of Infinity* because we show that the `Universe` is a `Set` whether it's finite
+or infinite. Thus, three of ZFC's fundamental axioms (Empty Set, Powerset, and Infinity) are unnecessary—they are
+either derived or rendered superfluous by our logical foundation.
 
 Notice also, that the way we define `Sets` avoids the *Russell Paradox* by "stratification", because it establishes an infinite
 hierarchy of `Particulars` we can reason about:
@@ -57,8 +59,8 @@ namespace Universe
 
 namespace Sets
 
--- # A `Set` is a `Predicate`
-def Set := Predicate
+-- # A `Set` is a `Unary Predicate`
+def Set := UnaryPredicate
 
 -- # Set equality
 axiom eq: Set X → Set X → Prop
@@ -141,20 +143,35 @@ theorem pred_eq_iff_mem_eq {A B: Set X} {u: Particular X}: (A u ↔ B u) ↔ (u 
         iff_intro h₄₂, h₄₃
       iff_intro h₃, h₄
 
+-- The `Set` `A` is a subset of the `Set` `B` if and only if `P₍a₎(x) → P₍b₎(x)`.
+def subset (A B: Set X) : Prop := ∀ (x: Particular X), A x → B x
+infix:50 " ⊆ₛₑₜ " => subset
+
 
 -- # Foundational `Sets`
 
 -- The `Universal Set`
+-- NOTE refactor to use def universal_set: Set X := { x: Particular X | True }
 axiom universal_set: Set X
 notation "Uₛₑₜ" => universal_set
-
+-- This will become a theorem
 axiom universal_set_def: ∀ x: Particular X, Uₛₑₜ x ↔ True
 
 -- The `Empty Set`.
+-- NOTE refactor to use def universal_set: Set X := { x: Particular X | False }
 axiom empty_set : Set X
 notation "∅ₛₑₜ" => empty_set
-
+-- This will become a theorem
 axiom empty_set_def: ∀ (x: Particular X), ∅ₛₑₜ x ↔ False
+
+-- The `Singleton Set`
+def singleton_set: Set X → Prop := (S: Set X ↦ ∃! (x : Particular X), x ∈ₛₑₜ S)
+prefix:max "Singleton " => singleton_set
+
+
+-- Powerset
+def Powerset (X: Type): Type := Set (Set X)
+def powerset (S: Set X): Set (Set X) := { S': Set X | S' ⊆ₛₑₜ S }
 
 -- # Set operations.
 -- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.
@@ -168,11 +185,6 @@ infixl:70 " ∩ₛₑₜ " => inter
 -- The union of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∨ P₍b₎(x)`.
 def union (A B: Set X): Set X := fun (x: Particular X) => A x ∨ B x
 infixl:65 " ∪ₛₑₜ " => union
-
--- The `Set` `A` is a subset of the `Set` `B` if and only if `P₍a₎(x) → P₍b₎(x)`.
-def subset (A B: Set X) : Prop := ∀ (x: Particular X), A x → B x
-infix:50 " ⊆ₛₑₜ " => subset
-
 
 -- # Theorems
 
@@ -273,7 +285,7 @@ theorem empty_set_existence: ∃ (S: Set X), ∀ (x: Particular X), x ∉ₛₑ�
 --The `Empty Set` is unique.
 theorem empty_set_uniqueness: ∃! (S: Set X), ∀ (x: Particular X), x ∉ₛₑₜ S := by
 
-  -- P is the predicate for which we want to proof unique existence
+  -- P is the predicate for which we want to prove unique existence
   let P: Set X → Prop := (S: Set X ↦ ∀ (x: Particular X), x ∉ₛₑₜ S)
 
   -- A is the "only" Set that meets P.
