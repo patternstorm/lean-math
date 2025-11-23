@@ -12,7 +12,7 @@ the logicist program. The key is identifying the right notion of predicate. Stan
 cannot be typed, cannot be recursive, and cannot govern term formation. By enriching predicates with precisely these
 three capabilities, logic becomes sufficient to derive all of mathematics. Unlike set-theoretic foundations (which take
 "set" as primitive) or type-theoretic foundations (which take "type" as primitive), this approach shows that the logical
-notion of predicate—properly understood—is enough. Functions, types, and all mathematical structures emerge as predicates,
+notion of predicate—properly understood—is enough. Functions, types, and all mathematical structures emerge from predicates,
 rather than requiring separate foundational primitives beyond logic itself.
 
 The framework is First-Order Logic (FOL) with the following extensions:
@@ -45,10 +45,18 @@ The framework is First-Order Logic (FOL) with the following extensions:
   placeholders. Moreover, Symbols like `zero` or `succ` are syntactic tokens, not function symbols with pre-existing semantics.
   Their meaning derives entirely from predicate axioms.
 
-  **Note 3**: the framework itself does not enforce well-foundedness or consistency checks on recursive definitions. Users are
-  responsible for ensuring their axioms are consistent. If recursivity does not end, they will not be able to
-  successfully use such definitions in proofs. Similarly, when defining a type T in the framework, users may want to make
-  sure that all axioms that introduce terms of type T don't contain T in contravariant positions inside the definitions.
+  **Note 3**: the framework's value lies in what *can* be properly derived, not what pathological cases may allow. That's why
+  the framework itself does not enforce well-foundedness or consistency checks on `Recursive Predicate Definitions`. Users
+  are responsible for ensuring their axioms are well-founded and consistent, and if they use the framework's ND proof system,
+  they will be able to detect when that's not the case:
+
+  - **Inconsistency**: If axioms are contradictory, users will be able to prove anything. However, any such proof must explicitly
+    construct `False` using the framework's `Natural Deduction` rules, making the inconsistency visibly apparent in the proof.
+
+  - **Non-Termination**: If `Recursive Predicate Definitions` fail to terminate, the user won't be able to use them to construct finite proofs.
+
+  Similarly, when defining a type T in the framework, users may want to make sure that all axioms that introduce terms of type T
+  don't contain T in contravariant positions inside the definitions.
 
   **Note 4**: This framework is inspired on Abstract Data Types (ADTs), and can express them, in fact, to define types and terms of formulas
   we will follow exactly the ADT approach. In the framework, this translates into defining axioms that specify which terms belong
