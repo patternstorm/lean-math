@@ -34,4 +34,4 @@ This repository is a **Mathpunk take on Neo-Logicism**.
 
 It applies the Mathpunk philosophy to a specific foundational thesis: that mathematics can be derived directly from **Logic** itself, given the "right notion" of predicate, without needing to assume "Sets" or "Types" or any other primitive concepts. It uses Natural Deduction as the proof system.
 
-This project uses the Lean 4 as the virtual reality engine that renders the Mathematical Universe. 
+This project uses the Lean 4 virtual reality engine to render the Mathematical Universe. 
