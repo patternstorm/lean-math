@@ -47,6 +47,28 @@ continuing indefinitely.
 to exist at the same level as its potential elements. But the hierarchy ensures `Sets` always exist one level
 above their elements, making self-membership impossible at every level.
 
+**Why This embeds (Finite) Higher-Order Logic Into First Order Logic**
+
+A profound consequence of this framework is that it embeds higher-order logic within first-order logic, not by
+adding new quantification rules, but as a natural consequence of defining `Sets` as `Predicates`.
+
+Since `Sets`, i.e. `Set X`, are defined as a type whose terms are `Predicates` over `X`, first-order quantification over `Set X`
+(e.g., `∀ S : Set X, ...`) syntactically uses first order typed quantification while semantically capturing predicate
+quantification — achieving second-order logic within first-order syntax.
+
+Similarly, `Sets`of `Sets`, i.e. `Set (Set X)`, are defined as a type whose terms are `Predicates` over `Sets`, i.e.
+`Predicates` over `Predicates` over `X`, making first-order quantification over it semantically third-order, continuing
+this pattern for all finite orders.
+
+- **Key Distinction from Traditional Approaches**: Traditional higher-order logics introduce new syntactic machinery
+(quantifiers over predicates, functions, etc.) as primitive extensions to first-order logic. Our framework shows
+this is unnecessary: higher-order reasoning emerges *inevitably* from first-order logic once we:
+  1. Define `Sets` as the extension of `Predicates`.
+  2. Allow `Sets` themselves to become `Particulars` at the next level.
+
+The stratification hierarchy is not an artificial restriction—it is the natural structure through which first-order
+logic, given the right notion of predicate, generates all finite orders of higher-order logic internally.
+
 **Why the Universe Set Exists**: The `Universal Set` is a `Level 1 Particular` defined by the `Predicate`
 "being a `Level 0 Particular`". It contains all `Level 0 Particulars` but is itself a `Level 1 Particular`,
 distinct from what it contains. There is no "set of all sets at all levels" because each level's totality

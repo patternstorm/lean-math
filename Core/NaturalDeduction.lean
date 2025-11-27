@@ -10,10 +10,12 @@ The framework's goal is to provide the "right notion of predicate" from which ma
 **Core Philosophy**: This framework aims to demonstrate that mathematics can be derived directly from logic itself, vindicating
 the logicist program. The key is identifying the right notion of predicate. Standard FOL predicates are too weak—they
 cannot be typed, cannot be recursive, and cannot govern term formation. By enriching predicates with precisely these
-three capabilities, logic becomes sufficient to derive all of mathematics. Unlike set-theoretic foundations (which take
-"set" as primitive) or type-theoretic foundations (which take "type" as primitive), this approach shows that the logical
-notion of predicate—properly understood—is enough. Functions, types, and all mathematical structures emerge from predicates,
-rather than requiring separate foundational primitives beyond logic itself.
+three capabilities, logic becomes sufficient to derive all of mathematics, including all finite orders of higher-order logic —
+(see Core/Sets.lean for how sets-as-predicates achieve this). Unlike set-theoretic foundations (which take
+"set" as primitive) or type-theoretic foundations (which take "function" as primitive), this approach shows that the logical
+notion of predicate — properly understood — is enough. Functions, types, and all mathematical structures emerge from predicates,
+rather than requiring separate foundational primitives beyond logic itself, and the entire hierarchy of higher-order logics
+collapses into a single system: first-order logic with the right notion of predicate.
 
 The framework is First-Order Logic (FOL) with the following extensions:
 
