@@ -60,7 +60,12 @@ The framework is First-Order Logic (FOL) with the following extensions:
   Similarly, when defining a type T in the framework, users may want to make sure that all axioms that introduce terms of type T
   don't contain T in contravariant positions inside the definitions.
 
-  **Note 4**: This framework is inspired on Abstract Data Types (ADTs), and can express them, in fact, to define types and terms of formulas
+  **Note 4**: Refined types are types. Given a type `T` and a predicate `P` on `T`, the refined type { t : T | P t } is itself a type, whose
+  terms are those terms of `T` satisfying `P`. This follows from types being predicates: if `T` is a predicate selecting valid terms, and `P`
+  is a further predicate, then `T ∧ P` is a predicate selecting valid terms of the refined type. Lean's structure syntax is sugar for a
+  record type, refined by the conjunction of the axioms declared in the structure.
+
+  **Note 5**: This framework is inspired on Abstract Data Types (ADTs), and can express them, in fact, to define types and terms of formulas
   we will follow exactly the ADT approach. In the framework, this translates into defining axioms that specify which terms belong
   to each type, axioms that define the signature of operations on those types, and axioms that define the semantics of those operations.
   These semantic axioms will be universally quantified and expressed only using equality, exactly as in standard ADTs.

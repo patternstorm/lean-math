@@ -174,22 +174,37 @@ infix:50 " ⊆ₛₑₜ " => subset
 -- # Foundational `Sets`
 
 -- The `Universal Set`
--- NOTE refactor to use def universal_set: Set X := { x: Particular X | True }
+-- TODO: refactor to use def universal_set: Set X := { x: Particular X | True }
 axiom universal_set: Set X
 notation "Uₛₑₜ" => universal_set
--- This will become a theorem
+-- TODO: refactor into a theorem, based on the definition above
 axiom universal_set_def: ∀ x: Particular X, Uₛₑₜ x ↔ True
 
 -- The `Empty Set`.
--- NOTE refactor to use def universal_set: Set X := { x: Particular X | False }
+-- TODO: refactor to use def universal_set: Set X := { x: Particular X | False }
 axiom empty_set : Set X
 notation "∅ₛₑₜ" => empty_set
--- This will become a theorem
+-- TODO: refactor into a theorem, based on the definition above
 axiom empty_set_def: ∀ (x: Particular X), ∅ₛₑₜ x ↔ False
 
--- The `Singleton Set`
-def singleton_set: Set X → Prop := (S: Set X ↦ ∃! (x : Particular X), x ∈ₛₑₜ S)
-prefix:max "Singleton " => singleton_set
+-- The `Singleton Set` predicate: a set has exactly one element
+def singleton_pred : Set X → Prop := (S: Set X ↦ ∃! (x : Particular X), x ∈ₛₑₜ S)
+prefix:max "IsSingleton " => singleton_pred
+
+-- A SingletonSet type: a set bundled with proof it has exactly one element
+def Singleton (X : Type) := { S : Set X // IsSingleton S }
+
+-- Notation for the singleton set containing just x: { x } denotes the predicate satisfied only by x
+def singleton_of (x : Particular X) : Set X := { y : X | y =ₚ x }
+macro "{" x:term "}" : term => `(singleton_of $x)
+
+-- Operation to extract the unique element from a SingletonSet
+axiom singleton_elem : Singleton X → Particular X
+notation "⊙" S => singleton_elem S
+
+-- Behavior: the extracted element is the unique member of the singleton
+axiom singleton_elem_def : ∀ (S : Singleton X), (⊙ S) ∈ₛₑₜ S.val
+axiom singleton_elem_unique : ∀ (S : Singleton X), ∀ (x : Particular X), x ∈ₛₑₜ S.val → x =ₚ (⊙ S)
 
 -- Powerset
 def Powerset (X: Type): Type := Set (Set X)

@@ -26,10 +26,12 @@ notation "𝟬" => zero
 axiom succ : ℕ → ℕ
 prefix:max "𝚜" => succ
 
--- ## Successor congruence
+-- ## Successor equality-related axioms
 axiom succ_cong: ∀ (n: ℕ), ∀ (m: ℕ), (n =ₙₐₜ m) → (𝚜 n) =ₙₐₜ (𝚜 m)
+axiom zero_is_not_succ : ∀ (n: ℕ), ¬(𝟬 =ₙₐₜ 𝚜 n)
+axiom succ_injectivity : ∀ (m: ℕ), ∀ (n: ℕ), (𝚜 m =ₙₐₜ 𝚜 n) → (m =ₙₐₜ n)
 
--- Natural Numbers induction
+-- # Natural Numbers induction
 axiom induction : ∀ (S : Set ℕ),
     ((𝟬 ∈ₛₑₜ S) ∧
     (∀ (n: ℕ), n ∈ₛₑₜ S → (𝚜 n) ∈ₛₑₜ S)) →
@@ -44,7 +46,7 @@ notation "(" n "+ₙₐₜ" m ")" => add n m
 axiom add_zero_def : ∀ (n: ℕ), (𝟬 +ₙₐₜ n) =ₙₐₜ n
 axiom add_succ_def : ∀ (n: ℕ), ∀ (m: ℕ), (𝚜 n +ₙₐₜ m) =ₙₐₜ 𝚜 (n +ₙₐₜ m)
 
--- ## Addition concruence
+-- ## Addition congruence
 axiom add_cong_right: ∀ (n: ℕ), ∀ (n₁: ℕ), ∀ (n₂: ℕ), (n₁ =ₙₐₜ n₂) → (n +ₙₐₜ n₁) =ₙₐₜ (n +ₙₐₜ n₂)
 axiom add_cong_left: ∀ (n: ℕ), ∀ (n₁: ℕ), ∀ (n₂: ℕ), (n₁ =ₙₐₜ n₂) → (n₁ +ₙₐₜ n) =ₙₐₜ (n₂ +ₙₐₜ n)
 
