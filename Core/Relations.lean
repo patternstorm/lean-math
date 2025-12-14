@@ -80,7 +80,7 @@ axiom eq_trans: ∀ (R₁: BinRel X), ∀ (R₂: BinRel X), ∀ (R₃: BinRel X)
 axiom eq_def: ∀ R₁: BinRel X, ∀ R₂: BinRel X, (R₁ =ᵣₑₗ R₂) ↔ (∀ (x: Particular X), ∀ (y: Particular X), R₁ x y ↔ R₂ x y)
 
 -- # Predicate to characterize `Functional Correspondences`
-def is_correspondence_functional (f : Correspondance X) : Prop := ∀ (x : Particular X), Singleton (f x)
+def is_correspondence_functional (f : Correspondance X) : Prop := ∀ (x : Particular X), IsSingleton (f x)
 prefix:max "Functional " => is_correspondence_functional
 
 

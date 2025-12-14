@@ -2,6 +2,9 @@ name = "lean-math"
 version = "0.1.0"
 defaultTargets = ["lean-math"]
 
+ [[lean_lib]]
+ name = "LeanMath"
+
 [[lean_lib]]
 name = "Core"
 
