@@ -1,0 +1,3 @@
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Schema
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties

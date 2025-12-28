@@ -1,0 +1,3 @@
+import Logic.PredicateCalculus.Schemas.Equality
+import Logic.PredicateCalculus.Schemas.Universal
+import Logic.PredicateCalculus.Schemas.CongruentPredicates

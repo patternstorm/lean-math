@@ -1,0 +1,1 @@
+import Logic.PropositionalCalculus.pc0

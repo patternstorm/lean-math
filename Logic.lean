@@ -1,0 +1,2 @@
+import Logic.NaturalDeduction
+import Logic.PredicateCalculus

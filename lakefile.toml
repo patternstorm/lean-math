@@ -6,6 +6,15 @@ defaultTargets = ["lean-math"]
  name = "LeanMath"
 
 [[lean_lib]]
+name = "Logic"
+
+[[lean_lib]]
+name = "Universals"
+
+[[lean_lib]]
+name = "Universe"
+
+[[lean_lib]]
 name = "Core"
 
 [[lean_exe]]
