@@ -2,139 +2,16 @@ import Logic
 import Universe
 import Universals.Sets.Universal
 import Universals.Sets.Definitions.SetComprehension.Definition
+import Universals.Sets.Predicates.Binary.Membership.Predicate
+import Universals.Sets.Operations.Constants.UniversalSet.Constant
+import Universals.Sets.Properties.EmptySetExistence
 
 open Logic
 open Logic.PC₁
+open Logic.ND
 open Universe.Sets
 
--- # `Set` Membership perdicate, a `Particular` `x` is a member of the `Set` `A` if it satisfies its `Predicate`.
-axiom mem: U.Particular → Particular U → Prop
-notation:50 x:51 " ∈ₛₑₜ " S:51 => mem x S
-axiom mem_def: ∀ (S: (Set U).Particular), ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x
 
-def mem_unary_predicate(x: U.Particular): CongruentUnaryPredicate (Set U) :=
-  let pred := (S: Particular U ↦ x ∈ₛₑₜ S)
-  let cong: ∀ (X: (Set U).Particular), ∀ (Y: (Set U).Particular), X =ₛₑₜ Y → (x ∈ₛₑₜ X ↔ x ∈ₛₑₜ Y) := by forall_intro
-    variable(A: (Set U).Particular)
-    variable(B: (Set U).Particular)
-    have h₁: ∀ S₂: (Set U).Particular, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
-    have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
-    have h₃: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
-    have h₄: x ∈ₛₑₜ A ↔ A.pred x := by forall_elim h₃, x
-    have h₅: ∀ (x: U.Particular), x ∈ₛₑₜ B ↔ B.pred x := by forall_elim mem_def, B
-    have h₆: x ∈ₛₑₜ B ↔ B.pred x := by forall_elim h₅, x
-    assume(h₇: A =ₛₑₜ B)
-    have h₇₁: ∀ (x: U.Particular), A.pred x ↔ B.pred x := PC₀.deductive_eq_l2r h₂ h₇
-    have h₇₂: A.pred x ↔ B.pred x := by forall_elim h₇₁, x
-    have h₇₃: x ∈ₛₑₜ A → x ∈ₛₑₜ B := by
-      assume(h₇₃₁: x ∈ₛₑₜ A)
-      have h₇₃₂: A.pred x := PC₀.deductive_eq_l2r h₄ h₇₃₁
-      have h₇₃₃: B.pred x := PC₀.deductive_eq_l2r h₇₂ h₇₃₂
-      have h₇₃₄: x ∈ₛₑₜ B := PC₀.deductive_eq_r2l h₆ h₇₃₃
-      iterate h₇₃₄
-    have h₇₄: x ∈ₛₑₜ B → x ∈ₛₑₜ A := by
-      assume(h₇₄₁: x ∈ₛₑₜ B)
-      have h₇₄₂: B.pred x := PC₀.deductive_eq_l2r h₆ h₇₄₁
-      have h₇₄₃: A.pred x := PC₀.deductive_eq_r2l h₇₂ h₇₄₂
-      have h₇₄₄: x ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₄ h₇₄₃
-      iterate h₇₄₄
-    have h₇₅: x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B := by iff_intro h₇₃, h₇₄
-    iterate h₇₅
-  { pred:= pred, cong:= cong }
-
-def mem_predicate: CongruentBinaryPredicate U (Set U) :=
-  let pred:= (x: U.Particular ↦ mem_unary_predicate x)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: (Set U).Particular), U.eq.pred x y → (x ∈ₛₑₜ X ↔ y ∈ₛₑₜ X) := by forall_intro
-    variable(a: U.Particular)
-    variable(b: U.Particular)
-    variable(S: (Set U).Particular)
-    have h₁: ∀ (y: U.Particular), U.eq.pred a y → (S.pred a ↔ S.pred y) := by forall_elim S.cong, a
-    have h₂: U.eq.pred a b → (S.pred a ↔ S.pred b) := by forall_elim h₁, b
-    have h₃: ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x := by forall_elim mem_def, S
-    have h₄ : a ∈ₛₑₜ S ↔ S.pred a := by forall_elim h₃, a
-    have h₅ : b ∈ₛₑₜ S ↔ S.pred b := by forall_elim h₃, b
-    assume(h₆: U.eq.pred a b)
-    have h₇: S.pred a ↔ S.pred b := by modus_ponens h₂, h₆
-    have h₈: a ∈ₛₑₜ S → b ∈ₛₑₜ S := by
-      assume(h₈₁: a ∈ₛₑₜ S)
-      have h₈₂: S.pred a := PC₀.deductive_eq_l2r h₄ h₈₁
-      have h₈₃: S.pred b := PC₀.deductive_eq_l2r h₇ h₈₂
-      have h₈₃: b ∈ₛₑₜ S := PC₀.deductive_eq_r2l h₅ h₈₃
-      iterate h₈₃
-    have h₉: b ∈ₛₑₜ S → a ∈ₛₑₜ S := by
-      assume(h₉₁: b ∈ₛₑₜ S)
-      have h₉₂: S.pred b := PC₀.deductive_eq_l2r h₅ h₉₁
-      have h₉₃: S.pred a := PC₀.deductive_eq_r2l h₇ h₉₂
-      have h₉₃: a ∈ₛₑₜ S := PC₀.deductive_eq_r2l h₄ h₉₃
-      iterate h₉₃
-    have h₁₀: a ∈ₛₑₜ S ↔ b ∈ₛₑₜ S := by iff_intro h₈, h₉
-    iterate h₁₀
-  { pred:= pred, cong:= cong }
-
-
--- # `Set` Non Membership predicate,
-axiom not_mem: U.Particular → (Set U).Particular → Prop
-notation:50 x:51 " ∉ₛₑₜ " S:51 => not_mem x S  -- Explicit precedence for arguments
-axiom not_mem_def: ∀ (S: (Set U).Particular), ∀ (x: U.Particular), x ∉ₛₑₜ S ↔ ¬(S.pred x)
-
--- TODO: create the BinaryPredicate, reuse negation_preserves_congruence2 to provide the cong proof
-
-theorem not_mem_def_neg_mem_eq {A: (Set U).Particular} {u: U.Particular}: (u ∉ₛₑₜ A) ↔ ¬(u ∈ₛₑₜ A) := by
-    have h₂: ∀ (x: U.Particular), x ∉ₛₑₜ A ↔ ¬(A.pred x) := by forall_elim not_mem_def, A
-    have h₃: u ∉ₛₑₜ A ↔ ¬(A.pred u) := by forall_elim h₂, u
-    have h₄: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
-    have h₅: u ∈ₛₑₜ A ↔ A.pred u := by forall_elim h₄, u
-    have h₆: (u ∈ₛₑₜ A ↔ A.pred u) ↔ (¬(u ∈ₛₑₜ A) ↔ ¬(A.pred u)) := PC₀.iff_contrapositiveness
-    have h₇: ¬(u ∈ₛₑₜ A) ↔ ¬(A.pred u) := PC₀.deductive_eq_l2r h₆ h₅
-    have h₁: (u ∉ₛₑₜ A) → ¬(u ∈ₛₑₜ A) := by
-      assume(h₁₁: u ∉ₛₑₜ A)
-      have h₈: ¬(A.pred u) := PC₀.deductive_eq_l2r h₃ h₁₁
-      have h₉: ¬(u ∈ₛₑₜ A) := PC₀.deductive_eq_r2l h₇ h₈
-      iterate h₉
-    have h₂: ¬(u ∈ₛₑₜ A) → (u ∉ₛₑₜ A) := by
-      assume(h₂₁: ¬(u ∈ₛₑₜ A))
-      have h₂₂: ¬(A.pred u) := PC₀.deductive_eq_l2r h₇ h₂₁
-      have h₂₃: u ∉ₛₑₜ A := PC₀.deductive_eq_r2l h₃ h₂₂
-      iterate h₂₃
-    iff_intro h₁, h₂
-
--- ## Lemma to show `Set` extensionality
-theorem pred_eq_iff_mem_eq {A B: (Set U).Particular} {u: U.Particular}: (A.pred u ↔ B.pred u) ↔ (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
-      have h₁: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
-      have h₁: u ∈ₛₑₜ A ↔ A.pred u := by forall_elim h₁, u
-      have h₂: ∀ (x: U.Particular), x ∈ₛₑₜ B ↔ B.pred x := by forall_elim mem_def, B
-      have h₂: u ∈ₛₑₜ B ↔ B.pred u := by forall_elim h₂, u
-      have h₃: (A.pred u ↔ B.pred u) → (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
-        assume (h₃₁: A.pred u ↔ B.pred u)
-        have h₃₂: u ∈ₛₑₜ A → u ∈ₛₑₜ B := by
-          assume (h₃₂₁: u ∈ₛₑₜ A)
-          have h₃₂₂: A.pred u := PC₀.deductive_eq_l2r h₁ h₃₂₁
-          have h₃₂₃: B.pred u := PC₀.deductive_eq_l2r h₃₁ h₃₂₂
-          have h₃₂₄: u ∈ₛₑₜ B := PC₀.deductive_eq_r2l h₂ h₃₂₃
-          iterate h₃₂₄
-        have h₃₃: u ∈ₛₑₜ B → u ∈ₛₑₜ A := by
-          assume (h₃₃₁: u ∈ₛₑₜ B)
-          have h₃₃₂: B.pred u := PC₀.deductive_eq_l2r h₂ h₃₃₁
-          have h₃₃₃: A.pred u := PC₀.deductive_eq_r2l h₃₁ h₃₃₂
-          have h₃₃₄: u ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₁ h₃₃₃
-          iterate h₃₃₄
-        iff_intro h₃₂, h₃₃
-      have h₄: (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) → (A.pred u ↔ B.pred u) := by
-        assume (h₄₁: u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B)
-        have h₄₂: A.pred u → B.pred u := by
-          assume (h₄₂₁: A.pred u)
-          have h₄₂₂: u ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₁ h₄₂₁
-          have h₄₂₃: u ∈ₛₑₜ B := PC₀.deductive_eq_l2r h₄₁ h₄₂₂
-          have h₄₂₄: B.pred u := PC₀.deductive_eq_l2r h₂ h₄₂₃
-          iterate h₄₂₄
-        have h₄₃: B.pred u → A.pred u := by
-          assume (h₄₃₁: B.pred u)
-          have h₄₃₂: u ∈ₛₑₜ B := PC₀.deductive_eq_r2l h₂ h₄₃₁
-          have h₄₃₃: u ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₄₁ h₄₃₂
-          have h₄₃₄: A.pred u := PC₀.deductive_eq_l2r h₁ h₄₃₃
-          iterate h₄₃₄
-        iff_intro h₄₂, h₄₃
-      iff_intro h₃, h₄
 
 -- The `Set` `A` is a subset of the `Set` `B` if and only if `P₍a₎(x) → P₍b₎(x)`.
 -- TODO Axiomize this
@@ -143,14 +20,6 @@ infix:50 " ⊆ₛₑₜ " => subset
 
 
 -- # Foundational `Sets`
-
--- The `Universal Set`
-def universal_set: (Set U).Particular := { x: U.Particular | True } with (true U).cong
-notation "Uₛₑₜ" => universal_set
-
--- The `Empty Set`.
-def empty_set : (Set U).Particular := { x: U.Particular | False } with (false U).cong
-notation "∅ₛₑₜ" => empty_set
 
 -- The `Singleton Set` predicate: a set has exactly one element
 def singleton_pred : (Set U).Particular → Prop := (S: (Set U).Particular ↦ ∃!₍U₎ (x : U.Particular), x ∈ₛₑₜ S)
@@ -190,136 +59,48 @@ infixl:65 " ∪ₛₑₜ " => union
 
 -- # Theorems
 
--- ## Set Extensionality `Set` equality is well defined, it's extensional ,i.e. Two sets are equal if and only if they have the same elements.
-theorem set_extensionality: ∀ (S₁: Set X), ∀ (S₂: Set X),
-  S₁ =ₛₑₜ S₂ ↔ (∀ (x: Particular X), x ∈ₛₑₜ S₁ ↔ x ∈ₛₑₜ S₂) := by
-
-    -- Derive the conclusion via forall_intro
-    have h₁: ∀ (S₁: Set X), ∀ (S₂: Set X), S₁ =ₛₑₜ S₂ ↔ (∀ (x: Particular X), x ∈ₛₑₜ S₁ ↔ x ∈ₛₑₜ S₂) := by forall_intro
-      variable (A: Set X)
-      variable (B: Set X)
-
-      -- From set equality, establish predicate equivalence for arbitrary Sets A and B
-      have h₁₁: ∀ S₂: Set X, A =ₛₑₜ S₂ ↔ ∀ (x: Particular X), A x ↔ S₂ x := by forall_elim eq_def, A
-      have h₁₂: A =ₛₑₜ B ↔ ∀ (x: Particular X), A x ↔ B x := by forall_elim h₁₁, B
-
-      -- Establish equivalence between membership and predicate application for arbitrary Set A
-      have h₁₃: ∀ (x: Particular X), x ∈ₛₑₜ A ↔ A x := by forall_elim mem_def, A
-
-      -- Establish equivalence between membership and predicate application for arbitrary Set B
-      have h₁₄: ∀ (x: Particular X), x ∈ₛₑₜ B ↔ B x := by forall_elim mem_def, B
-
-      -- Proof the conclusion for arbitrary Sets A and B
-      have h₁₅: A =ₛₑₜ B ↔ (∀ (x: Particular X), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B) := by
-
-        -- Forward direction: set equality implies membership equivalence
-        have h₁₅₁: A =ₛₑₜ B → (∀ (x: Particular X), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B) := by
-          assume (h₁₅₁₁: A =ₛₑₜ B)
-
-          -- Derive the conclusion via forall_intro
-          have h₁₅₁₂: ∀ (x: Particular X), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B := by forall_intro
-            variable (u: Particular X)
-
-            -- From the equality of arbitrary Sets A and B, establish membership equivalence
-            have h₁₅₁₂₁: ∀ (x: Particular X), A x ↔ B x := PC₀.deductive_eq_l2r h₁₂ h₁₅₁₁
-            have h₁₅₁₂₂: A u ↔ B u := by forall_elim h₁₅₁₂₁, u
-            have h₁₅₁₂₃: u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B := PC₀.deductive_eq_l2r pred_eq_iff_mem_eq h₁₅₁₂₂
-            iterate h₁₅₁₂₃
-
-          iterate h₁₅₁₂
-
-        -- Backward direction: membership equivalence implies set equality
-        have h₁₅₂: (∀ (x: Particular X), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B) → A =ₛₑₜ B := by
-          assume (h₁₅₂₁: ∀ (x: Particular X), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B)
-
-          -- Prove ∀ x, A x ↔ B x, then convert to set equality
-          have h₁₅₂₂: ∀ (x: Particular X), A x ↔ B x := by forall_intro
-            variable (u: Particular X)
-
-            -- Establish membership equivalence for an arbitrary Particular u
-            have h₁₅₂₂₁: u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B := by forall_elim h₁₅₂₁, u
-            have h₁₅₂₂₂: A u ↔ B u := PC₀.deductive_eq_r2l pred_eq_iff_mem_eq h₁₅₂₂₁
-            iterate h₁₅₂₂₂
-
-          -- Convert predicate equivalence to set equality
-          have h₁₅₂₃: A =ₛₑₜ B := PC₀.deductive_eq_r2l h₁₂ h₁₅₂₂
-          iterate h₁₅₂₃
-
-        iff_intro h₁₅₁, h₁₅₂
-
-    iterate h₁
 
 
 
--- The `Universal Set` exists and it's well defined, i.e. contains all `Particulars`.
-theorem universal_set_existence: ∃ (S: Set X), ∀ (x: Particular X), x ∈ₛₑₜ S := by
-  have h₁: ∀ (x: Particular X), x ∈ₛₑₜ Uₛₑₜ := by forall_intro
-    variable (u: Particular X)
-    have h₁₁: Uₛₑₜ u ↔ True := by forall_elim universal_set_def, u
-    have h₁₂: Uₛₑₜ u := PC₀.deductive_eq_r2l h₁₁ True.intro
-    have h₁₃: ∀ (x: Particular X), x ∈ₛₑₜ Uₛₑₜ ↔ Uₛₑₜ x := by forall_elim mem_def, Uₛₑₜ
-    have h₁₄: u ∈ₛₑₜ Uₛₑₜ ↔ Uₛₑₜ u := by forall_elim h₁₃, u
-    have h₁₅: u ∈ₛₑₜ Uₛₑₜ := PC₀.deductive_eq_r2l h₁₄ h₁₂
-    iterate h₁₅
-  have h₂: ∃ (U: Set X), ∀ (x: Particular X), x ∈ₛₑₜ U := by exists_intro h₁, Uₛₑₜ
-  iterate h₂
 
 
--- The `Empty Set` exists, and it's well defined, i.e. contains no `Particulars`.
-theorem empty_set_existence: ∃ (S: Set X), ∀ (x: Particular X), x ∉ₛₑₜ S := by
-  have h₁: ∀ (x: Particular X), x ∉ₛₑₜ ∅ₛₑₜ := by forall_intro
-    variable (u: Particular X)
-    have h₁₁₃: ∀ (x: Particular X),  x ∈ₛₑₜ ∅ₛₑₜ ↔ ∅ₛₑₜ x := by forall_elim mem_def, ∅ₛₑₜ
-    have h₁₁₄: u ∈ₛₑₜ ∅ₛₑₜ ↔ ∅ₛₑₜ u := by forall_elim h₁₁₃, u
-    have h₁₁: (u ∈ₛₑₜ ∅ₛₑₜ) → False := by
-      assume (h₁₁₁: u ∈ₛₑₜ ∅ₛₑₜ)
-      have h₁₁₂: ∅ₛₑₜ u ↔ False := by forall_elim empty_set_def, u
-      have h₁₁₅: ∅ₛₑₜ u := PC₀.deductive_eq_l2r h₁₁₄ h₁₁₁
-      have h₁₁₆: False := PC₀.deductive_eq_l2r h₁₁₂ h₁₁₅
-      iterate h₁₁₆
-    have h₁₂: ¬(u ∈ₛₑₜ ∅ₛₑₜ) := by reductio_ad_absurdum h₁₁
-    have h₁₃: (u ∉ₛₑₜ ∅ₛₑₜ) ↔ ¬(u ∈ₛₑₜ ∅ₛₑₜ) := not_mem_def_neg_mem_eq
-    have h₁₄: u ∉ₛₑₜ ∅ₛₑₜ := PC₀.deductive_eq_r2l h₁₃ h₁₂
-    iterate h₁₄
-  have h₂: ∃ (E : Set X), ∀ (x : Particular X), x ∉ₛₑₜ E := by exists_intro h₁, ∅ₛₑₜ
-  iterate h₂
 
 --The `Empty Set` is unique.
-theorem empty_set_uniqueness: ∃! (S: Set X), ∀ (x: Particular X), x ∉ₛₑₜ S := by
+theorem empty_set_uniqueness: ∃!₍Set U₎ (S: (Set U).Particular), ∀ (x: U.Particular), x ∉ₛₑₜ S := by
 
   -- P is the predicate for which we want to prove unique existence
-  let P: Set X → Prop := (S: Set X ↦ ∀ (x: Particular X), x ∉ₛₑₜ S)
+  let P: (Set U).Particular → Prop := (S: (Set U).Particular ↦ ∀ (x: U.Particular), x ∉ₛₑₜ S)
 
   -- A is the "only" Set that meets P.
-  have h₁: ∃ (S: Set X), P S := empty_set_existence
-  have ⟨(A: Set X), (h₂: P A)⟩ := exists_elim h₁
+  have h₁: ∃ (S: (Set U).Particular), P S := empty_set_existence
+  have ⟨(A: (Set U).Particular), (h₂: P A)⟩ := exists_elim h₁
 
   -- Any Set that meets P is equal to A.
-  have h₃: ∀ (S: Set X), P S → (S =ₚ A) := by forall_intro
-    variable (B: Set X)
+  have h₃: ∀ (S: (Set U).Particular), P S → (S =ₛₑₜ A) := by forall_intro
+    variable (B: (Set U).Particular)
     assume (h₂₁: P B)
 
     -- We first show equal extensionality and then convert to set equality.
-    have h₂₂: ∀ (x: Particular X), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ A := by forall_intro
-      variable (u: Particular X)
+    have h₂₂: ∀ (x: U.Particular), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ A := by forall_intro
+      variable (u: U.Particular)
       have h₂₂₁: u ∈ₛₑₜ B → u ∈ₛₑₜ A := by
         assume (h₂₂₁₁: u ∈ₛₑₜ B)
         have h₂₂₁₂: u ∉ₛₑₜ B := by forall_elim h₂₁, u
-        have h₂₂₁₃: (u ∉ₛₑₜ B) ↔ ¬(u ∈ₛₑₜ B) := not_mem_def_neg_mem_eq
+        have h₂₂₁₃: (u ∉ₛₑₜ B) ↔ ¬(u ∈ₛₑₜ B) := not_mem_iff_neg_mem
         have h₂₂₁₄: ¬(u ∈ₛₑₜ B) := PC₀.deductive_eq_l2r h₂₂₁₃ h₂₂₁₂
         have h₂₂₁₅: u ∈ₛₑₜ A := PC₀.quodlibet_seqitur h₂₂₁₁ h₂₂₁₄
         iterate h₂₂₁₅
       have h₂₂₂: u ∈ₛₑₜ A → u ∈ₛₑₜ B := by
         assume (h₂₂₂₁: u ∈ₛₑₜ A)
         have h₂₂₂₂: u ∉ₛₑₜ A := by forall_elim h₂, u
-        have h₂₂₁₃: (u ∉ₛₑₜ A) ↔ ¬(u ∈ₛₑₜ A) := not_mem_def_neg_mem_eq
+        have h₂₂₁₃: (u ∉ₛₑₜ A) ↔ ¬(u ∈ₛₑₜ A) := not_mem_iff_neg_mem
         have h₂₂₂₄: ¬(u ∈ₛₑₜ A) := PC₀.deductive_eq_l2r h₂₂₁₃ h₂₂₂₂
         have h₂₂₂₅: u ∈ₛₑₜ B := PC₀.quodlibet_seqitur h₂₂₂₁ h₂₂₂₄
         iterate h₂₂₂₅
       iff_intro h₂₂₁, h₂₂₂
 
     -- Convert extensionality to set equality
-    have h₂₃: ∀ (S₂: Set X), B =ₛₑₜ S₂ ↔ (∀ (x: Particular X), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, B
+    have h₂₃: ∀ (S₂: (Set U).Particular), B =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, B
     have h₂₄: B =ₛₑₜ A ↔ (∀ (x: Particular X), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ A) := by forall_elim h₂₃, A
     have h₂₅: B =ₛₑₜ A := PC₀.deductive_eq_r2l h₂₄ h₂₂
 
