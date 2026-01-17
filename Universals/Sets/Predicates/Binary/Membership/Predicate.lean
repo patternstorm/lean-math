@@ -14,7 +14,7 @@ axiom mem: U.Particular → Particular U → Prop
 notation:50 x:51 " ∈ₛₑₜ " S:51 => mem x S
 axiom mem_def: ∀ (S: (Set U).Particular), ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x
 
-def mem_unary (x: U.Particular): CongruentUnaryPredicate (Set U) :=
+def elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
   let pred := (S: Particular U ↦ x ∈ₛₑₜ S)
   let cong: ∀ (X: (Set U).Particular), ∀ (Y: (Set U).Particular), X =ₛₑₜ Y → (x ∈ₛₑₜ X ↔ x ∈ₛₑₜ Y) := by forall_intro
     variable(A: (Set U).Particular)
@@ -45,7 +45,7 @@ def mem_unary (x: U.Particular): CongruentUnaryPredicate (Set U) :=
   { pred:= pred, cong:= cong }
 
 def mem_predicate: CongruentBinaryPredicate U (Set U) :=
-  let pred:= (x: U.Particular ↦ mem_unary x)
+  let pred:= (x: U.Particular ↦ elements_of x)
   let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: (Set U).Particular), x =₍U₎ y → (x ∈ₛₑₜ X ↔ y ∈ₛₑₜ X) := by forall_intro
     variable(a: U.Particular)
     variable(b: U.Particular)
@@ -99,12 +99,12 @@ theorem not_mem_iff_neg_mem {A: (Set U).Particular} {u: U.Particular}: (u ∉ₛ
     iff_intro h₁, h₂
 
 
-def not_mem_unary (x: U.Particular): CongruentUnaryPredicate (Set U) :=
+def non_elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
   let pred := (S: Particular U ↦ x ∉ₛₑₜ S)
   let cong: ∀ (X: (Set U).Particular), ∀ (Y: (Set U).Particular), X =ₛₑₜ Y → (x ∉ₛₑₜ X ↔ x ∉ₛₑₜ Y) := by forall_intro
     variable(A: (Set U).Particular)
     variable(B: (Set U).Particular)
-    have h₁: ∀ (Y: (Set U).Particular), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence1 (mem_unary x)), A
+    have h₁: ∀ (Y: (Set U).Particular), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence1 (elements_of x)), A
     have h₂: A =ₛₑₜ B → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B)) := by forall_elim h₁, B
     assume(h₃: A =ₛₑₜ B)
     have h₄: ¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B) := by modus_ponens h₂, h₃
@@ -127,7 +127,7 @@ def not_mem_unary (x: U.Particular): CongruentUnaryPredicate (Set U) :=
   { pred:= pred, cong:= cong }
 
 def not_mem_predicate: CongruentBinaryPredicate U (Set U) :=
-  let pred:= (x: U.Particular ↦ not_mem_unary x)
+  let pred:= (x: U.Particular ↦ non_elements_of x)
   let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: (Set U).Particular), x =₍U₎ y → (x ∉ₛₑₜ X ↔ y ∉ₛₑₜ X) := by forall_intro
     variable(a: U.Particular)
     variable(b: U.Particular)

@@ -3,8 +3,10 @@ import Universe
 import Universals.Sets.Universal
 import Universals.Sets.Definitions.SetComprehension.Definition
 import Universals.Sets.Predicates.Binary.Membership.Predicate
+import Universals.Sets.Predicates.Binary.Inclusion.Predicate
 import Universals.Sets.Operations.Constants.UniversalSet.Constant
 import Universals.Sets.Properties.EmptySetExistence
+import Universals.Sets.Operations.Unary.Powerset.Operation
 
 open Logic
 open Logic.PC₁
@@ -12,11 +14,6 @@ open Logic.ND
 open Universe.Sets
 
 
-
--- The `Set` `A` is a subset of the `Set` `B` if and only if `P₍a₎(x) → P₍b₎(x)`.
--- TODO Axiomize this
-def subset (A B: (Set U).Particular) : Prop := ∀ (x: U.Particular), A.pred x → B.pred x
-infix:50 " ⊆ₛₑₜ " => subset
 
 
 -- # Foundational `Sets`
@@ -29,7 +26,7 @@ prefix:max "IsSingleton " => singleton_pred
 def Singleton(U: Universal) : Type := { S : (Set U).Particular // IsSingleton S }
 
 -- Notation for the singleton set containing just x: { x } denotes the predicate satisfied only by x
-def singleton_of (U: Universal) (x : U.Particular) : (Set U).Particular := { y : U.Particular | U.eq.pred y x } with (equals_unary x).cong
+def singleton_of (U: Universal) (x : U.Particular) : (Set U).Particular := { y : U.Particular | U.eq.pred y x } with (equal_to x).cong
 macro "{" x:term "}" : term => `(singleton_of $x)
 
 -- Operation to extract the unique element from a SingletonSet
@@ -39,10 +36,6 @@ notation "⊙" S => singleton_elem S
 -- Behavior: the extracted element is the unique member of the singleton
 axiom singleton_elem_def : ∀ (S : Singleton U), (⊙ S) ∈ₛₑₜ S.val
 axiom singleton_elem_unique : ∀ (S : Singleton U), ∀ (x : U.Particular), x ∈ₛₑₜ S.val → x =₍U₎ (⊙ S)
-
--- Powerset
-def Powerset (X: Type): Type := Set (Set X)
-def powerset (S: Set X): Set (Set X) := { S': Set X | S' ⊆ₛₑₜ S }
 
 -- # Set operations.
 -- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.

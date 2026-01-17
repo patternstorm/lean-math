@@ -94,12 +94,12 @@ axiom eq: Particular U → Particular U → Prop
 notation:50 A:51 " =ₛₑₜ " B:51 => eq A B
 
 -- ## Two `Sets` are equal if their predicates are logically equivalent.
-axiom eq_def: ∀ S₁: Particular U, ∀ S₂: Particular U, S₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), S₁.pred x ↔ S₂.pred x
+axiom eq_def: ∀ (S₁: Particular U), ∀ (S₂: Particular U), S₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), S₁.pred x ↔ S₂.pred x
 
 -- ## `Set` equality is reflexive
 theorem eq_refl: ∀ (S: Particular U), S =ₛₑₜ S := by forall_intro
   variable(A: Particular U)
-  have h₁: ∀ S₂: Particular U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+  have h₁: ∀ (S₂: Particular U), A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
   have h₂: A =ₛₑₜ A ↔ ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_elim h₁, A
   have h₃: ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_intro
     variable(a: U.Particular)

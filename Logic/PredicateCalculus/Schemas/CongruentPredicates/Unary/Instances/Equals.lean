@@ -7,7 +7,7 @@ namespace Logic
 
 namespace PC₁
 
-def equals_unary(a: U.Particular): CongruentUnaryPredicate U :=
+def equal_to(a: U.Particular): CongruentUnaryPredicate U :=
   let pred: U.Particular → Prop := (x: U.Particular ↦ x =₍U₎ a)
   let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (x =₍U₎ a ↔ y =₍U₎ a):= by forall_intro
     variable(u: U.Particular)

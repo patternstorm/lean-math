@@ -8,8 +8,8 @@ namespace Logic
 
 namespace PC₁
 
-def equals: BinaryPredicate U U :=
-  let pred: U.Particular → CongruentUnaryPredicate U := (x: U.Particular ↦ equals_unary x)
+def equals: CongruentBinaryPredicate U U :=
+  let pred: U.Particular → CongruentUnaryPredicate U := (x: U.Particular ↦ equal_to x)
   let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (z: U.Particular), x =₍U₎ y → (z =₍U₎ x ↔ z =₍U₎ y):= by forall_intro
     variable(u: U.Particular)
     variable(v: U.Particular)

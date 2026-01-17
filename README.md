@@ -13,7 +13,7 @@ We use these tools to **explore the mathematical universe** free of all baggage,
 - **We are hardcore about this:** proofs must be explicit, contain all steps and be readable.
 - **Why?** Because proofs reveal understanding. Automated proofs obscure it.
 
-In Mathpunk, the machine just renders the mathematical universe, and **we make the foundations explicit and we write the proofs**.
+In Mathpunk, the machine renders the mathematical universe, **the foundations are explicit, and the proofs are written out in full detail**. Lean verifies correctness; the proofs reveal the reasoning.
 
 A Mathpunk project is defined by its method, not its subject. It adheres to the foundational principle, and has three core characteristics:
 
@@ -21,10 +21,14 @@ A Mathpunk project is defined by its method, not its subject. It adheres to the 
 A Mathpunk project does not treat its foundations as invisible background. It makes explicit which foundations it is using, and it keeps a sharp distinction between mathematical ideas and their concrete encoding. It may build new foundations or work within existing ones, but in either case it must show how the mathematics unfolds from them with explicit, complete, readable proofs.
 
 ### 2. Power Over Safety
-Modern proof assistants are designed to prevent paradox and guarantee termination. We appreciate the safety this brings, but Mathpunk prioritizes expressive power over safety, embracing "unsafe" features like unrestricted recursion. The responsibility for ensuring consistency and termination rests entirely within the user, not the tool, because the user writes down the proofs.
+Modern proof assistants are designed to prevent paradox and guarantee termination. We appreciate the safety this brings, but Mathpunk prioritizes expressive power over safety, embracing "unsafe" features like unrestricted recursion. The responsibility for ensuring consistency and termination rests on the explicit proofs, not the tool — every derivation is visible and auditable.
 
 ### 3. Radical Explicitness
-There is no hidden magic. Every step of a proof must be manually and explicitly derived. Automated tactics are forbidden. Verbosity is accepted as the price of clarity. The goal is not just to prove that a theorem is true, but to show *why* it is true in the most granular way possible.
+There is no hidden magic. Every step of a proof must be explicitly derived — no automated tactics that hide the reasoning. Verbosity is accepted as the price of clarity. The goal is not just to prove that a theorem is true, but to show *why* it is true in the most granular way possible.
+
+**Note on LLMs**: Large language models can assist in writing these explicit proofs. This does not violate Mathpunk principles — the objection to automation is about *opacity*, not about who types the characters. An LLM writing explicit FOL proofs produces the same artifact a human would: every step visible, every inference auditable. Lean verifies correctness; the proofs remain fully transparent. The burden of verbosity is reduced while maintaining complete auditability.
+
+This is an unexpected benefit of Mathpunk: the explicitness that reveals understanding to humans also makes proofs *writable* by LLMs. The same property — no hidden steps, systematic structure — serves both purposes.
 
 ---
 
@@ -44,9 +48,13 @@ We do not claim that the "things" themselves arise from logic. Instead, we use F
 
 **To show this thesis, this project implements this `Theory` in the Lean 4 virtual reality engine.**
 
-The `Theory` has the following characteristics:
+---
 
-  1. Terms are typed. Here, “types” are predicates inside the theory, not meta-level sorts. A type determines which terms are admissible, as follows:
+## The Theory
+
+The `Theory` is many-sorted first-order logic with the following characteristics:
+
+  1. Terms are typed. Here, "types" are predicates inside the theory, not meta-level sorts. A type determines which terms are admissible, as follows:
     1.1 Term formation is governed by axioms:
       1.1.1 We introduce explicit `Type Judgments`, i.e. `t : T`, is a binary predicate meaning "term `t` has type `T`."
       1.1.2 We write axioms defining what are the valid terms of a type.
@@ -74,7 +82,28 @@ The `Theory` has the following characteristics:
 
   Similarly, when defining a type `T` in the `Theory`, users may want to make sure that all axioms that introduce terms of type `T` don't contain `T` in contravariant positions inside the definitions.
 
-  **Note 4**: Refined types are types. If a “type” is a predicate `T` selecting admissible terms, and `P` is a further predicate on terms, then the refined type is the predicate `T ∧ P`. Its terms are exactly those terms satisfying both `T` and `P`.
+  **Note 4**: Refined types are types. If a "type" is a predicate `T` selecting admissible terms, and `P` is a further predicate on terms, then the refined type is the predicate `T ∧ P`. Its terms are exactly those terms satisfying both `T` and `P`.
 
-  **Note 5**: This `Theory` is inspired by `Abstract Data Types` (ADTs). In practice, this means specifying “types of things” by axioms that govern which terms belong to each type, axioms that introduce operations on those terms, and universally quantified equations (equalities) that define the intended behavior of those operations.
+  **Note 5**: This `Theory` is inspired by `Abstract Data Types` (ADTs). In practice, this means specifying types by axioms that govern which terms belong to each type, then introducing operations via axioms that define their behavior in terms of the type's equality.
 
+---
+
+## Universals and Equality
+
+The `Theory` described above is many-sorted first-order logic — familiar territory. However, we need to extend it because of how we treat equality.
+
+In standard FOL with equality, substitutivity is axiomatic. If `x = y`, then `P(x) ↔ P(y)` for any predicate `P`. This is Leibniz equality — structural identity. Two things are equal only if they are identical in every respect, indistinguishable by any predicate. Substitutivity comes free because there is nothing that could tell them apart.
+
+But in mathematics, Leibniz equality is rarely what we want. We don't care whether two groups are literally the same object; we care whether they are isomorphic. We don't distinguish homeomorphic spaces. Mathematical reasoning works "up to" the appropriate notion of equivalence.
+
+We extend the `Theory` to support this. A `Universal` pairs a type with an equality relation on that type. We call the terms of a `Universal` its `Particulars`. Each `Universal` defines its own `Equality` — required only to be an equivalence relation (reflexive, symmetric, transitive), not necessarily Leibniz equality.
+
+Because equality is not structural, we cannot assume substitutivity. A predicate might distinguish isomorphic groups — it might depend on details not preserved by isomorphism. So we must prove, for each predicate, that it respects the `Universal`'s `Equality`. A `CongruentPredicate` is a predicate bundled with this proof. The proof — called the congruence proof — demonstrates that the predicate cannot distinguish `Particulars` that the `Equality` considers the same.
+
+The payoff is immediate: any theorem we prove about a `Universal` applies to all `Particulars` that are equal according to that `Universal`'s `Equality`. Prove something about a group, and it transports automatically to all isomorphic groups. The congruence proofs ensure this.
+
+This is a poor man's univalence. In Homotopy Type Theory, the univalence axiom asserts that equivalent types are equal, making transport across equivalences automatic. We achieve the same goal — properties transport across equivalences — but manually, through explicit congruence proofs. More work, but it stays within first-order logic and requires no exotic foundations.
+
+In the implementation, Lean provides convenient packaging: structures that bundle types with equalities (`Universal`), and predicates with their congruence proofs (`CongruentPredicate`). This is pure first-order logic; Lean adds no logical power, only discipline. What would be tracked informally in a textbook — "see Lemma 3.2 for well-definedness" — is here bundled directly with the predicate.
+
+Every predicate in this `Theory` is a `CongruentPredicate`. The congruence proofs are not bureaucratic overhead — they are the mathematical content that ensures our constructions respect the equivalence structure each `Universal` has chosen.
