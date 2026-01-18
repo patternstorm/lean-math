@@ -1,6 +1,7 @@
-import Core.NaturalDeduction
-import Core.Universe
-import Core.Sets
+import Logic
+import Universe
+import Universals.Sets
+
 
 /-!
 # Binary Relations and Functions as Binary Predicates
