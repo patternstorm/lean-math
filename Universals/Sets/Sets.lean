@@ -7,6 +7,7 @@ import Universals.Sets.Predicates.Binary.Inclusion.Predicate
 import Universals.Sets.Operations.Constants.UniversalSet.Constant
 import Universals.Sets.Properties.EmptySetExistence
 import Universals.Sets.Operations.Unary.Powerset.Operation
+import Universals.Sets.Universals.Singleton.Universal
 
 open Logic
 open Logic.PC₁
@@ -18,32 +19,26 @@ open Universe.Sets
 
 -- # Foundational `Sets`
 
--- The `Singleton Set` predicate: a set has exactly one element
-def singleton_pred : (Set U).Particular → Prop := (S: (Set U).Particular ↦ ∃!₍U₎ (x : U.Particular), x ∈ₛₑₜ S)
-prefix:max "IsSingleton " => singleton_pred
-
--- A SingletonSet type: a set bundled with proof it has exactly one element
-def Singleton(U: Universal) : Type := { S : (Set U).Particular // IsSingleton S }
 
 -- Notation for the singleton set containing just x: { x } denotes the predicate satisfied only by x
 def singleton_of (U: Universal) (x : U.Particular) : (Set U).Particular := { y : U.Particular | U.eq.pred y x } with (equal_to x).cong
 macro "{" x:term "}" : term => `(singleton_of $x)
 
 -- Operation to extract the unique element from a SingletonSet
-axiom singleton_elem : Singleton U → U.Particular
+axiom singleton_elem : (SingletonSet U).Particular → U.Particular
 notation "⊙" S => singleton_elem S
 
 -- Behavior: the extracted element is the unique member of the singleton
-axiom singleton_elem_def : ∀ (S : Singleton U), (⊙ S) ∈ₛₑₜ S.val
-axiom singleton_elem_unique : ∀ (S : Singleton U), ∀ (x : U.Particular), x ∈ₛₑₜ S.val → x =₍U₎ (⊙ S)
+axiom singleton_elem_def : ∀ (S : (SingletonSet U).Particular), (⊙ S) ∈ₛₑₜ S.val
+axiom singleton_elem_unique : ∀ (S : (SingletonSet U).Particular), ∀ (x : U.Particular), x ∈ₛₑₜ S.val → x =₍U₎ (⊙ S)
 
 -- # Set operations.
 -- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.
-def compl (A: Set X): Set X := fun (x: Particular X) => ¬(A x)
+def compl (A: (Set X).Particular): (Set X).Particular := { x: X.Particular | ¬(A.pred x) } with negation_preserves_congruence1 A 
 prefix:max "¬ₛₑₜ" => compl
 
 -- The intersection of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∧ P₍b₎(x)`.
-def inter (A B: Set X): Set X := fun (x: Particular X) => A x ∧ B x
+def inter (A B: (Set X).Particular): (Set X).Particular := fun (x: Particular X) => A x ∧ B x
 infixl:70 " ∩ₛₑₜ " => inter
 
 -- The union of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∨ P₍b₎(x)`.

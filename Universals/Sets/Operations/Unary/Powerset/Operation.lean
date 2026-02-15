@@ -30,7 +30,7 @@ axiom powerset_def: ∀ (S: (Set U).Particular), ∀ (S': (Set U).Particular), S
 
 -- Congruence: powerset respects set equality
 -- Proof by Claude Opus 4.5 (claude-opus-4-5-20251101), 2026-01-17
-theorem powerset_cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), S₁ =ₛₑₜ S₂ → (𝒫 S₁) =₍Set (Set U)₎ (𝒫 S₂) := by forall_intro
+theorem powerset_cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), S₁ =ₛₑₜ S₂ → (𝒫 S₁) =ₛₑₜ (𝒫 S₂) := by forall_intro
   variable (S₁: (Set U).Particular)
   variable (S₂: (Set U).Particular)
   assume (h₁: S₁ =ₛₑₜ S₂)
@@ -61,9 +61,9 @@ theorem powerset_cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Partic
     iff_intro h₂₆, h₂₇
 
   -- Convert to set equality via extensionality
-  have h₃: ∀ (S: (Set (Set U)).Particular), (𝒫 S₁) =₍Set (Set U)₎ S ↔ (∀ (S': (Set U).Particular), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ S) := by forall_elim set_extensionality, (𝒫 S₁)
-  have h₄: (𝒫 S₁) =₍Set (Set U)₎ (𝒫 S₂) ↔ (∀ (S': (Set U).Particular), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ (𝒫 S₂)) := by forall_elim h₃, (𝒫 S₂)
-  have h₅: (𝒫 S₁) =₍Set (Set U)₎ (𝒫 S₂) := PC₀.deductive_eq_r2l h₄ h₂
+  have h₃: ∀ (S: (Set (Set U)).Particular), (𝒫 S₁) =ₛₑₜ S ↔ (∀ (S': (Set U).Particular), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ S) := by forall_elim set_extensionality, (𝒫 S₁)
+  have h₄: (𝒫 S₁) =ₛₑₜ (𝒫 S₂) ↔ (∀ (S': (Set U).Particular), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ (𝒫 S₂)) := by forall_elim h₃, (𝒫 S₂)
+  have h₅: (𝒫 S₁) =ₛₑₜ (𝒫 S₂) := PC₀.deductive_eq_r2l h₄ h₂
   iterate h₅
 
 -- Bundle powerset as a CongruentUnaryOperation

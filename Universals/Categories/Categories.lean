@@ -68,8 +68,6 @@ The definition also serves as a **template for construction**: bring any two typ
 are arrows between terms of the other, define how arrows compose, verify the axioms — and you have a `Category`.
 The types can be anything: numbers, propositions, monoids, other categories. The predicate imposes the structure.
 
-This vindicates the logicist program at a new level: not only **Arithmetic** and **Set Theory**, but **Category Theory** itself
-derives from logic.
 -/
 
 
@@ -79,8 +77,8 @@ open Universe
 open Sets
 
 structure Category(X: Type)(Y: Type) where
-  Ob: Set X := Uₛₑₜ
-  Hom: Set Y := Uₛₑₜ
+  Ob: Set X := Uₛₑₜ -- Since Sets are types now, we can simplify this to be just the type X
+  Hom: Set Y := Uₛₑₜ -- Since Sets are types now, we can simplify this to be just the type Y
   morphism : X → X → Y → Prop -- f is a morphism from a to b
   op : Y → Y → Y → Prop -- the relation on Y that defines the operation of composition, it needs to be a function, that's why it returns a Singleton
   morph_totality: ∀ (f: Y), ∃ (a: X), ∃ (b: X), morphism a b f -- all terms in Y must be morphisms
