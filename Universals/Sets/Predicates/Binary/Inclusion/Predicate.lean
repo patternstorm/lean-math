@@ -10,21 +10,21 @@ open Logic
 open Logic.PC₁
 
 
-axiom inclusion: (Set U).Particular → (Set U).Particular → Prop
+axiom inclusion: Set U → Set U → Prop
 notation:50 S₁:51 " ⊆ₛₑₜ " S₂:51 => inclusion S₁ S₂
-axiom inclusion_def: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), (S₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (S₁.pred x → S₂.pred x)
+axiom inclusion_def: ∀ (S₁: Set U), ∀ (S₂: Set U), (S₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (S₁.pred x → S₂.pred x)
 
 -- Fix first argument A, get predicate in second argument S: "supersets of A"
-def supersets_of (A: (Set U).Particular): CongruentUnaryPredicate (Set U) :=
-  let pred := (S: Particular U ↦ A ⊆ₛₑₜ S)
-  let cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), S₁ =ₛₑₜ S₂ → (A ⊆ₛₑₜ S₁ ↔ A ⊆ₛₑₜ S₂) := by forall_intro
-    variable(A₁: (Set U).Particular)
-    variable(A₂: (Set U).Particular)
+def supersets_of (A: Set U): CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
+  let pred := (S: Set U ↦ A ⊆ₛₑₜ S)
+  let cong: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ → (A ⊆ₛₑₜ S₁ ↔ A ⊆ₛₑₜ S₂) := by forall_intro
+    variable(A₁: Set U)
+    variable(A₂: Set U)
     assume(h₁: A₁ =ₛₑₜ A₂)
-    have h₂: ∀ (S₂: Particular U), A₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ S₂.pred x := by forall_elim eq_def, A₁
+    have h₂: ∀ (S₂: Set U), A₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ S₂.pred x := by forall_elim eq_def, A₁
     have h₃: A₁ =ₛₑₜ A₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ A₂.pred x := by forall_elim h₂, A₂
     have h₄: ∀ (x: U.Particular), A₁.pred x ↔ A₂.pred x := PC₀.deductive_eq_l2r h₃ h₁
-    have h₅: ∀ (S: (Set U).Particular), (A ⊆ₛₑₜ S) ↔ ∀ (x: U.Particular), (A.pred x → S.pred x) := by forall_elim inclusion_def, A
+    have h₅: ∀ (S: Set U), (A ⊆ₛₑₜ S) ↔ ∀ (x: U.Particular), (A.pred x → S.pred x) := by forall_elim inclusion_def, A
     have h₆: (A ⊆ₛₑₜ A₁) ↔ ∀ (x: U.Particular), (A.pred x → A₁.pred x) := by forall_elim h₅, A₁
     have h₇: (A ⊆ₛₑₜ A₂) ↔ ∀ (x: U.Particular), (A.pred x → A₂.pred x) := by forall_elim h₅, A₂
     have h₈: A ⊆ₛₑₜ A₁ → A ⊆ₛₑₜ A₂ := by
@@ -58,20 +58,20 @@ def supersets_of (A: (Set U).Particular): CongruentUnaryPredicate (Set U) :=
   { pred:= pred, cong:= cong }
 
 -- Proof by Claude Opus 4.5 (claude-opus-4-5-20251101), 2026-01-17
-def inclusion_predicate: CongruentBinaryPredicate (Set U) (Set U) :=
-  let pred := (S: (Set U).Particular ↦ supersets_of S)
-  let cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), ∀ (S: (Set U).Particular), S₁ =ₛₑₜ S₂ → (S₁ ⊆ₛₑₜ S ↔ S₂ ⊆ₛₑₜ S) := by forall_intro
-    variable(A₁: (Set U).Particular)
-    variable(A₂: (Set U).Particular)
-    variable(B: (Set U).Particular)
+def inclusion_predicate: CongruentBinaryPredicate (𝐒𝐞𝐭 U) (𝐒𝐞𝐭 U) :=
+  let pred := (S: Set U ↦ supersets_of S)
+  let cong: ∀ (S₁: Set U), ∀ (S₂: Set U), ∀ (S: Set U), S₁ =ₛₑₜ S₂ → (S₁ ⊆ₛₑₜ S ↔ S₂ ⊆ₛₑₜ S) := by forall_intro
+    variable(A₁: Set U)
+    variable(A₂: Set U)
+    variable(B: Set U)
     assume(h₁: A₁ =ₛₑₜ A₂)
-    have h₂: ∀ (S₂: Particular U), A₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ S₂.pred x := by forall_elim eq_def, A₁
+    have h₂: ∀ (S₂: Set U), A₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ S₂.pred x := by forall_elim eq_def, A₁
     have h₃: A₁ =ₛₑₜ A₂ ↔ ∀ (x: U.Particular), A₁.pred x ↔ A₂.pred x := by forall_elim h₂, A₂
     have h₄: ∀ (x: U.Particular), A₁.pred x ↔ A₂.pred x := PC₀.deductive_eq_l2r h₃ h₁
-    have h₅: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), (S₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (S₁.pred x → S₂.pred x) := inclusion_def
-    have h₆: ∀ (S₂: (Set U).Particular), (A₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (A₁.pred x → S₂.pred x) := by forall_elim h₅, A₁
+    have h₅: ∀ (S₁: Set U), ∀ (S₂: Set U), (S₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (S₁.pred x → S₂.pred x) := inclusion_def
+    have h₆: ∀ (S₂: Set U), (A₁ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (A₁.pred x → S₂.pred x) := by forall_elim h₅, A₁
     have h₇: (A₁ ⊆ₛₑₜ B) ↔ ∀ (x: U.Particular), (A₁.pred x → B.pred x) := by forall_elim h₆, B
-    have h₈: ∀ (S₂: (Set U).Particular), (A₂ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (A₂.pred x → S₂.pred x) := by forall_elim h₅, A₂
+    have h₈: ∀ (S₂: Set U), (A₂ ⊆ₛₑₜ S₂) ↔ ∀ (x: U.Particular), (A₂.pred x → S₂.pred x) := by forall_elim h₅, A₂
     have h₉: (A₂ ⊆ₛₑₜ B) ↔ ∀ (x: U.Particular), (A₂.pred x → B.pred x) := by forall_elim h₈, B
     have h₁₀: A₁ ⊆ₛₑₜ B → A₂ ⊆ₛₑₜ B := by
       assume(h₁₀₁: A₁ ⊆ₛₑₜ B)
@@ -106,14 +106,14 @@ def inclusion_predicate: CongruentBinaryPredicate (Set U) (Set U) :=
 -- Fix second argument S, get predicate in first argument A: "subsets of S"
 -- Derived from inclusion_predicate.cong rather than proved from scratch.
 -- Proof by Claude Opus 4.5 (claude-opus-4-5-20251101), 2026-01-17
-def subsets_of (A: (Set U).Particular): CongruentUnaryPredicate (Set U) :=
-  let pred := (S: (Set U).Particular ↦ S ⊆ₛₑₜ A)
-  let cong: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), S₁ =ₛₑₜ S₂ → (S₁ ⊆ₛₑₜ A ↔ S₂ ⊆ₛₑₜ A) := by forall_intro
-    variable(A₁: (Set U).Particular)
-    variable(A₂: (Set U).Particular)
+def subsets_of (A: Set U): CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
+  let pred := (S: Set U ↦ S ⊆ₛₑₜ A)
+  let cong: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ → (S₁ ⊆ₛₑₜ A ↔ S₂ ⊆ₛₑₜ A) := by forall_intro
+    variable(A₁: Set U)
+    variable(A₂: Set U)
     assume(h₁: A₁ =ₛₑₜ A₂)
-    have h₂: ∀ (S₂: (Set U).Particular), ∀ (S: (Set U).Particular), A₁ =ₛₑₜ S₂ → (A₁ ⊆ₛₑₜ S ↔ S₂ ⊆ₛₑₜ S) := by forall_elim inclusion_predicate.cong, A₁
-    have h₃: ∀ (S: (Set U).Particular), A₁ =ₛₑₜ A₂ → (A₁ ⊆ₛₑₜ S ↔ A₂ ⊆ₛₑₜ S) := by forall_elim h₂, A₂
+    have h₂: ∀ (S₂: Set U), ∀ (S: Set U), A₁ =ₛₑₜ S₂ → (A₁ ⊆ₛₑₜ S ↔ S₂ ⊆ₛₑₜ S) := by forall_elim inclusion_predicate.cong, A₁
+    have h₃: ∀ (S: Set U), A₁ =ₛₑₜ A₂ → (A₁ ⊆ₛₑₜ S ↔ A₂ ⊆ₛₑₜ S) := by forall_elim h₂, A₂
     have h₄: A₁ =ₛₑₜ A₂ → (A₁ ⊆ₛₑₜ A ↔ A₂ ⊆ₛₑₜ A) := by forall_elim h₃, A
     have h₅: A₁ ⊆ₛₑₜ A ↔ A₂ ⊆ₛₑₜ A := by modus_ponens h₄, h₁
     iterate h₅

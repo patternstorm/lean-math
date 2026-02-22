@@ -30,6 +30,8 @@ Universals/Sets/
 │   ├── Constants/
 │   │   ├── EmptySet/Operation.lean
 │   │   └── UniversalSet/Operation.lean
+│   ├── Binary/
+│   │   └── Union/Operation.lean
 │   └── Unary/
 │       └── Powerset/Operation.lean
 ├── Universals.lean                         # ← barrel file for Universals/
@@ -125,6 +127,18 @@ let pred := (x ↦ ...)
 - Structure names are PascalCase: `Universal`, `Equality`, `CongruentUnaryPredicate`
 - Instances of structures use snake_case: `powerset_operation`, `mem_predicate`, `inclusion_predicate`
 
+### Universal Naming Pattern
+
+Each Universal has three names:
+
+| Role | Pattern | Examples |
+|------|---------|----------|
+| Internal def name | `XUniversal` (PascalCase) | `SetsUniversal`, `SingletonSetUniversal` |
+| Bold Unicode notation (the Universal) | `𝐗` (bold) | `𝐍𝐚𝐭`, `𝐒𝐞𝐭`, `𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭` |
+| Plain text type alias (the particulars) | readable name | `ℕ`, `Set U`, `SingletonSet U` |
+
+Use the **bold Universal** (`𝐒𝐞𝐭 U`) wherever a `Universal` argument is expected (schemas, `sub_universal`, `∃!₍...₎`). Use the **plain type** (`Set U`) for type annotations of values.
+
 ## Notation Conventions
 
 ### Subscript Style
@@ -138,6 +152,8 @@ Each Universal has its own subscript notation. For example, Sets use `ₛₑₜ`
 | `∉ₛₑₜ` | Set non-membership |
 | `⊆ₛₑₜ` | Set inclusion |
 | `{x}ₛₑₜ` | Singleton set of x |
+| `⊙` | Singleton element extraction (prefix) |
+| `∪ₛₑₜ` | Set union (binary infix) |
 
 ### Universal Equality
 
@@ -145,7 +161,7 @@ Each Universal has its own subscript notation. For example, Sets use `ₛₑₜ`
 notation:50 a:51 " =₍" U:51 "₎ " b:51 => universal_eq U a b
 ```
 
-Use `=₍U₎` for equality in Universal U. For set equality, prefer `=ₛₑₜ` over `=₍Set U₎` — it's polymorphic across levels.
+Use `=₍U₎` for equality in Universal U. For set equality, prefer `=ₛₑₜ` over `=₍𝐒𝐞𝐭 U₎` — it's polymorphic across levels.
 
 **Sub-universal equality**: `=₍sub_universal U P₎` is definitionally equal to `=₍U₎` on lifted values. Prefer `↑x =₍U₎ ↑y` over `x =₍sub_universal U P₎ y` — it's clearer and avoids verbose sub-universal names.
 
@@ -169,7 +185,7 @@ All binary relation notations use `notation:50 a:51 ... b:51` — precedence 50 
 Predicates and operations on Universals follow the same ADT pattern:
 
 1. **Axiom** — declare the signature
-2. **Axiom definition** — specify behavior (typically an iff)
+2. **Axiom definition** — specify behavior (typically an iff, with the operation being defined on the left side)
 3. **Congruence** — prove it respects equality (proof unfolds the axiom_def)
 4. **Bundle** — wrap as a `CongruentPredicate` or `CongruentOperation` (any arity)
 
@@ -179,13 +195,13 @@ Example (unary predicate on sets):
 
 ```lean
 -- 1. Axiom
-axiom is_singleton: (Set U).Particular → Prop
+axiom is_singleton: Set U → Prop
 -- 2. Axiom definition
-axiom is_singleton_def: ∀ (S: (Set U).Particular),
+axiom is_singleton_def: ∀ (S: Set U),
   is_singleton S ↔ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S
 -- 3 + 4. Congruence proof + bundle
-def singleton_predicate: CongruentUnaryPredicate (Set U) :=
-  let pred: (Set U).Particular → Prop := (S: (Set U).Particular ↦ is_singleton S)
+def singleton_predicate: CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
+  let pred: Set U → Prop := (S: Set U ↦ is_singleton S)
   let cong: ... := by forall_intro ...  -- unfolds is_singleton_def in proof
   { pred := pred, cong := cong }
 ```

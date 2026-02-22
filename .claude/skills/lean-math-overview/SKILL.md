@@ -40,6 +40,7 @@ Schemas are Lean `structure`s that enforce recurring organizational patterns. On
 | `CongruentBinaryPredicate` | Binary relation + congruence proof |
 | `CongruentTernaryPredicate` | Ternary relation + congruence proof |
 | `CongruentUnaryOperation` | Operation + proof it preserves equality |
+| `CongruentBinaryOperation` | Binary operation + congruence in both args (curried) |
 | `SubUniversal` | Refined type of a Universal via a congruent predicate |
 
 **The Universal is the central concept**: a type (`Particular`) paired with its own custom equality (NOT Leibniz equality). Everything is parameterized on Universals.
@@ -104,6 +105,8 @@ Universals/Sets/
 │   ├── Constants/
 │   │   ├── EmptySet/Operation.lean
 │   │   └── UniversalSet/Operation.lean
+│   ├── Binary/
+│   │   └── Union/Operation.lean
 │   └── Unary/
 │       └── Powerset/Operation.lean
 ├── Universals/                 # Sub-universals of Set

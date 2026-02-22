@@ -16,14 +16,14 @@ open Logic.ND
 -- # Singleton Of Operation
 -- Constructs the singleton set {x} for a given element x.
 -- Returns a particular of the Singleton sub-universal (a set proven to be a singleton).
-axiom singleton_of: U.Particular → (SingletonSet U).Particular
+axiom singleton_of: U.Particular → SingletonSet U
 macro "{" x:term "}ₛₑₜ" : term => `(singleton_of $x)
 
 axiom singleton_of_def: ∀ (x: U.Particular), ∀ (y: U.Particular), y ∈ₛₑₜ ↑{x}ₛₑₜ ↔ y =₍U₎ x
 
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-15
-noncomputable def singleton_of_operation: CongruentUnaryOperation U (SingletonSet U) :=
-  let op: U.Particular → (SingletonSet U).Particular := singleton_of
+noncomputable def singleton_of_operation: CongruentUnaryOperation U (𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭 U) :=
+  let op: U.Particular → SingletonSet U := singleton_of
   let cong: ∀ (a: U.Particular), ∀ (b: U.Particular), a =₍U₎ b → (↑{a}ₛₑₜ =ₛₑₜ ↑{b}ₛₑₜ) := by forall_intro
     variable(a: U.Particular)
     variable(b: U.Particular)
@@ -33,7 +33,7 @@ noncomputable def singleton_of_operation: CongruentUnaryOperation U (SingletonSe
     have h₂: ∀ (y: U.Particular), y ∈ₛₑₜ ↑{b}ₛₑₜ ↔ y =₍U₎ b := by forall_elim singleton_of_def, b
 
     -- Set extensionality for the underlying sets
-    have h₃: ∀ (S₂: (Set U).Particular), ↑{a}ₛₑₜ =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ ↑{a}ₛₑₜ ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, ↑{a}ₛₑₜ
+    have h₃: ∀ (S₂: Set U), ↑{a}ₛₑₜ =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ ↑{a}ₛₑₜ ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, ↑{a}ₛₑₜ
     have h₄: ↑{a}ₛₑₜ =ₛₑₜ ↑{b}ₛₑₜ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ ↑{a}ₛₑₜ ↔ x ∈ₛₑₜ ↑{b}ₛₑₜ) := by forall_elim h₃, ↑{b}ₛₑₜ
 
     assume(h₅: a =₍U₎ b)

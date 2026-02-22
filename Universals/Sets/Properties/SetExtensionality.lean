@@ -13,12 +13,12 @@ open Logic.PC₁
 
 
 -- ## Set Extensionality `Set` equality is well defined, it's extensional ,i.e. Two sets are equal if and only if they have the same elements.
-theorem set_extensionality: ∀ (S₁: (Set U).Particular), ∀ (S₂: (Set U).Particular), S₁ =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ S₁ ↔ x ∈ₛₑₜ S₂) := by forall_intro
-  variable (A: (Set U).Particular)
-  variable (B: (Set U).Particular)
+theorem set_extensionality: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ S₁ ↔ x ∈ₛₑₜ S₂) := by forall_intro
+  variable (A: Set U)
+  variable (B: Set U)
 
   -- From set equality, establish predicate equivalence for arbitrary Sets A and B
-  have h₁: ∀ S₂: (Set U).Particular, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+  have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
   have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
 
   -- Establish equivalence between membership and predicate application for arbitrary Set A

@@ -9,7 +9,7 @@ namespace Sets
 open Logic
 
 -- ## Predicate equivalence is equivalent to membership equivalence
-theorem pred_eq_iff_mem_eq {A B: (Set U).Particular} {u: U.Particular}: (A.pred u ↔ B.pred u) ↔ (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
+theorem pred_eq_iff_mem_eq {A B: Set U} {u: U.Particular}: (A.pred u ↔ B.pred u) ↔ (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
   have h₁: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
   have h₁: u ∈ₛₑₜ A ↔ A.pred u := by forall_elim h₁, u
   have h₂: ∀ (x: U.Particular), x ∈ₛₑₜ B ↔ B.pred x := by forall_elim mem_def, B

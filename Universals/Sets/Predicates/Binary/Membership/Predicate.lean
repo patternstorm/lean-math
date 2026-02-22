@@ -10,16 +10,16 @@ open Logic
 open Logic.PC₁
 
 -- # `Set` Membership perdicate, a `Particular` `x` is a member of the `Set` `A` if it satisfies its `Predicate`.
-axiom mem: U.Particular → Particular U → Prop
+axiom mem: U.Particular → Set U → Prop
 notation:50 x:51 " ∈ₛₑₜ " S:51 => mem x S
-axiom mem_def: ∀ (S: (Set U).Particular), ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x
+axiom mem_def: ∀ (S: Set U), ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x
 
-def elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
-  let pred := (S: Particular U ↦ x ∈ₛₑₜ S)
-  let cong: ∀ (X: (Set U).Particular), ∀ (Y: (Set U).Particular), X =ₛₑₜ Y → (x ∈ₛₑₜ X ↔ x ∈ₛₑₜ Y) := by forall_intro
-    variable(A: (Set U).Particular)
-    variable(B: (Set U).Particular)
-    have h₁: ∀ S₂: (Set U).Particular, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+def elements_of (x: U.Particular): CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
+  let pred := (S: Set U ↦ x ∈ₛₑₜ S)
+  let cong: ∀ (X: Set U), ∀ (Y: Set U), X =ₛₑₜ Y → (x ∈ₛₑₜ X ↔ x ∈ₛₑₜ Y) := by forall_intro
+    variable(A: Set U)
+    variable(B: Set U)
+    have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
     have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
     have h₃: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
     have h₄: x ∈ₛₑₜ A ↔ A.pred x := by forall_elim h₃, x
@@ -44,12 +44,12 @@ def elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
     iterate h₇₅
   { pred:= pred, cong:= cong }
 
-def mem_predicate: CongruentBinaryPredicate U (Set U) :=
+def mem_predicate: CongruentBinaryPredicate U (𝐒𝐞𝐭 U) :=
   let pred:= (x: U.Particular ↦ elements_of x)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: (Set U).Particular), x =₍U₎ y → (x ∈ₛₑₜ X ↔ y ∈ₛₑₜ X) := by forall_intro
+  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: Set U), x =₍U₎ y → (x ∈ₛₑₜ X ↔ y ∈ₛₑₜ X) := by forall_intro
     variable(a: U.Particular)
     variable(b: U.Particular)
-    variable(S: (Set U).Particular)
+    variable(S: Set U)
     have h₁: ∀ (y: U.Particular), a =₍U₎ y → (S.pred a ↔ S.pred y) := by forall_elim S.cong, a
     have h₂: a =₍U₎ b → (S.pred a ↔ S.pred b) := by forall_elim h₁, b
     have h₃: ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x := by forall_elim mem_def, S
@@ -75,11 +75,11 @@ def mem_predicate: CongruentBinaryPredicate U (Set U) :=
 
 
 -- # `Set` Non Membership predicate,
-axiom not_mem: U.Particular → (Set U).Particular → Prop
+axiom not_mem: U.Particular → Set U → Prop
 notation:50 x:51 " ∉ₛₑₜ " S:51 => not_mem x S  -- Explicit precedence for arguments
-axiom not_mem_def: ∀ (S: (Set U).Particular), ∀ (x: U.Particular), x ∉ₛₑₜ S ↔ ¬(S.pred x)
+axiom not_mem_def: ∀ (S: Set U), ∀ (x: U.Particular), x ∉ₛₑₜ S ↔ ¬(S.pred x)
 
-theorem not_mem_iff_neg_mem {A: (Set U).Particular} {u: U.Particular}: (u ∉ₛₑₜ A) ↔ ¬(u ∈ₛₑₜ A) := by
+theorem not_mem_iff_neg_mem {A: Set U} {u: U.Particular}: (u ∉ₛₑₜ A) ↔ ¬(u ∈ₛₑₜ A) := by
     have h₂: ∀ (x: U.Particular), x ∉ₛₑₜ A ↔ ¬(A.pred x) := by forall_elim not_mem_def, A
     have h₃: u ∉ₛₑₜ A ↔ ¬(A.pred u) := by forall_elim h₂, u
     have h₄: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
@@ -99,12 +99,12 @@ theorem not_mem_iff_neg_mem {A: (Set U).Particular} {u: U.Particular}: (u ∉ₛ
     iff_intro h₁, h₂
 
 
-def non_elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
-  let pred := (S: Particular U ↦ x ∉ₛₑₜ S)
-  let cong: ∀ (X: (Set U).Particular), ∀ (Y: (Set U).Particular), X =ₛₑₜ Y → (x ∉ₛₑₜ X ↔ x ∉ₛₑₜ Y) := by forall_intro
-    variable(A: (Set U).Particular)
-    variable(B: (Set U).Particular)
-    have h₁: ∀ (Y: (Set U).Particular), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence1 (elements_of x)), A
+def non_elements_of (x: U.Particular): CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
+  let pred := (S: Set U ↦ x ∉ₛₑₜ S)
+  let cong: ∀ (X: Set U), ∀ (Y: Set U), X =ₛₑₜ Y → (x ∉ₛₑₜ X ↔ x ∉ₛₑₜ Y) := by forall_intro
+    variable(A: Set U)
+    variable(B: Set U)
+    have h₁: ∀ (Y: Set U), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence1 (elements_of x)), A
     have h₂: A =ₛₑₜ B → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B)) := by forall_elim h₁, B
     assume(h₃: A =ₛₑₜ B)
     have h₄: ¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B) := by modus_ponens h₂, h₃
@@ -126,14 +126,14 @@ def non_elements_of (x: U.Particular): CongruentUnaryPredicate (Set U) :=
     iterate h₉
   { pred:= pred, cong:= cong }
 
-def not_mem_predicate: CongruentBinaryPredicate U (Set U) :=
+def not_mem_predicate: CongruentBinaryPredicate U (𝐒𝐞𝐭 U) :=
   let pred:= (x: U.Particular ↦ non_elements_of x)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: (Set U).Particular), x =₍U₎ y → (x ∉ₛₑₜ X ↔ y ∉ₛₑₜ X) := by forall_intro
+  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (X: Set U), x =₍U₎ y → (x ∉ₛₑₜ X ↔ y ∉ₛₑₜ X) := by forall_intro
     variable(a: U.Particular)
     variable(b: U.Particular)
-    variable(S: (Set U).Particular)
-    have h₁: ∀ (y: U.Particular), ∀ (X: (Set U).Particular), a =₍U₎ y → (¬(a ∈ₛₑₜ X) ↔ ¬(y ∈ₛₑₜ X)) := by forall_elim (negation_preserves_congruence2 mem_predicate), a
-    have h₂: ∀ (X: (Set U).Particular), a =₍U₎ b → (¬(a ∈ₛₑₜ X) ↔ ¬(b ∈ₛₑₜ X)) := by forall_elim h₁, b
+    variable(S: Set U)
+    have h₁: ∀ (y: U.Particular), ∀ (X: Set U), a =₍U₎ y → (¬(a ∈ₛₑₜ X) ↔ ¬(y ∈ₛₑₜ X)) := by forall_elim (negation_preserves_congruence2 mem_predicate), a
+    have h₂: ∀ (X: Set U), a =₍U₎ b → (¬(a ∈ₛₑₜ X) ↔ ¬(b ∈ₛₑₜ X)) := by forall_elim h₁, b
     have h₃: a =₍U₎ b → (¬(a ∈ₛₑₜ S) ↔ ¬(b ∈ₛₑₜ S)) := by forall_elim h₂, S
     assume(h₄: a =₍U₎ b)
     have h₅: (¬(a ∈ₛₑₜ S) ↔ ¬(b ∈ₛₑₜ S)) := by modus_ponens h₃, h₄

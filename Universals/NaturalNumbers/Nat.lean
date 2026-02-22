@@ -1,38 +1,17 @@
-import Core.NaturalDeduction
-import Core.Universe
-import Core.Sets
+import Universe
+import Logic
+import Universals.Sets
+import Universals.NaturalNumbers.Universal
 
 open Universe
 open Sets
+open Logic
+open Logic.PC₁
+open Logic.ND
 
--- # Natural Numbers type
-axiom NaturalNumber : Type
-notation "ℕ" => NaturalNumber
-
--- # Natural Numbers equality
-axiom eq: ℕ → ℕ → Prop
-notation:50 A:51 " =ₙₐₜ " B:51 => eq A B
-
-axiom eq_refl: ∀ (n: ℕ), n =ₙₐₜ n
-axiom eq_poly_eq : ∀ (n: ℕ), ∀ (m: ℕ), n =ₙₐₜ m ↔ n =ₚ m
--- NOTE, we should be able to derive these
-axiom eq_sym: ∀ (n: ℕ), ∀ (m: ℕ), n =ₙₐₜ m → m =ₙₐₜ n
-axiom eq_trans: ∀ (n₁: ℕ), ∀ (n₂: ℕ), ∀ (n₃: ℕ), n₁ =ₙₐₜ n₂ ∧ n₂ =ₙₐₜ n₃ → n₁ =ₙₐₜ n₃
-
--- # Natural Numbers constructors
-axiom zero : ℕ
-notation "𝟬" => zero
-
-axiom succ : ℕ → ℕ
-prefix:max "𝚜" => succ
-
--- ## Successor equality-related axioms
-axiom succ_cong: ∀ (n: ℕ), ∀ (m: ℕ), (n =ₙₐₜ m) → (𝚜 n) =ₙₐₜ (𝚜 m)
-axiom zero_is_not_succ : ∀ (n: ℕ), ¬(𝟬 =ₙₐₜ 𝚜 n)
-axiom succ_injectivity : ∀ (m: ℕ), ∀ (n: ℕ), (𝚜 m =ₙₐₜ 𝚜 n) → (m =ₙₐₜ n)
 
 -- # Natural Numbers induction
-axiom induction : ∀ (S : Set ℕ),
+axiom induction : ∀ (S : Set 𝐍𝐚𝐭),
     ((𝟬 ∈ₛₑₜ S) ∧
     (∀ (n: ℕ), n ∈ₛₑₜ S → (𝚜 n) ∈ₛₑₜ S)) →
     (∀ (n: ℕ), n ∈ₛₑₜ S)
@@ -56,7 +35,7 @@ axiom add_cong_left: ∀ (n: ℕ), ∀ (n₁: ℕ), ∀ (n₂: ℕ), (n₁ =ₙ�
 
 theorem add_zero_right: ∀ (n: ℕ), (n +ₙₐₜ 𝟬) =ₙₐₜ n := by
   have h₁: ∀ (n: ℕ), (n +ₙₐₜ 𝟬) =ₙₐₜ n := by forall_intro
-    let A: Set ℕ := { n: ℕ | (n +ₙₐₜ 𝟬) =ₙₐₜ n }
+    let A: Set 𝐍𝐚𝐭 := { n: ℕ | (n +ₙₐₜ 𝟬) =ₙₐₜ n }
     variable (a: ℕ)
     have h₁₁: 𝟬 ∈ₛₑₜ A := by
       have h₁₁₁: (𝟬 +ₙₐₜ 𝟬) =ₙₐₜ 𝟬 := by forall_elim add_zero_def, 𝟬

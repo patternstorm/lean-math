@@ -2,6 +2,8 @@ import Universe
 
 import Logic
 
+import Universals.Sets.Particular
+
 /-!
 # Sets as Unary Predicates
 A `Unary Predicate` introduces structure into the `Universe`, it partitions the `Particulars` into two, according to whether they satisfy the `Predicate` or not.
@@ -86,20 +88,12 @@ open Logic.PC₁
 
 namespace Sets
 
--- # `Sets`are "represented" by `Unary Predicates`
-def Particular (U: Universal): Type := CongruentUnaryPredicate U
-
--- # `Set` equality predicate
-axiom eq: Particular U → Particular U → Prop
-notation:50 A:51 " =ₛₑₜ " B:51 => eq A B
-
--- ## Two `Sets` are equal if their predicates are logically equivalent.
-axiom eq_def: ∀ (S₁: Particular U), ∀ (S₂: Particular U), S₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), S₁.pred x ↔ S₂.pred x
+-- # =ₛₑₜ is an equivalence relation
 
 -- ## `Set` equality is reflexive
-theorem eq_refl: ∀ (S: Particular U), S =ₛₑₜ S := by forall_intro
-  variable(A: Particular U)
-  have h₁: ∀ (S₂: Particular U), A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+theorem eq_refl: ∀ (S: Set U), S =ₛₑₜ S := by forall_intro
+  variable(A: Set U)
+  have h₁: ∀ (S₂: Set U), A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
   have h₂: A =ₛₑₜ A ↔ ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_elim h₁, A
   have h₃: ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_intro
     variable(a: U.Particular)
@@ -112,12 +106,12 @@ theorem eq_refl: ∀ (S: Particular U), S =ₛₑₜ S := by forall_intro
   iterate h₄
 
 -- ## `Set` equality is symmetric
-theorem eq_sym: ∀ (S₁: Particular U), ∀ (S₂: Particular U), S₁ =ₛₑₜ S₂ → S₂ =ₛₑₜ S₁ := by forall_intro
-  variable(A: Particular U)
-  variable(B: Particular U)
-  have h₁: ∀ S₂: Particular U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+theorem eq_sym: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ → S₂ =ₛₑₜ S₁ := by forall_intro
+  variable(A: Set U)
+  variable(B: Set U)
+  have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
   have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
-  have h₃: ∀ S₂: Particular U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
+  have h₃: ∀ S₂: Set U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
   have h₄: B =ₛₑₜ A ↔ ∀ (x: U.Particular), B.pred x ↔ A.pred x := by forall_elim h₃, A
   have h₅: A =ₛₑₜ B → B =ₛₑₜ A := by
     assume(h₅₁: A =ₛₑₜ B)
@@ -132,13 +126,13 @@ theorem eq_sym: ∀ (S₁: Particular U), ∀ (S₂: Particular U), S₁ =ₛₑ
   iterate h₅
 
 -- ## `Set` equality is transitive
-theorem eq_trans: ∀ (S₁: Particular U), ∀ (S₂: Particular U), ∀ (S₃: Particular U), S₁ =ₛₑₜ S₂ ∧ S₂ =ₛₑₜ S₃ → S₁ =ₛₑₜ S₃ := by forall_intro
-  variable(A: Particular U)
-  variable(B: Particular U)
-  variable(C: Particular U)
-  have h₁: ∀ S₂: Particular U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+theorem eq_trans: ∀ (S₁: Set U), ∀ (S₂: Set U), ∀ (S₃: Set U), S₁ =ₛₑₜ S₂ ∧ S₂ =ₛₑₜ S₃ → S₁ =ₛₑₜ S₃ := by forall_intro
+  variable(A: Set U)
+  variable(B: Set U)
+  variable(C: Set U)
+  have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
   have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
-  have h₃: ∀ S₂: Particular U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
+  have h₃: ∀ S₂: Set U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
   have h₄: B =ₛₑₜ C ↔ ∀ (x: U.Particular), B.pred x ↔ C.pred x := by forall_elim h₃, C
   have h₅: A =ₛₑₜ C ↔ ∀ (x: U.Particular), A.pred x ↔ C.pred x := by forall_elim h₁, C
   assume(h₆: A =ₛₑₜ B ∧ B =ₛₑₜ C)
@@ -166,15 +160,20 @@ theorem eq_trans: ∀ (S₁: Particular U), ∀ (S₂: Particular U), ∀ (S₃:
   iterate h₁₂
 
 -- # `Set` equality
-def equality: Equality (Particular U) :=
-  let pred: Particular U → Particular U → Prop := eq
-  let refl: ∀ (x: Particular U), pred x x := eq_refl
-  let sym: ∀ (x: Particular U), ∀ (y: Particular U), pred x y → pred y x := eq_sym
-  let trans: ∀ (x: Particular U), ∀ (y: Particular U), ∀  (z: Particular U), pred x y ∧ pred y z → pred x z := eq_trans
+def equality: Equality (Set U) :=
+  let pred: Set U → Set U → Prop := eq
+  let refl: ∀ (x: Set U), pred x x := eq_refl
+  let sym: ∀ (x: Set U), ∀ (y: Set U), pred x y → pred y x := eq_sym
+  let trans: ∀ (x: Set U), ∀ (y: Set U), ∀  (z: Set U), pred x y ∧ pred y z → pred x z := eq_trans
   { pred:= pred, refl:= refl, sym:= sym, trans:= trans }
 
 -- # `Set` Universal
-def Set (U: Universal): Universal := {
-  Particular := Particular U
+@[reducible] def SetsUniversal (U: Universal): Universal := {
+  Particular := Set U
   eq:= equality
 }
+notation "𝐒𝐞𝐭" => SetsUniversal
+
+end Sets
+
+end Universe

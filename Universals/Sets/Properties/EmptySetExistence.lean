@@ -21,9 +21,9 @@ open Logic.PC₁
 -- over any Universal, regardless of what else exists. The empty set is simply the
 -- extension of this trivially valid predicate — no infinite sets required.
 
-theorem empty_set_existence: ∃ (S: (Set U).Particular), ∀ (x: U.Particular), x ∉ₛₑₜ S := by
+theorem empty_set_existence: ∃ (S: Set U), ∀ (x: U.Particular), x ∉ₛₑₜ S := by
   have h₁: ∀ (x: U.Particular), x ∉ₛₑₜ ∅ₛₑₜ := empty_set_contains_no_elements
-  have h₂: ∃ (S : (Set U).Particular), ∀ (x : U.Particular), x ∉ₛₑₜ S := by exists_intro h₁, ∅ₛₑₜ
+  have h₂: ∃ (S : Set U), ∀ (x : U.Particular), x ∉ₛₑₜ S := by exists_intro h₁, ∅ₛₑₜ
   iterate h₂
 
 end Sets

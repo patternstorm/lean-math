@@ -20,30 +20,20 @@ open Universe.Sets
 -- # Foundational `Sets`
 
 
--- Notation for the singleton set containing just x: { x } denotes the predicate satisfied only by x
-def singleton_of (U: Universal) (x : U.Particular) : (Set U).Particular := { y : U.Particular | U.eq.pred y x } with (equal_to x).cong
-macro "{" x:term "}" : term => `(singleton_of $x)
-
--- Operation to extract the unique element from a SingletonSet
-axiom singleton_elem : (SingletonSet U).Particular → U.Particular
-notation "⊙" S => singleton_elem S
-
--- Behavior: the extracted element is the unique member of the singleton
-axiom singleton_elem_def : ∀ (S : (SingletonSet U).Particular), (⊙ S) ∈ₛₑₜ S.val
-axiom singleton_elem_unique : ∀ (S : (SingletonSet U).Particular), ∀ (x : U.Particular), x ∈ₛₑₜ S.val → x =₍U₎ (⊙ S)
-
 -- # Set operations.
--- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.
-def compl (A: (Set X).Particular): (Set X).Particular := { x: X.Particular | ¬(A.pred x) } with negation_preserves_congruence1 A 
-prefix:max "¬ₛₑₜ" => compl
-
--- The intersection of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∧ P₍b₎(x)`.
-def inter (A B: (Set X).Particular): (Set X).Particular := fun (x: Particular X) => A x ∧ B x
-infixl:70 " ∩ₛₑₜ " => inter
 
 -- The union of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∨ P₍b₎(x)`.
-def union (A B: Set X): Set X := fun (x: Particular X) => A x ∨ B x
+def union (A B: Set X): Set X := { x: X.Particular | A.pred x ∨ B.pred x } with sorry
 infixl:65 " ∪ₛₑₜ " => union
+
+-- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.
+def compl (A: Set X): Set X := { x: X.Particular | ¬(A.pred x) } with negation_preserves_congruence1 A
+prefix:max "¬ₛₑₜ" => compl
+
+
+-- The intersection of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∧ P₍b₎(x)`.
+def inter (A B: Set X): Set X := fun (x: X.Particular) => A x ∧ B x
+infixl:70 " ∩ₛₑₜ " => inter
 
 -- # Theorems
 
@@ -54,18 +44,18 @@ infixl:65 " ∪ₛₑₜ " => union
 
 
 --The `Empty Set` is unique.
-theorem empty_set_uniqueness: ∃!₍Set U₎ (S: (Set U).Particular), ∀ (x: U.Particular), x ∉ₛₑₜ S := by
+theorem empty_set_uniqueness: ∃!₍𝐒𝐞𝐭 U₎ (S: Set U), ∀ (x: U.Particular), x ∉ₛₑₜ S := by
 
   -- P is the predicate for which we want to prove unique existence
-  let P: (Set U).Particular → Prop := (S: (Set U).Particular ↦ ∀ (x: U.Particular), x ∉ₛₑₜ S)
+  let P: Set U → Prop := (S: Set U ↦ ∀ (x: U.Particular), x ∉ₛₑₜ S)
 
   -- A is the "only" Set that meets P.
-  have h₁: ∃ (S: (Set U).Particular), P S := empty_set_existence
-  have ⟨(A: (Set U).Particular), (h₂: P A)⟩ := exists_elim h₁
+  have h₁: ∃ (S: Set U), P S := empty_set_existence
+  have ⟨(A: Set U), (h₂: P A)⟩ := exists_elim h₁
 
   -- Any Set that meets P is equal to A.
-  have h₃: ∀ (S: (Set U).Particular), P S → (S =ₛₑₜ A) := by forall_intro
-    variable (B: (Set U).Particular)
+  have h₃: ∀ (S: Set U), P S → (S =ₛₑₜ A) := by forall_intro
+    variable (B: Set U)
     assume (h₂₁: P B)
 
     -- We first show equal extensionality and then convert to set equality.
@@ -88,8 +78,8 @@ theorem empty_set_uniqueness: ∃!₍Set U₎ (S: (Set U).Particular), ∀ (x: U
       iff_intro h₂₂₁, h₂₂₂
 
     -- Convert extensionality to set equality
-    have h₂₃: ∀ (S₂: (Set U).Particular), B =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, B
-    have h₂₄: B =ₛₑₜ A ↔ (∀ (x: Particular X), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ A) := by forall_elim h₂₃, A
+    have h₂₃: ∀ (S₂: Set U), B =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, B
+    have h₂₄: B =ₛₑₜ A ↔ (∀ (x: U.Particular), x ∈ₛₑₜ B ↔ x ∈ₛₑₜ A) := by forall_elim h₂₃, A
     have h₂₅: B =ₛₑₜ A := PC₀.deductive_eq_r2l h₂₄ h₂₂
 
     -- Convert set equality to polymorphic equality

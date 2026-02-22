@@ -111,7 +111,12 @@ have h₄: R := by or_elimination h₁, h₂, h₃  -- h₁ : P ∨ Q, h₂ : P 
 have h₂: ∃ (x: T), P x := by exists_intro h₁, witness
 ```
 
-Note: `exists_elim` is a def (identity on existentials), not a tactic.
+**Elimination** — `exists_elim` (term-mode with destructuring, NOT a tactic):
+```lean
+-- From h₁ : ∃ (x: T), P x, extract the witness and proof
+have ⟨(a: T), (h₂: P a)⟩ := exists_elim h₁
+-- Now a : T and h₂ : P a are in scope
+```
 
 ### Negation
 
@@ -219,7 +224,7 @@ iterate h₅
 To work with set equality, always instantiate `eq_def` first:
 
 ```lean
-have h₁: ∀ S₂: (Set U).Particular, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
 have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
 ```
 

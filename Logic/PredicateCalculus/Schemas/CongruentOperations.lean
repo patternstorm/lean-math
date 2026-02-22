@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Schemas.CongruentOperations.Unary
+import Logic.PredicateCalculus.Schemas.CongruentOperations.Binary

@@ -20,9 +20,9 @@ namespace Sets
 -- and restricted comprehension), our predicate-based approach allows the universal set
 -- to exist: the predicate `x: U.Particular ↦ True` is well-formed and its extension is the set of
 -- all particulars.
-theorem universal_set_existence : ∃ (S: (Set U).Particular), ∀ (x: U.Particular), x ∈ₛₑₜ S := by
+theorem universal_set_existence : ∃ (S: Set U), ∀ (x: U.Particular), x ∈ₛₑₜ S := by
   have h₁: ∀ (x: U.Particular), x ∈ₛₑₜ Uₛₑₜ := universal_set_contains_all_elements
-  have h₂: ∃ (S: (Set U).Particular), ∀ (x: U.Particular), x ∈ₛₑₜ S := by exists_intro h₁, Uₛₑₜ
+  have h₂: ∃ (S: Set U), ∀ (x: U.Particular), x ∈ₛₑₜ S := by exists_intro h₁, Uₛₑₜ
   iterate h₂
 
 end Sets
