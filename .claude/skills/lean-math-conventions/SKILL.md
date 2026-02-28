@@ -182,7 +182,73 @@ All binary relation notations use `notation:50 a:51 ... b:51` — precedence 50 
 
 ### Axiomatic Definitions (ADT Style)
 
-Predicates and operations on Universals follow the same ADT pattern:
+Mathematical objects are modelled as Abstract Data Types (ADTs). An ADT is a type together with its operations and predicates, all specified axiomatically. The full pattern, from type to Universal:
+
+#### Step 1: Particulars — the type and its constructors
+
+Particulars can be **postulated** (like natural numbers) or **derived** (like sets).
+
+For postulated types, declare the type and its generative constructors as axioms:
+
+```lean
+-- Type
+axiom NaturalNumber : Type
+notation "ℕ" => NaturalNumber
+
+-- Generative constructors (these are operations)
+axiom zero : ℕ
+axiom succ : ℕ → ℕ
+```
+
+For derived types, the type is a `def` based on existing concepts:
+
+```lean
+def Set (U: Universal): Type := CongruentUnaryPredicate U
+```
+
+#### Step 2: Equality — the impurifier equations
+
+Declare equality as an axiom, then specify it via a grid of constructor interactions:
+
+```lean
+axiom eq: ℕ → ℕ → Prop
+notation:50 a:51 " =ₙₐₜ " b:51 => eq a b
+
+-- Impurifier equations: n×n grid of constructor pairs
+--              𝟬                𝚜 m
+--   𝟬    𝟬 =ₙₐₜ 𝟬          ¬(𝟬 =ₙₐₜ 𝚜 m)
+--   𝚜 n  ¬(𝚜 n =ₙₐₜ 𝟬)    𝚜 n =ₙₐₜ 𝚜 m ↔ n =ₙₐₜ m
+axiom zero_refl: 𝟬 =ₙₐₜ 𝟬
+axiom zero_is_not_succ: ∀ (n: ℕ), ¬(𝟬 =ₙₐₜ 𝚜 n)
+axiom succ_is_not_zero: ∀ (n: ℕ), ¬(𝚜 n =ₙₐₜ 𝟬)
+axiom succ_cong: ∀ (n: ℕ), ∀ (m: ℕ), (𝚜 n) =ₙₐₜ (𝚜 m) ↔ n =ₙₐₜ m
+```
+
+For derived types like sets, equality is specified by a single axiom_def (e.g., extensionality).
+
+#### Step 3: Induction instances (postulated types only)
+
+Since postulated types are opaque axioms (not Lean `inductive`), Lean provides no recursor. Provide one induction axiom instance per predicate that needs it (axiom scheme, not second-order):
+
+```lean
+axiom exhaustiveness_induction: ∀ (n: ℕ), n =ₙₐₜ 𝟬 ∨ ∃ (k: ℕ), n =ₙₐₜ 𝚜 k
+axiom eq_refl_induction: ∀ (n: ℕ), n =ₙₐₜ n
+```
+
+#### Step 4: Universal — bundling type + equality
+
+Prove that equality is reflexive, symmetric, and transitive (from the impurifier equations + induction), then bundle as a Universal:
+
+```lean
+def NaturalNumbersUniversal: Universal := {
+  Particular := ℕ
+  eq := { pred := eq, refl := ..., sym := ..., trans := ... }
+}
+```
+
+#### Step 5: Operations and predicates on the Universal
+
+Operations and predicates follow the same axiom + axiom_def + congruence pattern:
 
 1. **Axiom** — declare the signature
 2. **Axiom definition** — specify behavior (typically an iff, with the operation being defined on the left side)
@@ -205,6 +271,8 @@ def singleton_predicate: CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
   let cong: ... := by forall_intro ...  -- unfolds is_singleton_def in proof
   { pred := pred, cong := cong }
 ```
+
+See `Universals/NaturalNumbers/Particular.lean` for the canonical postulated type example, and `Universals/Sets/Particular.lean` for the canonical derived type example.
 
 ## Namespace and Import Conventions
 

@@ -17,6 +17,9 @@ name = "Universe"
 [[lean_lib]]
 name = "Core"
 
+[[lean_lib]]
+name = "Test"
+
 [[lean_exe]]
 name = "lean-math"
 root = "Main"

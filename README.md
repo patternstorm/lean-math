@@ -111,3 +111,72 @@ This is a poor man's univalence. In Homotopy Type Theory, the univalence axiom a
 In the implementation, Lean provides convenient packaging: structures that bundle types with equalities (`Universal`), and predicates with their congruence proofs (`CongruentPredicate`). This is pure first-order logic; Lean adds no logical power, only discipline. What would be tracked informally in a textbook — "see Lemma 3.2 for well-definedness" — is here bundled directly with the predicate.
 
 Every predicate in this `Theory` is a `CongruentPredicate`. The congruence proofs are not bureaucratic overhead — they are the mathematical content that ensures our constructions respect the equivalence structure each `Universal` has chosen.
+
+---
+
+## Existence and Predication
+
+The philosophical core of this framework rests on a single principle: **existence is the only primitive assertion; everything else comes from predicates.**
+
+A particular `a` asserts that `a` exists in the universe, with the syntactic form given by its constructors. Its identity is constituted by the equality of the `Universal` it belongs to — the only relation a particular has out of the box, before any predication. Beyond that, it has no properties, no relations, no meaning.
+
+Predicates are what make existence meaningful. A unary predicate `P(x)` selects from existing particulars, actualizing which properties they have. Properties and relations beyond equality are not intrinsic to particulars — they are bestowed by predication.
+
+### Co-Existence
+
+But what about relations? A relation is not a property of one particular — it involves two. How does the framework handle this without breaking the uniform view that all predicates select particulars?
+
+The answer: **co-existence is equally primitive**. A `Dyad` `a ⋈ b` asserts exactly one thing: that `a` and `b` co-exist in the universe. Nothing more. No direction, no relation, no properties. Just co-presence. Before predication, a dyad has no relational content — it only asserts that its two particulars can be relata.
+
+This achieves the following symmetry:
+
+| | Particular `a` | Dyad `a ⋈ b` |
+|---|---|---|
+| **What it asserts** | `a` exists | `a` and `b` co-exist |
+| **What predicates do** | Actualize which properties | Actualize which relations |
+
+Particulars and dyads are equally primitive, equally bare. The only difference is structural — the number of terms whose co-existence is asserted. And since dyads are themselves particulars of their own `Universal`, the framework treats them uniformly.
+
+### Recursive Co-Existential Closure
+
+The universe is closed under co-existential binding at all levels. If `X` and `Y` exist, then `X ⋈ Y` exists. This applies recursively:
+
+- `a ⋈ b` exists if `a` and `b` exist
+- `a ⋈ (b ⋈ c)` exists if `a` and `b ⋈ c` exist
+- `(a ⋈ b) ⋈ (c ⋈ d)` exists if `a ⋈ b` and `c ⋈ d` exist
+
+This is not a process — nothing is "created later." The universe is saturated by structural closure. Because dyads are predicate-associative — different nestings of the same base particulars are predicate-equivalent — the dimension of a co-existence is simply the number of base particulars it involves:
+
+- 1-dim: a single particular
+- 2-dim: a dyad of two particulars (`a ⋈ b`)
+- 3-dim: three particulars (`a ⋈ (b ⋈ c)`, equivalently `(a ⋈ b) ⋈ c`)
+- n-dim: n base particulars, nested in any order
+
+### Predicate Uniformity
+
+Because dyads at every level are first-class `Particulars` forming their own `Universals`, all predicates remain unary — they just act on different structural levels:
+
+- Unary predicates on particulars actualize **properties**
+- Unary predicates on dyads actualize **relations**
+- Unary predicates on nested dyads actualize **higher-order relational structure**
+
+The universe is just the totality of what exists — particulars and their co-existences. Logic (predicates) is what makes that existence meaningful by selecting patterns from it. The two are perfectly separable and perfectly complementary.
+
+---
+
+## Variable-Arity Predicates
+
+The philosophy above has a concrete technical realization. A predicate is a statement template with typed placeholders. A unary predicate `P(x)` has one placeholder — it selects `Particulars` from a `Universal`. A binary predicate `R(x, y)` has two independent placeholders. We want the same uniform view: all predicates select `Particulars`.
+
+Dyads make this possible. If `a : U₁` and `b : U₂`, then `a ⋈ b : U₁ ⋈ U₂` is the dyad binding the relata `a` and `b` into a single term. Dyads form their own `Universal` with relatum-wise equality, so they can be quantified over, collected into sets, and subjected to the same predicate machinery as any other `Particulars`.
+
+To transport between binary predicates and unary predicates on `Dyads`, we introduce two axiom schemes:
+
+- **Predicate Uncurry**: takes two independent placeholders and binds them into a single dyad placeholder. `R(a, b)` becomes `uncurry R(d)`.
+- **Predicate Curry**: splits a dyad placeholder into two independent placeholders. `P(d)` becomes `curry P(a, b)`.
+
+These are called "curry" and "uncurry" by analogy with function theory, but they operate on statement templates, not functions. The propositional content is preserved: `uncurry R (a ⋈ b) ↔ R a b` and `curry P a b ↔ P (a ⋈ b)`.
+
+**Why axiom schemes?** In type theory or higher-order logic, predicate uncurry is provable via lambda abstraction: given `R : A → B → Prop`, one writes `λd. R d.left d.right`. But lambda abstraction treats predicates as functions, and in this `Theory`, `Functions` are derived from predicates (see Note 2 in The Theory). Using lambda abstraction to define predicate uncurry would introduce a circularity. So we postulate predicate curry and uncurry as axiom schemes — conservative definitional extensions that add no new theorems in the old language.
+
+**Higher arities compose via nesting.** Dyads nest: a ternary predicate `R(x, y, z)` becomes a unary predicate on `U₁ ⋈ (U₂ ⋈ U₃)` by applying uncurry twice. The same two axiom schemes handle any arity — no new machinery is needed beyond arity 2.
