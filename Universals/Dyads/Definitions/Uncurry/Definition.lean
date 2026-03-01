@@ -9,16 +9,18 @@ open Logic
 open Logic.PC₁
 
 -- # Predicate Uncurry
--- Axiom scheme: transports a binary predicate on two types to a unary predicate on their Dyad.
+-- Axiom scheme: for any binary predicate R on two types, there exists a unary predicate
+-- on their Dyad — called `uncurry R` — such that saying something about a and b
+-- separately (R a b) is the same as saying it about their dyad (uncurry R (a ⋈ b)).
+-- Whatever is true of the pair is true of the dyad, and vice versa. Uncurry just
+-- changes the syntactic form — from two placeholders to one — without changing
+-- what's being asserted.
+--
 -- Each concrete binary predicate R generates one instance of this axiom scheme.
 -- R is a metavariable ranging over predicate symbols, not a second-order quantification.
 --
 -- The name "uncurry" is borrowed from function theory, but here it operates on
--- statement templates, not functions. A binary predicate R(a, b) has two independent
--- placeholders. Predicate uncurry binds them together into a single dyad placeholder,
--- yielding a unary predicate uncurry R(d). The two previously independent placeholders
--- are now related via the dyad. The propositional content is preserved:
--- uncurry R (a ⋈ b) ↔ R a b.
+-- statement templates, not functions.
 --
 -- Predicate uncurry must be postulated as an axiom scheme rather than proved via
 -- lambda abstraction — see README.md § "Variable-Arity Predicates" for why.
@@ -29,9 +31,12 @@ open Logic.PC₁
 --
 -- This is a conservative definitional extension: it introduces a new predicate symbol
 -- defined by equivalence, adding no new theorems in the old language.
+--
+-- R is a named parameter (not universally quantified) because this is an axiom scheme:
+-- each concrete R generates one instance.
 axiom uncurry {U₁: Universal}{U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop): (U₁ ⋈ U₂).Particular → Prop
 axiom uncurry_def {U₁: Universal}{U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop):
-  ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), uncurry R (a ⋈ b) ↔ R a b
+  ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), (uncurry R) (a ⋈ b) ↔ R a b
 
 end Dyads
 end Universe

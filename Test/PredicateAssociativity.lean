@@ -36,11 +36,11 @@ theorem predicate_associativity
   {U₁: Universal} {U₂: Universal} {U₃: Universal}
   (P: ((U₁ ⋈ U₂) ⋈ U₃).Particular → Prop):
   ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∀ (c: U₃.Particular),
-    reassoc P (a ⋈ (b ⋈ c)) ↔ P ((a ⋈ b) ⋈ c) := by forall_intro
+    (reassoc P) (a ⋈ (b ⋈ c)) ↔ P ((a ⋈ b) ⋈ c) := by forall_intro
   variable(a: U₁.Particular)
   variable(b: U₂.Particular)
   variable(c: U₃.Particular)
-  -- Outer uncurry_def: reassoc P (a ⋈ (b ⋈ c)) ↔ (inner uncurry)(b ⋈ c)
+  -- Outer uncurry_def: (reassoc P) (a ⋈ (b ⋈ c)) ↔ (inner uncurry)(b ⋈ c)
   let outer_R: U₁.Particular → (U₂ ⋈ U₃).Particular → Prop :=
     (x: U₁.Particular ↦ uncurry (y: U₂.Particular ↦ (z: U₃.Particular ↦ P ((x ⋈ y) ⋈ z))))
   have h₁: ∀ (x: U₁.Particular), ∀ (d: (U₂ ⋈ U₃).Particular),
@@ -56,18 +56,18 @@ theorem predicate_associativity
   have h₅: ∀ (z: U₃.Particular),
     uncurry inner_R (b ⋈ z) ↔ inner_R b z := by forall_elim h₄, b
   have h₆: uncurry inner_R (b ⋈ c) ↔ inner_R b c := by forall_elim h₅, c
-  -- Chain: reassoc P (a ⋈ (b ⋈ c)) ↔ outer_R a (b ⋈ c) ↔ P((a ⋈ b) ⋈ c)
-  have h₇: reassoc P (a ⋈ (b ⋈ c)) → P ((a ⋈ b) ⋈ c) := by
-    assume(h₇₁: reassoc P (a ⋈ (b ⋈ c)))
+  -- Chain: (reassoc P) (a ⋈ (b ⋈ c)) ↔ outer_R a (b ⋈ c) ↔ P((a ⋈ b) ⋈ c)
+  have h₇: (reassoc P) (a ⋈ (b ⋈ c)) → P ((a ⋈ b) ⋈ c) := by
+    assume(h₇₁: (reassoc P) (a ⋈ (b ⋈ c)))
     have h₇₂: outer_R a (b ⋈ c) := PC₀.deductive_eq_l2r h₃ h₇₁
     have h₇₃: inner_R b c := PC₀.deductive_eq_l2r h₆ h₇₂
     iterate h₇₃
-  have h₈: P ((a ⋈ b) ⋈ c) → reassoc P (a ⋈ (b ⋈ c)) := by
+  have h₈: P ((a ⋈ b) ⋈ c) → (reassoc P) (a ⋈ (b ⋈ c)) := by
     assume(h₈₁: P ((a ⋈ b) ⋈ c))
     have h₈₂: uncurry inner_R (b ⋈ c) := PC₀.deductive_eq_r2l h₆ h₈₁
-    have h₈₃: reassoc P (a ⋈ (b ⋈ c)) := PC₀.deductive_eq_r2l h₃ h₈₂
+    have h₈₃: (reassoc P) (a ⋈ (b ⋈ c)) := PC₀.deductive_eq_r2l h₃ h₈₂
     iterate h₈₃
-  have h₉: reassoc P (a ⋈ (b ⋈ c)) ↔ P ((a ⋈ b) ⋈ c) := by iff_intro h₇, h₈
+  have h₉: (reassoc P) (a ⋈ (b ⋈ c)) ↔ P ((a ⋈ b) ⋈ c) := by iff_intro h₇, h₈
   iterate h₉
 
 end Dyads

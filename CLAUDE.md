@@ -18,4 +18,5 @@ Load the relevant skill before starting work:
 - **`/lean-math-overview`** — Project architecture, philosophy, schemas, sub-universals, file structure. Start here for new sessions.
 - **`/lean-math-proofs`** — Custom natural deduction tactics, proof patterns, congruence proofs.
 - **`/lean-math-sets`** — The Set Universal: sets as predicates, membership, inclusion, powerset, stratification.
+- **`/lean-math-dyads`** — The Dyad Universal: co-existence, predicate curry/uncurry, predicate associativity, `⋈` notation.
 - **`/lean-math-conventions`** — Naming, file organization (ADT barrel pattern), notation, user preferences.

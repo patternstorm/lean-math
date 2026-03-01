@@ -59,7 +59,7 @@ When adding a new file, always update the corresponding barrel file.
 
 ### Where to Place New Concepts
 
-For any Universal X (Sets, NaturalNumbers, Relations, Categories, etc.):
+For any Universal X (Dyads, Sets, NaturalNumbers, Relations, Categories, etc.):
 
 - **New universal** → `Universals/X/Universal.lean`
 - **New sub-universal** → `Universals/X/Universals/Name/Universal.lean`
@@ -133,9 +133,11 @@ Each Universal has three names:
 
 | Role | Pattern | Examples |
 |------|---------|----------|
-| Internal def name | `XUniversal` (PascalCase) | `SetsUniversal`, `SingletonSetUniversal` |
+| Internal def name | `XUniversal` (PascalCase) | `SetsUniversal`, `SingletonSetUniversal`, `DyadUniversal` |
 | Bold Unicode notation (the Universal) | `𝐗` (bold) | `𝐍𝐚𝐭`, `𝐒𝐞𝐭`, `𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭` |
 | Plain text type alias (the particulars) | readable name | `ℕ`, `Set U`, `SingletonSet U` |
+
+**Dyad variant**: `DyadUniversal` uses infix notation `U₁ ⋈ U₂` instead of bold prefix. It has no plain type alias — use `(U₁ ⋈ U₂).Particular` for the type of dyads. See the **lean-math-dyads** skill for the `⋈` overloading convention.
 
 Use the **bold Universal** (`𝐒𝐞𝐭 U`) wherever a `Universal` argument is expected (schemas, `sub_universal`, `∃!₍...₎`). Use the **plain type** (`Set U`) for type annotations of values.
 
@@ -164,6 +166,17 @@ notation:50 a:51 " =₍" U:51 "₎ " b:51 => universal_eq U a b
 Use `=₍U₎` for equality in Universal U. For set equality, prefer `=ₛₑₜ` over `=₍𝐒𝐞𝐭 U₎` — it's polymorphic across levels.
 
 **Sub-universal equality**: `=₍sub_universal U P₎` is definitionally equal to `=₍U₎` on lifted values. Prefer `↑x =₍U₎ ↑y` over `x =₍sub_universal U P₎ y` — it's clearer and avoids verbose sub-universal names.
+
+### Overloaded Notation: The `⋈` Symbol
+
+The `⋈` symbol is overloaded with two meanings, disambiguated by type:
+
+| Context | Meaning | Result type |
+|---------|---------|-------------|
+| Between Universals | `DyadUniversal U₁ U₂` | `Universal` |
+| Between Particulars | `bind a b` | `Dyad U₁ U₂` |
+
+Both notations use precedence 35 — matching precedences lets Lean create one parse tree and disambiguate by type. See the **lean-math-dyads** skill for full details.
 
 ### Prefix Operators
 
@@ -273,6 +286,24 @@ def singleton_predicate: CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
 ```
 
 See `Universals/NaturalNumbers/Particular.lean` for the canonical postulated type example, and `Universals/Sets/Particular.lean` for the canonical derived type example.
+
+#### Axiom Schemas vs Regular Axioms
+
+Some axioms are **axiom schemas** — they generate one instance per predicate, relation, isomorphism, or other parameter. The schema parameter is a **named parameter** of the axiom, not universally quantified with `∀`. The remaining variables (elements of universals) are quantified with `∀` in the axiom_def.
+
+```lean
+-- Axiom schema: R is a named parameter (one instance per concrete R)
+axiom uncurry {U₁: Universal} {U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop):
+  (U₁ ⋈ U₂).Particular → Prop
+axiom uncurry_def {U₁: Universal} {U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop):
+  ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), (uncurry R) (a ⋈ b) ↔ R a b
+
+-- Regular axiom: all parameters are universally quantified
+axiom mem: U.Particular → Set U → Prop
+axiom mem_def: ∀ (S: Set U), ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ S.pred x
+```
+
+The distinction: a schema parameter drives the generation of instances (each concrete R gives a different `uncurry R`), while regular axiom parameters are just variables within a single axiom.
 
 ## Namespace and Import Conventions
 

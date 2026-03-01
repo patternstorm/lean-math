@@ -4,35 +4,35 @@ import Logic
 /-!
 # Dyad
 
-## Motivation: the uniform predicate view
+## Co-Existence
 
-Unary predicates select particulars: P(x) picks out elements of a Universal.
-But what about predicates of higher arity? A binary predicate R(x,y) takes
-terms from two Universals — it doesn't select elements, it selects *relations*.
+Existence is the only primitive assertion in this framework. A particular `a`
+asserts that `a` exists. A dyad `a ⋈ b` asserts exactly one thing: that `a`
+and `b` co-exist in the universe. Nothing more — no direction, no relation,
+no properties. Before predication, a dyad has no relational content; it only
+asserts that its two particulars can be relata.
 
-The key insight is that we can restore uniformity by introducing dyads —
-particulars that represent the relatedness of two terms. If a : U₁ and b : U₂,
-then a ⋈ b : U₁ ⋈ U₂ is the dyad binding a and b into a single relatum.
-A binary predicate, recast as a unary predicate on dyads, selects
-relation-particulars from a Dyad Universal — exactly as a unary predicate
-selects elements from an ordinary Universal.
+Particulars and dyads are equally primitive, equally bare. The only difference
+is structural — the number of terms whose co-existence is asserted. Predicates
+are what make this co-existence meaningful: a unary predicate on a dyad
+actualizes which relations hold.
 
-This is the uniform view: all predicates select particulars.
-The arity of a predicate determines only what kind of particular it selects —
-elements for unary, dyads for binary, nested dyads for higher arities.
+## Predicate Uniformity
 
-## Dyads are not pairs
+Unary predicates on particulars actualize properties. Unary predicates on
+dyads actualize relations. Since dyads are themselves particulars of their
+own Universal, all predicates remain unary — they just act on different
+structural levels. This is the uniform view: all predicates select particulars.
 
-A dyad is not a pair or product. Pairs package data; dyads represent relations.
-The distinction is semantic, not structural: a ⋈ b is the relatum of a and b,
-the particular that witnesses their relatedness under some predicate.
+## Recursive Co-Existential Closure
 
-## Higher arities via nesting
-
-Dyads nest to handle any arity. A ternary predicate R(x,y,z) becomes a unary
-predicate on U₁ ⋈ (U₂ ⋈ U₃). The curry/uncurry axiom schemes (see Definitions/),
-applied iteratively, transport between n-ary predicates and unary predicates
-on nested dyads. No new machinery is needed beyond arity 2.
+The universe is closed under co-existential binding at all levels. Dyads nest:
+`a ⋈ (b ⋈ c)` exists if `a` and `b ⋈ c` exist. Because dyads are
+predicate-associative — different nestings of the same base particulars are
+predicate-equivalent — the dimension of a co-existence is simply the number
+of base particulars it involves. The curry/uncurry axiom schemes
+(see Definitions/) transport between n-ary predicates and unary predicates
+on nested dyads.
 
 ## ADT specification
 

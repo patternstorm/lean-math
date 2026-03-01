@@ -11,6 +11,8 @@ This project formalizes mathematics from first-order logic (FOL) using Lean 4 as
 
 **Key principle**: Some structures are **derived** from logic — sets, for example, are derived from predicates. Others — like natural numbers — are **postulated** as initial objects, ADT-style, within typed first-order logic. The project shows that set theory, traditionally built on ZFC axioms, can be derived from predicate logic, while other mathematical objects can be introduced axiomatically without leaving FOL.
 
+**Existence and co-existence**: Existence is the only primitive assertion. A particular `a` asserts that `a` exists; a dyad `a ⋈ b` asserts that `a` and `b` co-exist. Predicates actualize meaning: unary predicates on particulars actualize properties, unary predicates on dyads actualize relations. Since dyads are themselves particulars of their own Universal, all predicates remain unary — the uniform view. The universe is closed under co-existential binding at all levels, and predicate curry/uncurry transport between n-ary predicates and unary predicates on nested dyads. See the **lean-math-dyads** skill for details.
+
 **Critical constraint**: All proofs must be explicit FOL proofs using custom natural deduction tactics. Do NOT use Lean's built-in `simp`, `omega`, `decide`, `rfl`, or automation tactics. The project defines its own proof infrastructure.
 
 ## Architecture: The Three-Layer Stack
@@ -78,6 +80,7 @@ The `↑` notation is defined as `scoped prefix:max "↑" => Subtype.val` in `Su
 
 Concrete mathematical structures built on the schemas. Current universals (check `Universals/` for the definitive set):
 
+- **`Universals/Dyads/`** — Co-existence: dyads `a ⋈ b` assert that two particulars co-exist. Predicates on dyads actualize relations. The universe is closed under co-existential binding, and predicate curry/uncurry transport between n-ary predicates and unary predicates on nested dyads.
 - **`Universals/Sets/`** — Set theory derived from predicates
 - **`Universals/NaturalNumbers/`** — Natural number formalization
 - **`Universals/Relations/`** — Relation structures
