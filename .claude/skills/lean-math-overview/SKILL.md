@@ -15,6 +15,8 @@ This project formalizes mathematics from first-order logic (FOL) using Lean 4 as
 
 **Critical constraint**: All proofs must be explicit FOL proofs using custom natural deduction tactics. Do NOT use Lean's built-in `simp`, `omega`, `decide`, `rfl`, or automation tactics. The project defines its own proof infrastructure.
 
+**Existence axioms**: Lean's arrow syntax (`axiom f : A → B`) is used only to declare the **signature** of function symbols — their syntactic structure. It does NOT assert existence. Lean's type-theoretic kernel conflates signature with existence (function application automatically produces terms), but the Theory is FOL where these are separate. Every function symbol constructor must be paired with an explicit **existence axiom**: `∀ x₁...xₖ, ∃ y, y 🟰 f(x₁,...,xₖ)`. Constants get `∃ y, y 🟰 c`. See README.md Note 6 and the **lean-math-conventions** skill for the full ADT pattern.
+
 ## Architecture: The Three-Layer Stack
 
 ### Layer 1: Logic (`Logic/`)

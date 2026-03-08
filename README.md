@@ -86,6 +86,19 @@ The `Theory` is many-sorted first-order logic with the following characteristics
 
   **Note 5**: This `Theory` is inspired by `Abstract Data Types` (ADTs). In practice, this means specifying types by axioms that govern which terms belong to each type, then introducing operations via axioms that define their behavior in terms of the type's equality.
 
+  **Note 6**: There is a crucial distinction between **specifying the syntactic structure of terms** and **asserting that those terms exist**. Saying "`succ` takes a `Nat` and produces a `Nat`" specifies the **signature** — the shape of well-formed expressions. Saying "for every natural `n`, the term `succ(n)` exists" is an **existential commitment**. These are different claims.
+
+  In the Lean implementation, function symbols are declared using arrow syntax: `axiom succ : ℕ → ℕ`. This conveniently specifies the signature, but Lean's type-theoretic kernel goes further — it automatically incarnates every well-typed function application as an existing term. Writing `succ n` for any `n : ℕ` does not merely form a syntactic expression; it produces a term that Lean treats as fully existing. Lean conflates signature with existence because its foundations are type-theoretic. This is a convenience it provides, but it is not the semantics of first-order logic, where the two are separate.
+
+  Since this `Theory` is first-order logic, we do not rely on Lean's type system for existence. Instead, every function symbol declaration is paired with an explicit **existence axiom**:
+
+  - For a constant `c : T`: `∃ x : T, x = c`
+  - For a k-ary function `f : T₁ → ⋯ → Tₖ → T`: `∀ x₁ : T₁, …, ∀ xₖ : Tₖ, ∃ y : T, y = f(x₁, …, xₖ)`
+
+  The Lean declaration specifies what you can write; the existence axiom asserts what exists.
+
+  *Side note for Scala programmers: this parallels the distinction between a method signature and implicit evidence. `def succ(n: Nat): Nat` declares a signature, but an `implicit` is what witnesses that instances actually exist. If `zero` is `implicit`, existence propagates through the constructors via implicit resolution — `succ(zero)` can be resolved because `zero` is available. Our existence axioms play exactly this role: explicit evidence that the constructors produce existing terms.*
+
 ---
 
 ## Universals and Equality

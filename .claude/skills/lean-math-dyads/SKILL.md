@@ -53,8 +53,13 @@ axiom Dyad(U₁: Universal)(U₂: Universal) : Type
 -- Equality
 axiom eq: Dyad U₁ U₂ → Dyad U₁ U₂ → Prop
 
--- Generative Constructor
+-- Generative Constructor (signature declaration)
 axiom bind{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Dyad U₁ U₂
+
+-- Existence (incarnates the constructor — see README.md Note 6)
+axiom existence {U₁ U₂ : Universal}:
+    ∀ (a : U₁.Particular), ∀ (b : U₂.Particular),
+    ∃ (d : Dyad U₁ U₂), d 🟰 (a ⋈ b)
 
 -- Impurifier Equations (relatum-wise equality)
 axiom eq_def: ∀ (a₁: U₁.Particular), ∀ (b₁: U₂.Particular),
@@ -65,6 +70,8 @@ axiom eq_def: ∀ (a₁: U₁.Particular), ∀ (b₁: U₂.Particular),
 axiom exhaustiveness: ∀ d: Dyad U₁ U₂,
   ∃ a: U₁.Particular, ∃ b: U₂.Particular, d 🟰 (a ⋈ b)
 ```
+
+**Existence vs Exhaustiveness**: Existence says "the constructor produces existing terms" (every pair of particulars has a dyad). Exhaustiveness says "the constructor is the only source" (every dyad comes from some pair). Together they form the complete generation story.
 
 The equivalence proofs (refl, sym, trans) are in `Universal.lean`, derived from exhaustiveness and relatum-wise equality.
 

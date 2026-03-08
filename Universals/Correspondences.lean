@@ -1,0 +1,5 @@
+import Universals.Correspondences.Universal
+import Universals.Correspondences.Particular
+import Universals.Correspondences.Operations
+import Universals.Correspondences.Predicates
+import Universals.Correspondences.Universals

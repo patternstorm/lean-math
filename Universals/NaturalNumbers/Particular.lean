@@ -33,6 +33,14 @@ notation "𝟬" => zero
 axiom succ : ℕ → ℕ
 prefix:max "𝚜" => succ
 
+-- # Existence
+-- The generative constructor declarations above specify the signature of the
+-- function symbols — their syntactic structure. These existence axioms
+-- incarnate them: they assert that the constructors produce existing terms.
+-- See README.md Note 6.
+axiom zero_existence: ∃ (n: ℕ), n 🟰 𝟬
+axiom succ_existence: ∀ (n: ℕ), ∃ (m: ℕ), m 🟰 𝚜 n
+
 -- # Impurifier Equations
 -- These define the equivalence relation on syntactic terms that defines canonical terms.
 -- For an inductive type with constructors C₁, ..., Cₙ, the impurifier equations form an
@@ -92,11 +100,20 @@ theorem exhaustiveness: ∀ (n: ℕ), n 🟰 𝟬 ∨ (∃ (k: ℕ), n 🟰 𝚜
             have h₃₅: ∀ (y: ℕ), a 🟰 y → (pred a ↔ pred y) := by forall_elim h₃₄, a
             have h₃₆: a 🟰 𝟬 → (pred a ↔ pred 𝟬) := by forall_elim h₃₅, 𝟬
             have h₃₇: pred a ↔ pred 𝟬 := by modus_ponens h₃₆, h₃₃
-            have h₃₈: 𝚜 𝟬 🟰 𝚜 𝟬 := by forall_elim leibniz_eq_refl, 𝚜 𝟬
-            have h₃₉: ∃ (k: ℕ), (𝚜 𝟬) 🟰 𝚜 k := by exists_intro h₃₈, 𝟬
-            have h₃₁₀: (𝚜 𝟬) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 𝟬) 🟰 𝚜 k) := by or_intro h₃₉
-            have h₃₁₁: pred a := PC₀.deductive_eq_r2l h₃₇ h₃₁₀
-            iterate h₃₁₁
+            -- Ground witness in zero_existence (not Lean's function application)
+            have h₃₈: ∃ (n: ℕ), n 🟰 𝟬 := zero_existence
+            have ⟨(z: ℕ), (h₃₉: z 🟰 𝟬)⟩ := exists_elim h₃₈
+            have h₃₁₀: 𝚜 𝟬 🟰 𝚜 𝟬 := by forall_elim leibniz_eq_refl, 𝚜 𝟬
+            let pred₂ := (x: ℕ ↦ (𝚜 𝟬) 🟰 𝚜 x)
+            have h₃₁₁: ∀ (x: ℕ), ∀ (y: ℕ), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
+            have h₃₁₂: ∀ (y: ℕ), z 🟰 y → (pred₂ z ↔ pred₂ y) := by forall_elim h₃₁₁, z
+            have h₃₁₃: z 🟰 𝟬 → (pred₂ z ↔ pred₂ 𝟬) := by forall_elim h₃₁₂, 𝟬
+            have h₃₁₄: pred₂ z ↔ pred₂ 𝟬 := by modus_ponens h₃₁₃, h₃₉
+            have h₃₁₅: (𝚜 𝟬) 🟰 𝚜 z := PC₀.deductive_eq_r2l h₃₁₄ h₃₁₀
+            have h₃₁₆: ∃ (k: ℕ), (𝚜 𝟬) 🟰 𝚜 k := by exists_intro h₃₁₅, z
+            have h₃₁₇: (𝚜 𝟬) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 𝟬) 🟰 𝚜 k) := by or_intro h₃₁₆
+            have h₃₁₈: pred a := PC₀.deductive_eq_r2l h₃₇ h₃₁₇
+            iterate h₃₁₈
         have h₃₃: (∃ (k: ℕ), a 🟰 𝚜 k) → ((𝚜 a) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k)) := by
             assume(h₃₃₁: ∃ (k: ℕ), a 🟰 𝚜 k)
             have ⟨(b: ℕ), (h₃₃₂: a 🟰 𝚜 b)⟩ := exists_elim h₃₃₁
@@ -105,11 +122,20 @@ theorem exhaustiveness: ∀ (n: ℕ), n 🟰 𝟬 ∨ (∃ (k: ℕ), n 🟰 𝚜
             have h₃₃₄: ∀ (y: ℕ), a 🟰 y → (pred a ↔ pred y) := by forall_elim h₃₃₃, a
             have h₃₃₅: a 🟰 𝚜 b → (pred a ↔ pred 𝚜 b) := by forall_elim h₃₃₄, 𝚜 b
             have h₃₃₆: pred a ↔ pred 𝚜 b := by modus_ponens h₃₃₅, h₃₃₂
-            have h₃₃₇: 𝚜 a 🟰 𝚜 a := by forall_elim leibniz_eq_refl, 𝚜 a
-            have h₃₃₈: (𝚜 a) 🟰 𝚜 𝚜 b := PC₀.deductive_eq_l2r h₃₃₆ h₃₃₇
-            have h₃₃₉: ∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k := by exists_intro h₃₃₈, 𝚜 b
-            have h₃₃₁₀: (𝚜 a) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k) := by or_intro h₃₃₉
-            iterate h₃₃₁₀
+            -- Ground witness in succ_existence (not Lean's function application)
+            have h₃₃₇: ∃ (m: ℕ), m 🟰 𝚜 b := by forall_elim succ_existence, b
+            have ⟨(s: ℕ), (h₃₃₈: s 🟰 𝚜 b)⟩ := exists_elim h₃₃₇
+            have h₃₃₉: 𝚜 a 🟰 𝚜 a := by forall_elim leibniz_eq_refl, 𝚜 a
+            have h₃₃₁₀: (𝚜 a) 🟰 𝚜 𝚜 b := PC₀.deductive_eq_l2r h₃₃₆ h₃₃₉
+            let pred₃ := (x: ℕ ↦ (𝚜 a) 🟰 𝚜 x)
+            have h₃₃₁₁: ∀ (x: ℕ), ∀ (y: ℕ), x 🟰 y → (pred₃ x ↔ pred₃ y) := by forall_elim leibniz_eq_subs, pred₃
+            have h₃₃₁₂: ∀ (y: ℕ), s 🟰 y → (pred₃ s ↔ pred₃ y) := by forall_elim h₃₃₁₁, s
+            have h₃₃₁₃: s 🟰 𝚜 b → (pred₃ s ↔ pred₃ 𝚜 b) := by forall_elim h₃₃₁₂, 𝚜 b
+            have h₃₃₁₄: pred₃ s ↔ pred₃ 𝚜 b := by modus_ponens h₃₃₁₃, h₃₃₈
+            have h₃₃₁₅: (𝚜 a) 🟰 𝚜 s := PC₀.deductive_eq_r2l h₃₃₁₄ h₃₃₁₀
+            have h₃₃₁₆: ∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k := by exists_intro h₃₃₁₅, s
+            have h₃₃₁₇: (𝚜 a) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k) := by or_intro h₃₃₁₆
+            iterate h₃₃₁₇
         have h₃₄: (𝚜 a) 🟰 𝟬 ∨ (∃ (k: ℕ), (𝚜 a) 🟰 𝚜 k) := by or_elimination h₃₁, h₃₂, h₃₃
         iterate h₃₄
     have h₄: (𝟬 🟰 𝟬 ∨ (∃ (k: ℕ), 𝟬 🟰 𝚜 k)) ∧

@@ -197,23 +197,31 @@ All binary relation notations use `notation:50 a:51 ... b:51` — precedence 50 
 
 Mathematical objects are modelled as Abstract Data Types (ADTs). An ADT is a type together with its operations and predicates, all specified axiomatically. The full pattern, from type to Universal:
 
-#### Step 1: Particulars — the type and its constructors
+#### Step 1: Particulars — the type, its constructors, and existence axioms
 
 Particulars can be **postulated** (like natural numbers) or **derived** (like sets).
 
-For postulated types, declare the type and its generative constructors as axioms:
+For postulated types, declare the type, its generative constructors, and **existence axioms** as axioms:
 
 ```lean
 -- Type
 axiom NaturalNumber : Type
 notation "ℕ" => NaturalNumber
 
--- Generative constructors (these are operations)
+-- Generative constructors (signature declarations)
 axiom zero : ℕ
 axiom succ : ℕ → ℕ
+
+-- Existence axioms (incarnate the constructors)
+axiom zero_existence : ∃ (n : ℕ), n 🟰 𝟬
+axiom succ_existence : ∀ (n : ℕ), ∃ (m : ℕ), m 🟰 𝚜 n
 ```
 
-For derived types, the type is a `def` based on existing concepts:
+**Why existence axioms?** Lean's arrow syntax (`axiom succ : ℕ → ℕ`) declares the **signature** of a function symbol — its syntactic structure. But Lean's type-theoretic kernel conflates signature with existence: it automatically incarnates every well-typed function application as an existing term. The `Theory` is first-order logic, where these are separate. Existence axioms make the ontological commitment explicit. See README.md Note 6.
+
+**Pattern**: every k-ary function symbol gets `∀ x₁...xₖ, ∃ y, y 🟰 f(x₁,...,xₖ)`. Constants (k=0) get a bare existential `∃ y, y 🟰 c`.
+
+For derived types, the type is a `def` based on existing concepts (no existence axioms needed — existence is inherited from the logic layer):
 
 ```lean
 def Set (U: Universal): Type := CongruentUnaryPredicate U

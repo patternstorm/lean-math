@@ -60,6 +60,13 @@ notation:50 a:51 " =ₗₓₗ " b:51 => eq a b
 axiom bind{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Dyad U₁ U₂
 notation:35 x:36 " ⋈ " y:36 => bind x y
 
+-- # Existence
+-- The generative constructor declaration above specifies the signature of the
+-- function symbol — its syntactic structure. This existence axiom incarnates
+-- it: for any two particulars, their dyad exists. See README.md Note 6.
+axiom existence {U₁ U₂: Universal}:
+    ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∃ (d: Dyad U₁ U₂), d 🟰 (a ⋈ b)
+
 -- # Impurifier Equations
 axiom eq_def: ∀ (a₁: U₁.Particular), ∀ (b₁: U₂.Particular),
   ∀ (a₂: U₁.Particular), ∀ (b₂: U₂.Particular), (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) ↔ a₁ =₍U₁₎ a₂ ∧ b₁ =₍U₂₎ b₂
