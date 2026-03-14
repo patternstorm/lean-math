@@ -45,14 +45,14 @@ open Logic
 open Logic.PC₁
 
 -- # Type
-axiom Arrow(U₁: Universal)(U₂: Universal) : Type
+protected axiom Particular(U₁: Universal)(U₂: Universal) : Type
 
 -- # Equality
-axiom eq: Arrow U₁ U₂ → Arrow U₁ U₂ → Prop
+axiom eq {U₁ U₂}: Arrows.Particular U₁ U₂ → Arrows.Particular U₁ U₂ → Prop
 notation:50 a:51 " =→ᵃ  " b:51 => eq a b
 
 -- # Generative Constructors
-axiom arrow{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Arrow U₁ U₂
+axiom arrow{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Arrows.Particular U₁ U₂
 notation:35 x:36 " ⭢ᵃ " y:36 => arrow x y
 
 -- # Existence
@@ -60,14 +60,14 @@ notation:35 x:36 " ⭢ᵃ " y:36 => arrow x y
 -- function symbol — its syntactic structure. This existence axiom incarnates
 -- it: for any two particulars, their arrow exists. See README.md Note 6.
 axiom existence {U₁ U₂: Universal}:
-    ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∃ (f: Arrow U₁ U₂), f 🟰 (a ⭢ᵃ b)
+    ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∃ (f: Arrows.Particular U₁ U₂), f 🟰 (a ⭢ᵃ b)
 
 -- # Impurifier Equations
 axiom eq_def: ∀ (a₁: U₁.Particular), ∀ (b₁: U₂.Particular),
   ∀ (a₂: U₁.Particular), ∀ (b₂: U₂.Particular), (a₁ ⭢ᵃ b₁) =→ᵃ (a₂ ⭢ᵃ b₂) ↔ a₁ =₍U₁₎ a₂ ∧ b₁ =₍U₂₎ b₂
 
 -- # Exhaustiveness
-axiom exhaustiveness: ∀ f: Arrow U₁ U₂, ∃ a: U₁.Particular, ∃ b: U₂.Particular, f 🟰 (a ⭢ᵃ b)
+axiom exhaustiveness: ∀ f: Arrows.Particular U₁ U₂, ∃ a: U₁.Particular, ∃ b: U₂.Particular, f 🟰 (a ⭢ᵃ b)
 
 end Arrows
 end Universe

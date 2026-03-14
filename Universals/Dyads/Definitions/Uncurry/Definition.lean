@@ -34,7 +34,7 @@ open Logic.PC₁
 --
 -- R is a named parameter (not universally quantified) because this is an axiom scheme:
 -- each concrete R generates one instance.
-axiom uncurry {U₁: Universal}{U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop): (U₁ ⋈ U₂).Particular → Prop
+axiom uncurry {U₁: Universal}{U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop): U₁ ⋈ U₂ → Prop
 axiom uncurry_def {U₁: Universal}{U₂: Universal} (R: U₁.Particular → U₂.Particular → Prop):
   ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), (uncurry R) (a ⋈ b) ↔ R a b
 

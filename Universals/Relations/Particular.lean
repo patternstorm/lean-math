@@ -1,7 +1,7 @@
 import Universe
 import Logic
-import Universals.Sets.Universal
-import Universals.Dyads.Definitions
+import Universals.Sets
+import Universals.Dyads
 
 /-!
 # Relations — Particular
@@ -25,7 +25,7 @@ open Sets
 open Dyads
 
 -- # Relations are sets of dyads
-def Rel (U₁: Universal) (U₂: Universal): Type := Set (U₁ ⋈ U₂)
+protected def Particular (U₁: Universal) (U₂: Universal): Type := Set (U₁ ⧓ U₂)
 
 -- # Relation constructor
 -- Builds a relation from a congruent binary predicate.
@@ -33,12 +33,12 @@ def Rel (U₁: Universal) (U₂: Universal): Type := Set (U₁ ⋈ U₂)
 -- via uncurry, and congruence is derived from P's congruence in both
 -- arguments and the relatum-wise definition of dyad equality.
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-03-07
-noncomputable def relation_from {U₁: Universal} {U₂: Universal} (P: CongruentBinaryPredicate U₁ U₂): Rel U₁ U₂ :=
+noncomputable def relation_from {U₁: Universal} {U₂: Universal} (P: CongruentBinaryPredicate U₁ U₂): Relations.Particular U₁ U₂ :=
   let R: U₁.Particular → U₂.Particular → Prop := (a: U₁.Particular, b: U₂.Particular ↦ (P.pred a).pred b)
-  let pred: (U₁ ⋈ U₂).Particular → Prop := uncurry R
-  let cong: ∀ (d₁: (U₁ ⋈ U₂).Particular), ∀ (d₂: (U₁ ⋈ U₂).Particular), d₁ =ₗₓₗ d₂ → (pred d₁ ↔ pred d₂) := by forall_intro
-    variable(d₁: (U₁ ⋈ U₂).Particular)
-    variable(d₂: (U₁ ⋈ U₂).Particular)
+  let pred: U₁ ⋈ U₂ → Prop := uncurry R
+  let cong: ∀ (d₁: U₁ ⋈ U₂), ∀ (d₂: U₁ ⋈ U₂), d₁ =ₗₓₗ d₂ → (pred d₁ ↔ pred d₂) := by forall_intro
+    variable(d₁: U₁ ⋈ U₂)
+    variable(d₂: U₁ ⋈ U₂)
     assume(h₁: d₁ =ₗₓₗ d₂)
     -- Decompose d₁ via exhaustiveness
     have h₂: ∃ (a₁: U₁.Particular), ∃ (b₁: U₂.Particular), d₁ 🟰 (a₁ ⋈ b₁) := by forall_elim exhaustiveness, d₁
@@ -49,15 +49,15 @@ noncomputable def relation_from {U₁: Universal} {U₂: Universal} (P: Congruen
     have ⟨(a₂: U₁.Particular), (h₆: ∃ (b₂: U₂.Particular), d₂ 🟰 (a₂ ⋈ b₂))⟩ := exists_elim h₅
     have ⟨(b₂: U₂.Particular), (h₇: d₂ 🟰 (a₂ ⋈ b₂))⟩ := exists_elim h₆
     -- Transfer d₁ =ₗₓₗ d₂ to (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) via Leibniz substitution
-    let pred₁: (U₁ ⋈ U₂).Particular → Prop := (x: (U₁ ⋈ U₂).Particular ↦ x =ₗₓₗ d₂)
-    have h₈: ∀ (x: (U₁ ⋈ U₂).Particular), ∀ (y: (U₁ ⋈ U₂).Particular), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
-    have h₉: ∀ (y: (U₁ ⋈ U₂).Particular), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₈, d₁
+    let pred₁: U₁ ⋈ U₂ → Prop := (x: U₁ ⋈ U₂ ↦ x =ₗₓₗ d₂)
+    have h₈: ∀ (x: U₁ ⋈ U₂), ∀ (y: U₁ ⋈ U₂), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
+    have h₉: ∀ (y: U₁ ⋈ U₂), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₈, d₁
     have h₁₀: d₁ 🟰 (a₁ ⋈ b₁) → (pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁)) := by forall_elim h₉, (a₁ ⋈ b₁)
     have h₁₁: pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁) := by modus_ponens h₁₀, h₄
     have h₁₂: (a₁ ⋈ b₁) =ₗₓₗ d₂ := PC₀.deductive_eq_l2r h₁₁ h₁
-    let pred₂: (U₁ ⋈ U₂).Particular → Prop := (x: (U₁ ⋈ U₂).Particular ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
-    have h₁₃: ∀ (x: (U₁ ⋈ U₂).Particular), ∀ (y: (U₁ ⋈ U₂).Particular), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
-    have h₁₄: ∀ (y: (U₁ ⋈ U₂).Particular), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₃, d₂
+    let pred₂: U₁ ⋈ U₂ → Prop := (x: U₁ ⋈ U₂ ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
+    have h₁₃: ∀ (x: U₁ ⋈ U₂), ∀ (y: U₁ ⋈ U₂), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
+    have h₁₄: ∀ (y: U₁ ⋈ U₂), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₃, d₂
     have h₁₅: d₂ 🟰 (a₂ ⋈ b₂) → (pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂)) := by forall_elim h₁₄, (a₂ ⋈ b₂)
     have h₁₆: pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂) := by modus_ponens h₁₅, h₇
     have h₁₇: (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) := PC₀.deductive_eq_l2r h₁₆ h₁₂
@@ -73,12 +73,12 @@ noncomputable def relation_from {U₁: Universal} {U₂: Universal} (P: Congruen
     have h₂₃: a₁ =₍U₁₎ a₂ := by and_elim h₂₂
     have h₂₄: b₁ =₍U₂₎ b₂ := by and_elim h₂₂
     -- Transfer pred to constructor form via Leibniz substitution
-    let lpred: (U₁ ⋈ U₂).Particular → Prop := (x: (U₁ ⋈ U₂).Particular ↦ pred x)
-    have h₂₅: ∀ (x: (U₁ ⋈ U₂).Particular), ∀ (y: (U₁ ⋈ U₂).Particular), x 🟰 y → (lpred x ↔ lpred y) := by forall_elim leibniz_eq_subs, lpred
-    have h₂₆: ∀ (y: (U₁ ⋈ U₂).Particular), d₁ 🟰 y → (lpred d₁ ↔ lpred y) := by forall_elim h₂₅, d₁
+    let lpred: U₁ ⋈ U₂ → Prop := (x: U₁ ⋈ U₂ ↦ pred x)
+    have h₂₅: ∀ (x: U₁ ⋈ U₂), ∀ (y: U₁ ⋈ U₂), x 🟰 y → (lpred x ↔ lpred y) := by forall_elim leibniz_eq_subs, lpred
+    have h₂₆: ∀ (y: U₁ ⋈ U₂), d₁ 🟰 y → (lpred d₁ ↔ lpred y) := by forall_elim h₂₅, d₁
     have h₂₇: d₁ 🟰 (a₁ ⋈ b₁) → (pred d₁ ↔ pred (a₁ ⋈ b₁)) := by forall_elim h₂₆, (a₁ ⋈ b₁)
     have h₂₈: pred d₁ ↔ pred (a₁ ⋈ b₁) := by modus_ponens h₂₇, h₄
-    have h₂₉: ∀ (y: (U₁ ⋈ U₂).Particular), d₂ 🟰 y → (lpred d₂ ↔ lpred y) := by forall_elim h₂₅, d₂
+    have h₂₉: ∀ (y: U₁ ⋈ U₂), d₂ 🟰 y → (lpred d₂ ↔ lpred y) := by forall_elim h₂₅, d₂
     have h₃₀: d₂ 🟰 (a₂ ⋈ b₂) → (pred d₂ ↔ pred (a₂ ⋈ b₂)) := by forall_elim h₂₉, (a₂ ⋈ b₂)
     have h₃₁: pred d₂ ↔ pred (a₂ ⋈ b₂) := by modus_ponens h₃₀, h₇
     -- Unfold pred at constructor form via uncurry_def

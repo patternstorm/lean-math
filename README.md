@@ -1,5 +1,9 @@
 # This is a Mathpunk project.
 
+> "The deep reasons for the regularities that we may observe in concrete contexts actually live at the syntactic level... We need to teach learning systems to lift from the phenomenological level... to the ontological one."
+>
+> — **Olivia Caramello**, *Syntactic Learning via Topos Theory*
+
 ## The Mathpunk Manifesto
 
 Mathpunk is a philosophy of formal mathematics **enabled by** proof assistants and proof checkers.

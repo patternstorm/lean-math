@@ -38,8 +38,8 @@ open Logic.PC₁
 --
 -- P is a named parameter (not universally quantified) because this is an axiom scheme:
 -- each concrete P generates one instance.
-axiom curry {U₁: Universal} {U₂: Universal} (P: (U₁ ⋈ U₂).Particular → Prop): U₁.Particular → U₂.Particular → Prop
-axiom curry_def {U₁: Universal} {U₂: Universal} (P: (U₁ ⋈ U₂).Particular → Prop):
+axiom curry {U₁: Universal} {U₂: Universal} (P: U₁ ⋈ U₂ → Prop): U₁.Particular → U₂.Particular → Prop
+axiom curry_def {U₁: Universal} {U₂: Universal} (P: U₁ ⋈ U₂ → Prop):
   ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), (curry P) a b ↔ P (a ⋈ b)
 
 end Dyads

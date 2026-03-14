@@ -23,16 +23,16 @@ open Logic.ND
 
 -- ## =ₗₓₗ is reflexive
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-28
-theorem eq_refl: ∀ (d: Dyad U₁ U₂), d =ₗₓₗ d := by forall_intro
-  variable(d: Dyad U₁ U₂)
+theorem eq_refl: ∀ (d: Dyads.Particular U₁ U₂), d =ₗₓₗ d := by forall_intro
+  variable(d: Dyads.Particular U₁ U₂)
   -- Decompose d via exhaustiveness
   have h₁: ∃ (a: U₁.Particular), ∃ (b: U₂.Particular), d 🟰 (a ⋈ b) := by forall_elim exhaustiveness, d
   have ⟨(a: U₁.Particular), (h₂: ∃ (b: U₂.Particular), d 🟰 (a ⋈ b))⟩ := exists_elim h₁
   have ⟨(b: U₂.Particular), (h₃: d 🟰 (a ⋈ b))⟩ := exists_elim h₂
   -- Use Leibniz substitution to reduce d =ₗₓₗ d to (a ⋈ b) =ₗₓₗ (a ⋈ b)
-  let pred: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ x)
-  have h₄: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred x ↔ pred y) := by forall_elim leibniz_eq_subs, pred
-  have h₅: ∀ (y: Dyad U₁ U₂), d 🟰 y → (pred d ↔ pred y) := by forall_elim h₄, d
+  let pred: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ x)
+  have h₄: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred x ↔ pred y) := by forall_elim leibniz_eq_subs, pred
+  have h₅: ∀ (y: Dyads.Particular U₁ U₂), d 🟰 y → (pred d ↔ pred y) := by forall_elim h₄, d
   have h₆: d 🟰 (a ⋈ b) → (pred d ↔ pred (a ⋈ b)) := by forall_elim h₅, (a ⋈ b)
   have h₇: pred d ↔ pred (a ⋈ b) := by modus_ponens h₆, h₃
   -- Prove (a ⋈ b) =ₗₓₗ (a ⋈ b) via eq_def + relatum reflexivity
@@ -52,9 +52,9 @@ theorem eq_refl: ∀ (d: Dyad U₁ U₂), d =ₗₓₗ d := by forall_intro
 
 -- ## =ₗₓₗ is symmetric
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-28
-theorem eq_sym: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), d₁ =ₗₓₗ d₂ → d₂ =ₗₓₗ d₁ := by forall_intro
-  variable(d₁: Dyad U₁ U₂)
-  variable(d₂: Dyad U₁ U₂)
+theorem eq_sym: ∀ (d₁: Dyads.Particular U₁ U₂), ∀ (d₂: Dyads.Particular U₁ U₂), d₁ =ₗₓₗ d₂ → d₂ =ₗₓₗ d₁ := by forall_intro
+  variable(d₁: Dyads.Particular U₁ U₂)
+  variable(d₂: Dyads.Particular U₁ U₂)
   assume(h₁: d₁ =ₗₓₗ d₂)
   -- Decompose d₁
   have h₂: ∃ (a₁: U₁.Particular), ∃ (b₁: U₂.Particular), d₁ 🟰 (a₁ ⋈ b₁) := by forall_elim exhaustiveness, d₁
@@ -66,16 +66,16 @@ theorem eq_sym: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), d₁ =�
   have ⟨(b₂: U₂.Particular), (h₇: d₂ 🟰 (a₂ ⋈ b₂))⟩ := exists_elim h₆
   -- Transfer d₁ =ₗₓₗ d₂ to (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) via Leibniz substitution
   -- First substitute d₁ → (a₁ ⋈ b₁)
-  let pred₁: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ d₂)
-  have h₈: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
-  have h₉: ∀ (y: Dyad U₁ U₂), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₈, d₁
+  let pred₁: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ d₂)
+  have h₈: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
+  have h₉: ∀ (y: Dyads.Particular U₁ U₂), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₈, d₁
   have h₁₀: d₁ 🟰 (a₁ ⋈ b₁) → (pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁)) := by forall_elim h₉, (a₁ ⋈ b₁)
   have h₁₁: pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁) := by modus_ponens h₁₀, h₄
   have h₁₂: (a₁ ⋈ b₁) =ₗₓₗ d₂ := PC₀.deductive_eq_l2r h₁₁ h₁
   -- Then substitute d₂ → (a₂ ⋈ b₂)
-  let pred₂: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
-  have h₁₃: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
-  have h₁₄: ∀ (y: Dyad U₁ U₂), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₃, d₂
+  let pred₂: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
+  have h₁₃: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
+  have h₁₄: ∀ (y: Dyads.Particular U₁ U₂), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₃, d₂
   have h₁₅: d₂ 🟰 (a₂ ⋈ b₂) → (pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂)) := by forall_elim h₁₄, (a₂ ⋈ b₂)
   have h₁₆: pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂) := by modus_ponens h₁₅, h₇
   have h₁₇: (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) := PC₀.deductive_eq_l2r h₁₆ h₁₂
@@ -105,16 +105,16 @@ theorem eq_sym: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), d₁ =�
   have h₃₂: (a₂ ⋈ b₂) =ₗₓₗ (a₁ ⋈ b₁) := PC₀.deductive_eq_r2l h₃₀ h₃₁
   -- Transfer back to d₂ =ₗₓₗ d₁ via Leibniz substitution
   -- First: (a₂ ⋈ b₂) =ₗₓₗ (a₁ ⋈ b₁) → d₂ =ₗₓₗ (a₁ ⋈ b₁)
-  let pred₃: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ (a₁ ⋈ b₁))
-  have h₃₃: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₃ x ↔ pred₃ y) := by forall_elim leibniz_eq_subs, pred₃
-  have h₃₄: ∀ (y: Dyad U₁ U₂), d₂ 🟰 y → (pred₃ d₂ ↔ pred₃ y) := by forall_elim h₃₃, d₂
+  let pred₃: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ (a₁ ⋈ b₁))
+  have h₃₃: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₃ x ↔ pred₃ y) := by forall_elim leibniz_eq_subs, pred₃
+  have h₃₄: ∀ (y: Dyads.Particular U₁ U₂), d₂ 🟰 y → (pred₃ d₂ ↔ pred₃ y) := by forall_elim h₃₃, d₂
   have h₃₅: d₂ 🟰 (a₂ ⋈ b₂) → (pred₃ d₂ ↔ pred₃ (a₂ ⋈ b₂)) := by forall_elim h₃₄, (a₂ ⋈ b₂)
   have h₃₆: pred₃ d₂ ↔ pred₃ (a₂ ⋈ b₂) := by modus_ponens h₃₅, h₇
   have h₃₇: d₂ =ₗₓₗ (a₁ ⋈ b₁) := PC₀.deductive_eq_r2l h₃₆ h₃₂
   -- Then: d₂ =ₗₓₗ (a₁ ⋈ b₁) → d₂ =ₗₓₗ d₁
-  let pred₄: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ d₂ =ₗₓₗ x)
-  have h₃₈: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₄ x ↔ pred₄ y) := by forall_elim leibniz_eq_subs, pred₄
-  have h₃₉: ∀ (y: Dyad U₁ U₂), d₁ 🟰 y → (pred₄ d₁ ↔ pred₄ y) := by forall_elim h₃₈, d₁
+  let pred₄: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ d₂ =ₗₓₗ x)
+  have h₃₈: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₄ x ↔ pred₄ y) := by forall_elim leibniz_eq_subs, pred₄
+  have h₃₉: ∀ (y: Dyads.Particular U₁ U₂), d₁ 🟰 y → (pred₄ d₁ ↔ pred₄ y) := by forall_elim h₃₈, d₁
   have h₄₀: d₁ 🟰 (a₁ ⋈ b₁) → (pred₄ d₁ ↔ pred₄ (a₁ ⋈ b₁)) := by forall_elim h₃₉, (a₁ ⋈ b₁)
   have h₄₁: pred₄ d₁ ↔ pred₄ (a₁ ⋈ b₁) := by modus_ponens h₄₀, h₄
   have h₄₂: d₂ =ₗₓₗ d₁ := PC₀.deductive_eq_r2l h₄₁ h₃₇
@@ -122,11 +122,11 @@ theorem eq_sym: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), d₁ =�
 
 -- ## =ₗₓₗ is transitive
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-28
-theorem eq_trans: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), ∀ (d₃: Dyad U₁ U₂),
+theorem eq_trans: ∀ (d₁: Dyads.Particular U₁ U₂), ∀ (d₂: Dyads.Particular U₁ U₂), ∀ (d₃: Dyads.Particular U₁ U₂),
     d₁ =ₗₓₗ d₂ ∧ d₂ =ₗₓₗ d₃ → d₁ =ₗₓₗ d₃ := by forall_intro
-  variable(d₁: Dyad U₁ U₂)
-  variable(d₂: Dyad U₁ U₂)
-  variable(d₃: Dyad U₁ U₂)
+  variable(d₁: Dyads.Particular U₁ U₂)
+  variable(d₂: Dyads.Particular U₁ U₂)
+  variable(d₃: Dyads.Particular U₁ U₂)
   assume(h₁: d₁ =ₗₓₗ d₂ ∧ d₂ =ₗₓₗ d₃)
   have h₂: d₁ =ₗₓₗ d₂ := by and_elim h₁
   have h₃: d₂ =ₗₓₗ d₃ := by and_elim h₁
@@ -141,28 +141,28 @@ theorem eq_trans: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), ∀ (d
   have ⟨(a₃: U₁.Particular), (h₁₁: ∃ (b₃: U₂.Particular), d₃ 🟰 (a₃ ⋈ b₃))⟩ := exists_elim h₁₀
   have ⟨(b₃: U₂.Particular), (h₁₂: d₃ 🟰 (a₃ ⋈ b₃))⟩ := exists_elim h₁₁
   -- Transfer d₁ =ₗₓₗ d₂ to (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂)
-  let pred₁: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ d₂)
-  have h₁₃: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
-  have h₁₄: ∀ (y: Dyad U₁ U₂), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₁₃, d₁
+  let pred₁: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ d₂)
+  have h₁₃: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₁ x ↔ pred₁ y) := by forall_elim leibniz_eq_subs, pred₁
+  have h₁₄: ∀ (y: Dyads.Particular U₁ U₂), d₁ 🟰 y → (pred₁ d₁ ↔ pred₁ y) := by forall_elim h₁₃, d₁
   have h₁₅: d₁ 🟰 (a₁ ⋈ b₁) → (pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁)) := by forall_elim h₁₄, (a₁ ⋈ b₁)
   have h₁₆: pred₁ d₁ ↔ pred₁ (a₁ ⋈ b₁) := by modus_ponens h₁₅, h₆
   have h₁₇: (a₁ ⋈ b₁) =ₗₓₗ d₂ := PC₀.deductive_eq_l2r h₁₆ h₂
-  let pred₂: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
-  have h₁₈: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
-  have h₁₉: ∀ (y: Dyad U₁ U₂), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₈, d₂
+  let pred₂: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ (a₁ ⋈ b₁) =ₗₓₗ x)
+  have h₁₈: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₂ x ↔ pred₂ y) := by forall_elim leibniz_eq_subs, pred₂
+  have h₁₉: ∀ (y: Dyads.Particular U₁ U₂), d₂ 🟰 y → (pred₂ d₂ ↔ pred₂ y) := by forall_elim h₁₈, d₂
   have h₂₀: d₂ 🟰 (a₂ ⋈ b₂) → (pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂)) := by forall_elim h₁₉, (a₂ ⋈ b₂)
   have h₂₁: pred₂ d₂ ↔ pred₂ (a₂ ⋈ b₂) := by modus_ponens h₂₀, h₉
   have h₂₂: (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) := PC₀.deductive_eq_l2r h₂₁ h₁₇
   -- Transfer d₂ =ₗₓₗ d₃ to (a₂ ⋈ b₂) =ₗₓₗ (a₃ ⋈ b₃)
-  let pred₃: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ d₃)
-  have h₂₃: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₃ x ↔ pred₃ y) := by forall_elim leibniz_eq_subs, pred₃
-  have h₂₄: ∀ (y: Dyad U₁ U₂), d₂ 🟰 y → (pred₃ d₂ ↔ pred₃ y) := by forall_elim h₂₃, d₂
+  let pred₃: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ d₃)
+  have h₂₃: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₃ x ↔ pred₃ y) := by forall_elim leibniz_eq_subs, pred₃
+  have h₂₄: ∀ (y: Dyads.Particular U₁ U₂), d₂ 🟰 y → (pred₃ d₂ ↔ pred₃ y) := by forall_elim h₂₃, d₂
   have h₂₅: d₂ 🟰 (a₂ ⋈ b₂) → (pred₃ d₂ ↔ pred₃ (a₂ ⋈ b₂)) := by forall_elim h₂₄, (a₂ ⋈ b₂)
   have h₂₆: pred₃ d₂ ↔ pred₃ (a₂ ⋈ b₂) := by modus_ponens h₂₅, h₉
   have h₂₇: (a₂ ⋈ b₂) =ₗₓₗ d₃ := PC₀.deductive_eq_l2r h₂₆ h₃
-  let pred₄: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ (a₂ ⋈ b₂) =ₗₓₗ x)
-  have h₂₈: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₄ x ↔ pred₄ y) := by forall_elim leibniz_eq_subs, pred₄
-  have h₂₉: ∀ (y: Dyad U₁ U₂), d₃ 🟰 y → (pred₄ d₃ ↔ pred₄ y) := by forall_elim h₂₈, d₃
+  let pred₄: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ (a₂ ⋈ b₂) =ₗₓₗ x)
+  have h₂₈: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₄ x ↔ pred₄ y) := by forall_elim leibniz_eq_subs, pred₄
+  have h₂₉: ∀ (y: Dyads.Particular U₁ U₂), d₃ 🟰 y → (pred₄ d₃ ↔ pred₄ y) := by forall_elim h₂₈, d₃
   have h₃₀: d₃ 🟰 (a₃ ⋈ b₃) → (pred₄ d₃ ↔ pred₄ (a₃ ⋈ b₃)) := by forall_elim h₂₉, (a₃ ⋈ b₃)
   have h₃₁: pred₄ d₃ ↔ pred₄ (a₃ ⋈ b₃) := by modus_ponens h₃₀, h₁₂
   have h₃₂: (a₂ ⋈ b₂) =ₗₓₗ (a₃ ⋈ b₃) := PC₀.deductive_eq_l2r h₃₁ h₂₇
@@ -199,34 +199,38 @@ theorem eq_trans: ∀ (d₁: Dyad U₁ U₂), ∀ (d₂: Dyad U₁ U₂), ∀ (d
   have h₅₃: a₁ =₍U₁₎ a₃ ∧ b₁ =₍U₂₎ b₃ := by and_intro h₄₈, h₅₀
   have h₅₄: (a₁ ⋈ b₁) =ₗₓₗ (a₃ ⋈ b₃) := PC₀.deductive_eq_r2l h₅₂ h₅₃
   -- Transfer back to d₁ =ₗₓₗ d₃ via Leibniz substitution
-  let pred₅: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ x =ₗₓₗ (a₃ ⋈ b₃))
-  have h₅₅: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₅ x ↔ pred₅ y) := by forall_elim leibniz_eq_subs, pred₅
-  have h₅₆: ∀ (y: Dyad U₁ U₂), d₁ 🟰 y → (pred₅ d₁ ↔ pred₅ y) := by forall_elim h₅₅, d₁
+  let pred₅: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ x =ₗₓₗ (a₃ ⋈ b₃))
+  have h₅₅: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₅ x ↔ pred₅ y) := by forall_elim leibniz_eq_subs, pred₅
+  have h₅₆: ∀ (y: Dyads.Particular U₁ U₂), d₁ 🟰 y → (pred₅ d₁ ↔ pred₅ y) := by forall_elim h₅₅, d₁
   have h₅₇: d₁ 🟰 (a₁ ⋈ b₁) → (pred₅ d₁ ↔ pred₅ (a₁ ⋈ b₁)) := by forall_elim h₅₆, (a₁ ⋈ b₁)
   have h₅₈: pred₅ d₁ ↔ pred₅ (a₁ ⋈ b₁) := by modus_ponens h₅₇, h₆
   have h₅₉: d₁ =ₗₓₗ (a₃ ⋈ b₃) := PC₀.deductive_eq_r2l h₅₈ h₅₄
-  let pred₆: (Dyad U₁ U₂) → Prop := (x: Dyad U₁ U₂ ↦ d₁ =ₗₓₗ x)
-  have h₆₀: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), x 🟰 y → (pred₆ x ↔ pred₆ y) := by forall_elim leibniz_eq_subs, pred₆
-  have h₆₁: ∀ (y: Dyad U₁ U₂), d₃ 🟰 y → (pred₆ d₃ ↔ pred₆ y) := by forall_elim h₆₀, d₃
+  let pred₆: (Dyads.Particular U₁ U₂) → Prop := (x: Dyads.Particular U₁ U₂ ↦ d₁ =ₗₓₗ x)
+  have h₆₀: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), x 🟰 y → (pred₆ x ↔ pred₆ y) := by forall_elim leibniz_eq_subs, pred₆
+  have h₆₁: ∀ (y: Dyads.Particular U₁ U₂), d₃ 🟰 y → (pred₆ d₃ ↔ pred₆ y) := by forall_elim h₆₀, d₃
   have h₆₂: d₃ 🟰 (a₃ ⋈ b₃) → (pred₆ d₃ ↔ pred₆ (a₃ ⋈ b₃)) := by forall_elim h₆₁, (a₃ ⋈ b₃)
   have h₆₃: pred₆ d₃ ↔ pred₆ (a₃ ⋈ b₃) := by modus_ponens h₆₂, h₁₂
   have h₆₄: d₁ =ₗₓₗ d₃ := PC₀.deductive_eq_r2l h₆₃ h₅₉
   iterate h₆₄
 
 -- # =ₗₓₗ Equality
-def equality (U₁: Universal) (U₂: Universal): Equality (Dyad U₁ U₂) :=
-  let pred: (Dyad U₁ U₂) → (Dyad U₁ U₂) → Prop := eq
-  let refl: ∀ (x: Dyad U₁ U₂), pred x x := eq_refl
-  let sym: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), pred x y → pred y x := eq_sym
-  let trans: ∀ (x: Dyad U₁ U₂), ∀ (y: Dyad U₁ U₂), ∀ (z: Dyad U₁ U₂), pred x y ∧ pred y z → pred x z := eq_trans
+def equality (U₁: Universal) (U₂: Universal): Equality (Dyads.Particular U₁ U₂) :=
+  let pred: (Dyads.Particular U₁ U₂) → (Dyads.Particular U₁ U₂) → Prop := eq
+  let refl: ∀ (x: Dyads.Particular U₁ U₂), pred x x := eq_refl
+  let sym: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), pred x y → pred y x := eq_sym
+  let trans: ∀ (x: Dyads.Particular U₁ U₂), ∀ (y: Dyads.Particular U₁ U₂), ∀ (z: Dyads.Particular U₁ U₂), pred x y ∧ pred y z → pred x z := eq_trans
   { pred := pred, refl := refl, sym := sym, trans := trans }
 
 -- # Dyad Universal
 def DyadUniversal (U₁: Universal) (U₂: Universal): Universal := {
-  Particular := Dyad U₁ U₂
+  Particular := Dyads.Particular U₁ U₂
   eq := equality U₁ U₂
 }
-notation:35 U₁:36 " ⋈ " U₂:36 => DyadUniversal U₁ U₂
+
+notation "𝐃𝐲𝐚𝐝" => DyadUniversal
+notation:35 U₁:36 " ⧓ " U₂:36 => DyadUniversal U₁ U₂
+abbrev Dyad U₁ U₂ := (DyadUniversal U₁ U₂).Particular
+notation:35 U₁:36 " ⋈ " U₂:36 => Dyad U₁ U₂
 
 end Dyads
 end Universe

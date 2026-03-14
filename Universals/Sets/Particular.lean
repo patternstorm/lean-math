@@ -19,15 +19,14 @@ open Logic.PC₁
 namespace Sets
 
 -- # `Sets`are "represented" by `Unary Predicates`
-def Particular (U: Universal): Type := CongruentUnaryPredicate U
-def Set (U: Universal): Type := Particular U
+protected def Particular (U: Universal): Type := CongruentUnaryPredicate U
 
 -- # `Set` equality predicate
-axiom eq: Set U → Set U → Prop
+axiom eq: Sets.Particular U → Sets.Particular U → Prop
 notation:50 A:51 " =ₛₑₜ " B:51 => eq A B
 
 -- ## Two `Sets` are equal if their predicates are logically equivalent.
-axiom eq_def: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), S₁.pred x ↔ S₂.pred x
+axiom eq_def: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), S₁ =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), S₁.pred x ↔ S₂.pred x
 
 end Sets
 

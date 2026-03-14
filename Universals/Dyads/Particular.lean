@@ -50,14 +50,14 @@ open Logic
 open Logic.PC₁
 
 -- # Type
-axiom Dyad(U₁: Universal)(U₂: Universal) : Type
+protected axiom Particular(U₁: Universal)(U₂: Universal) : Type
 
 -- # Equality
-axiom eq: Dyad U₁ U₂ → Dyad U₁ U₂ → Prop
+axiom eq: Dyads.Particular U₁ U₂ → Dyads.Particular U₁ U₂ → Prop
 notation:50 a:51 " =ₗₓₗ " b:51 => eq a b
 
 -- # Generative Constructors
-axiom bind{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Dyad U₁ U₂
+axiom bind{U₁: Universal}{U₂: Universal}: U₁.Particular → U₂.Particular → Dyads.Particular U₁ U₂
 notation:35 x:36 " ⋈ " y:36 => bind x y
 
 -- # Existence
@@ -65,14 +65,14 @@ notation:35 x:36 " ⋈ " y:36 => bind x y
 -- function symbol — its syntactic structure. This existence axiom incarnates
 -- it: for any two particulars, their dyad exists. See README.md Note 6.
 axiom existence {U₁ U₂: Universal}:
-    ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∃ (d: Dyad U₁ U₂), d 🟰 (a ⋈ b)
+    ∀ (a: U₁.Particular), ∀ (b: U₂.Particular), ∃ (d: Dyads.Particular U₁ U₂), d 🟰 (a ⋈ b)
 
 -- # Impurifier Equations
 axiom eq_def: ∀ (a₁: U₁.Particular), ∀ (b₁: U₂.Particular),
   ∀ (a₂: U₁.Particular), ∀ (b₂: U₂.Particular), (a₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) ↔ a₁ =₍U₁₎ a₂ ∧ b₁ =₍U₂₎ b₂
 
 -- # Exhaustiveness
-axiom exhaustiveness: ∀ d: Dyad U₁ U₂, ∃ a: U₁.Particular, ∃ b: U₂.Particular, d 🟰 (a ⋈ b)
+axiom exhaustiveness: ∀ d: Dyads.Particular U₁ U₂, ∃ a: U₁.Particular, ∃ b: U₂.Particular, d 🟰 (a ⋈ b)
 
 end Dyads
 end Universe

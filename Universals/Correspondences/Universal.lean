@@ -21,17 +21,20 @@ open Sets
 open Arrows
 
 -- # Correspondence equality is set equality over arrow sets
-def eq (C₁: Corr U₁ U₂) (C₂: Corr U₁ U₂): Prop := C₁ =ₛₑₜ C₂
+def eq (C₁: Correspondences.Particular U₁ U₂) (C₂: Correspondences.Particular U₁ U₂): Prop := C₁ =ₛₑₜ C₂
 
-def equality (U₁: Universal) (U₂: Universal): Equality (Corr U₁ U₂) := Sets.equality
+def equality (U₁: Universal) (U₂: Universal): Equality (Correspondences.Particular U₁ U₂) := Sets.equality
 
 -- # Correspondence Universal
 def CorrespondenceUniversal (U₁: Universal) (U₂: Universal): Universal := {
-  Particular := Corr U₁ U₂
+  Particular := Correspondences.Particular U₁ U₂
   eq := equality U₁ U₂
 }
+notation "𝐂𝐨𝐫𝐫" => CorrespondenceUniversal
+notation:35 U₁:36 " ➞ᶜ " U₂:36 => CorrespondenceUniversal U₁ U₂
 notation:50 a:51 " =→ᶜ  " b:51 => eq a b
-notation:35 U₁:36 " ⭢ᶜ " U₂:36 => CorrespondenceUniversal U₁ U₂
+abbrev Corr U₁ U₂ := (CorrespondenceUniversal U₁ U₂).Particular
+notation:35 U₁:36 " ⭢ᶜ " U₂:36 => Corr U₁ U₂
 
 end Correspondences
 

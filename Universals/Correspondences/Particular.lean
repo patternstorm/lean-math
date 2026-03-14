@@ -40,7 +40,7 @@ open Sets
 open Arrows
 
 -- # Correspondences are sets of arrows from individuals to sets
-def Corr (U₁: Universal) (U₂: Universal): Type := Set (U₁ ⭢ᵃ (𝐒𝐞𝐭 U₂))
+protected def Particular (U₁: Universal) (U₂: Universal): Type := Set (U₁ ➞ᵃ (𝐒𝐞𝐭 U₂))
 
 
 end Correspondences
