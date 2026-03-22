@@ -45,12 +45,21 @@ theorem powerset_cong: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S�
     have h₂₄: A ∈ₛₑₜ (𝒫 S₂) ↔ A ⊆ₛₑₜ S₂ := by forall_elim h₂₃, A
     -- By supersets_of congruence: if S₁ = S₂, then A ⊆ S₁ ↔ A ⊆ S₂
     have h₂₅: A ⊆ₛₑₜ S₁ ↔ A ⊆ₛₑₜ S₂ := (supersets_of A).cong S₁ S₂ h₁
-    -- Chain the equivalences
-    have h₂₆: A ∈ₛₑₜ (𝒫 S₁) → A ∈ₛₑₜ (𝒫 S₂) :=
-      fun h₂₆₁ => PC₀.deductive_eq_r2l h₂₄ (PC₀.deductive_eq_l2r h₂₅ (PC₀.deductive_eq_l2r h₂₂ h₂₆₁))
-    have h₂₇: A ∈ₛₑₜ (𝒫 S₂) → A ∈ₛₑₜ (𝒫 S₁) :=
-      fun h₂₇₁ => PC₀.deductive_eq_r2l h₂₂ (PC₀.deductive_eq_r2l h₂₅ (PC₀.deductive_eq_l2r h₂₄ h₂₇₁))
-    iff_intro h₂₆, h₂₇
+    -- Chain the equivalences: 𝒫 S₁ ↔ ⊆ S₁ ↔ ⊆ S₂ ↔ 𝒫 S₂
+    have h₂₆: A ∈ₛₑₜ (𝒫 S₁) → A ∈ₛₑₜ (𝒫 S₂) := by
+      assume(h₂₆₁: A ∈ₛₑₜ (𝒫 S₁))
+      have h₂₆₂: A ⊆ₛₑₜ S₁ := PC₀.deductive_eq_l2r h₂₂ h₂₆₁
+      have h₂₆₃: A ⊆ₛₑₜ S₂ := PC₀.deductive_eq_l2r h₂₅ h₂₆₂
+      have h₂₆₄: A ∈ₛₑₜ (𝒫 S₂) := PC₀.deductive_eq_r2l h₂₄ h₂₆₃
+      iterate h₂₆₄
+    have h₂₇: A ∈ₛₑₜ (𝒫 S₂) → A ∈ₛₑₜ (𝒫 S₁) := by
+      assume(h₂₇₁: A ∈ₛₑₜ (𝒫 S₂))
+      have h₂₇₂: A ⊆ₛₑₜ S₂ := PC₀.deductive_eq_l2r h₂₄ h₂₇₁
+      have h₂₇₃: A ⊆ₛₑₜ S₁ := PC₀.deductive_eq_r2l h₂₅ h₂₇₂
+      have h₂₇₄: A ∈ₛₑₜ (𝒫 S₁) := PC₀.deductive_eq_r2l h₂₂ h₂₇₃
+      iterate h₂₇₄
+    have h₂₈: A ∈ₛₑₜ (𝒫 S₁) ↔ A ∈ₛₑₜ (𝒫 S₂) := by iff_intro h₂₆, h₂₇
+    iterate h₂₈
 
   -- Convert to set equality via extensionality
   have h₃: ∀ (S: Set (𝐒𝐞𝐭 U)), (𝒫 S₁) =ₛₑₜ S ↔ (∀ (S': Set U), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ S) := by forall_elim set_extensionality, (𝒫 S₁)

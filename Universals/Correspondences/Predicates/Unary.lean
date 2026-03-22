@@ -1,1 +1,3 @@
 import Universals.Correspondences.Predicates.Unary.Functional
+import Universals.Correspondences.Predicates.Unary.Total
+import Universals.Correspondences.Predicates.Unary.Surjective

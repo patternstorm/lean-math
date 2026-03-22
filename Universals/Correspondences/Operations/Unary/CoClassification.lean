@@ -1,0 +1,2 @@
+import Universals.Correspondences.Operations.Unary.CoClassification.Operation
+import Universals.Correspondences.Operations.Unary.CoClassification.Properties

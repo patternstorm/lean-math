@@ -6,28 +6,32 @@ import Universals.Arrows.Universal
 /-!
 # Correspondences — Particular
 
-A correspondence between U₁ and U₂ is a set of arrows from individuals to
-sets: arrows of type `U₁ ⭢ᵃ 𝐒𝐞𝐭 U₂`. This is a type alias, not a new type —
-correspondences inherit all set operations for free.
+A correspondence between U₁ and U₂ is a classification mapping: it maps
+classifications (sets) in one universal to classifications in another.
+Internally, it is a set of arrows from individuals to sets — arrows of type
+`U₁ ⭢ᵃ 𝐒𝐞𝐭 U₂`, where each particular of U₁ is associated with the particulars
+of U₂ according to the relation that gives place to the correspondence. This is
+in fact the co-classification basis of the correspondence, i.e. which particulars
+of the target universal each particular of the source universal co-classifies,
+which determines how the correspondence maps classifications between the two universals.
 
 ## Relationship to Relations
 
 Relations and correspondences are parallel concepts at different levels of the
 induction hierarchy:
 
-- Relation `Rel U₁ U₂`: a set of dyads — classifies which individuals
-  co-exist in relation
-- Correspondence `Corr U₁ U₂`: a set of arrows — from an individual,
-  produce a set
+- Relation `Rel U₁ U₂`: a set of dyads — selects which dyads satisfy the relation
+- Correspondence `Corr U₁ U₂`: a set of arrows — maps each particular
+  to a class (set) in the target universal
 
 A relation naturally induces a correspondence, and vice versa.
 
 ## Role in the Framework
 
-The natural way to select arrows is through relations, via the correspondences
-they induce. When a correspondence is functional (all images are singletons),
-it is isomorphic to a set of direct `Arrow U₁ U₂` arrows — from an
-individual, produce an individual.
+A correspondence has a basis: the mapping of the singletons of its domain
+particulars to their corresponding classes in the target universal. We say
+the singleton co-classifies the particulars in the target universal. This basis
+determines how the correspondence maps classifications between the two universals.
 -/
 
 namespace Universe

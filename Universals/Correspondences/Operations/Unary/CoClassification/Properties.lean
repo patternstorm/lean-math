@@ -1,0 +1,2 @@
+import Universals.Correspondences.Operations.Unary.CoClassification.Properties.Reflexivity
+import Universals.Correspondences.Operations.Unary.CoClassification.Properties.Symmetry

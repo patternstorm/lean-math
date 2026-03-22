@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.NegationPreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.ConjunctionPreservesCongruence

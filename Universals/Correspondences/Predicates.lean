@@ -1,1 +1,2 @@
 import Universals.Correspondences.Predicates.Unary
+import Universals.Correspondences.Predicates.Ternary

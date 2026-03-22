@@ -21,9 +21,15 @@ elab_rules (kind := ndAssume): tactic
           throwError "assume: goal must be an implication or function type, got {goalType}"
         -- Elaborate the expected type
         let expectedType ← Term.elabTerm ty none
-        let actualType := goalTypeWhnf.bindingDomain!
-        -- Check if the types match
-        unless ← isDefEq expectedType actualType do
+        -- Instantiate assigned metavariables in the goal's binding domain.
+        -- After forall_intro + variable, the goal may contain metavariables
+        -- for implicit parameters (e.g., the Universal parameter of ∈ₛₑₜ)
+        -- that have been assigned but not yet substituted in the Expr.
+        let actualType ← instantiateMVars goalTypeWhnf.bindingDomain!
+        -- Check if the types match. Use withAssignableSyntheticOpaque so
+        -- that metavariables from elaboration (e.g., implicit Universal
+        -- parameters of ∈ₛₑₜ on dyad terms) can be assigned during unification.
+        unless ← withAssignableSyntheticOpaque (isDefEq expectedType actualType) do
           throwError "assume: type mismatch\n  expected: {expectedType}\n  actual:   {actualType}"
         -- Introduce the hypothesis
         let (_, newGoal) ← goal.intro h.getId

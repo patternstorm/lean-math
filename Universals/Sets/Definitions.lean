@@ -1,2 +1,2 @@
 import Universals.Sets.Definitions.SetComprehension.Definition
-import Universals.Sets.Definitions.SetsAsTypes.Definition
+import Universals.Sets.Definitions.SetsAsUniversals.Definition

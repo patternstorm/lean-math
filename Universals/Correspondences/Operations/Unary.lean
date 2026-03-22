@@ -1,0 +1,4 @@
+import Universals.Correspondences.Operations.Unary.Application
+import Universals.Correspondences.Operations.Unary.Domain
+import Universals.Correspondences.Operations.Unary.Range
+import Universals.Correspondences.Operations.Unary.CoClassification

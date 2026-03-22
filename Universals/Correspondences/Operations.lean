@@ -1,1 +1,5 @@
-import Universals.Correspondences.Operations.Unary.Apply.Operation
+import Universals.Correspondences.Operations.Unary.Application.Operation
+import Universals.Correspondences.Operations.Unary.Domain.Operation
+import Universals.Correspondences.Operations.Unary.Range.Operation
+import Universals.Correspondences.Operations.Unary.CoClassification.Operation
+import Universals.Correspondences.Operations.Binary.Composition.Operation
