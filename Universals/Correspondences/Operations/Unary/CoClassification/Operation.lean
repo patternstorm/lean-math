@@ -9,12 +9,11 @@ universal U₂: two target particulars are **co-classified** iff they belong
 to the same class in the basis — some source particular co-classifies both.
 
 ```
-(co_classification C).pred (b₁ ⋈ b₂)  ↔  ∃ a : U₁, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ)
+(co_classification C).pred (b₁ ⋈ b₂)  ↔  ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ)
 ```
 
-This relation is always reflexive on the range and always symmetric.
-It is not always transitive — transitivity fails when classes overlap
-without being identical.
+This relation is always symmetric.
+Transitivity requires injectivity (co-classification being a PER).
 -/
 
 namespace Universe
@@ -39,10 +38,10 @@ axiom co_classification: U₁ ⭢ᶜ U₂ → Rel U₂ U₂
 axiom co_classification_def: ∀ (C: U₁ ⭢ᶜ U₂), co_classification C =ᵣₑₗ co_classification_rel C
 
 -- # Bridge: derive pointwise definition from relation-equality axiom
--- This recovers the old-style ∀ b₁ b₂, pred (b₁ ⋈ b₂) ↔ ∃ a, ... form.
+-- This recovers the old-style ∀ b₁ b₂, pred (b₁ ⋈ b₂) ↔ ∃! a, ... form.
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-03-22
 theorem co_classification_unfold: ∀ (C: U₁ ⭢ᶜ U₂), ∀ (b₁: U₂.Particular), ∀ (b₂: U₂.Particular),
-  (co_classification C).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by forall_intro
+  (co_classification C).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by forall_intro
   variable(C: U₁ ⭢ᶜ U₂)
   variable(b₁: U₂.Particular)
   variable(b₂: U₂.Particular)
@@ -63,20 +62,20 @@ theorem co_classification_unfold: ∀ (C: U₁ ⭢ᶜ U₂), ∀ (b₁: U₂.Par
 
   -- Chain: (co_classification C).pred (b₁ ⋈ b₂) ↔ (uncurry R) (b₁ ⋈ b₂) ↔ R b₁ b₂
   -- (co_classification_rel C).pred = uncurry R by def unfolding
-  -- R b₁ b₂ = ∃ a, b₁ ∈ₛₑₜ C(↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C(↑{a}ₛₑₜ) by def unfolding
-  have h₈: (co_classification C).pred (b₁ ⋈ b₂) → ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by
+  -- R b₁ b₂ = ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C(↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C(↑{a}ₛₑₜ) by def unfolding
+  have h₈: (co_classification C).pred (b₁ ⋈ b₂) → ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by
     assume(ha: (co_classification C).pred (b₁ ⋈ b₂))
     have hb: (co_classification_rel C).pred (b₁ ⋈ b₂) := PC₀.deductive_eq_l2r h₄ ha
     have hc: R b₁ b₂ := PC₀.deductive_eq_l2r h₇ hb
     iterate hc
 
-  have h₉: (∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ)) → (co_classification C).pred (b₁ ⋈ b₂) := by
-    assume(ha: ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ))
+  have h₉: (∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ)) → (co_classification C).pred (b₁ ⋈ b₂) := by
+    assume(ha: ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ))
     have hb: (uncurry R) (b₁ ⋈ b₂) := PC₀.deductive_eq_r2l h₇ ha
     have hc: (co_classification C).pred (b₁ ⋈ b₂) := PC₀.deductive_eq_r2l h₄ hb
     iterate hc
 
-  have h₁₀: (co_classification C).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by iff_intro h₈, h₉
+  have h₁₀: (co_classification C).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ) := by iff_intro h₈, h₉
   iterate h₁₀
 
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-03-22
@@ -98,9 +97,9 @@ theorem co_classification_cong: ∀ (C₁: U₁ ⭢ᶜ U₂), ∀ (C₂: U₁ �
 
   -- co_classification_unfold for both correspondences
   have h₅: ∀ (b₁: U₂.Particular), ∀ (b₂: U₂.Particular),
-    (co_classification C₁).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim co_classification_unfold, C₁
+    (co_classification C₁).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim co_classification_unfold, C₁
   have h₆: ∀ (b₁: U₂.Particular), ∀ (b₂: U₂.Particular),
-    (co_classification C₂).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim co_classification_unfold, C₂
+    (co_classification C₂).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim co_classification_unfold, C₂
 
   have h₇: ∀ (d: U₂ ⋈ U₂), (co_classification C₁).pred d ↔ (co_classification C₂).pred d := by forall_intro
     variable(d: U₂ ⋈ U₂)
@@ -124,11 +123,11 @@ theorem co_classification_cong: ∀ (C₁: U₁ ⭢ᶜ U₂), ∀ (C₂: U₁ �
     have h₇₁₁: (co_classification C₂).pred d ↔ (co_classification C₂).pred (b₁ ⋈ b₂) := by modus_ponens h₇₁₀, h₇₃
 
     -- Instantiate co_classification_unfold at (b₁, b₂)
-    have h₇₁₂: ∀ (b₂': U₂.Particular), (co_classification C₁).pred (b₁ ⋈ b₂') ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂' ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim h₅, b₁
-    have h₇₁₃: (co_classification C₁).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim h₇₁₂, b₂
+    have h₇₁₂: ∀ (b₂': U₂.Particular), (co_classification C₁).pred (b₁ ⋈ b₂') ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂' ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim h₅, b₁
+    have h₇₁₃: (co_classification C₁).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₁ (↑{a}ₛₑₜ) := by forall_elim h₇₁₂, b₂
 
-    have h₇₁₄: ∀ (b₂': U₂.Particular), (co_classification C₂).pred (b₁ ⋈ b₂') ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂' ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim h₆, b₁
-    have h₇₁₅: (co_classification C₂).pred (b₁ ⋈ b₂) ↔ ∃ (a: U₁.Particular), b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim h₇₁₄, b₂
+    have h₇₁₄: ∀ (b₂': U₂.Particular), (co_classification C₂).pred (b₁ ⋈ b₂') ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂' ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim h₆, b₁
+    have h₇₁₅: (co_classification C₂).pred (b₁ ⋈ b₂) ↔ ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C₂ (↑{a}ₛₑₜ) := by forall_elim h₇₁₄, b₂
 
     -- Ternary predicate cong at (b₁, b₂): the core transfer in one step
     have h₇₁₆: ∀ (b₂': U₂.Particular), C₁ =→ᶜ C₂ → ((co_classified_with C₁ b₁).pred b₂' ↔ (co_classified_with C₂ b₁).pred b₂') := by forall_elim h₄₂, b₁

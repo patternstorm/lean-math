@@ -1,7 +1,7 @@
 import Universe
 import Logic
 import Universals.Correspondences.Universal
-import Universals.Correspondences.Operations.Unary.Apply.Operation
+import Universals.Correspondences.Operations.Unary.Application.Operation
 import Universals.Correspondences.Operations.Unary.Domain.Operation
 
 namespace Universe

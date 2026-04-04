@@ -291,15 +291,13 @@ Composition needs to be shown congruent in both arguments (C₁ and C₂).
 6. **Co-classification ternary predicate** — three-layer predicate on U₂.
    **Implemented.** `co_classified_with`, `co_classified_by`,
    `co_classification_predicate`.
-7. **Co-classification operation** — **refactoring in progress.**
-   Current signature returns `Rel U₂ U₂`. Must be changed to return
-   `Rel (range C : Universal) (range C : Universal)` — the relation
-   lives on the range, not on the whole target. This is required for
-   injectivity to be well-typed (`is_equivalence_relation` uses
-   `is_reflexive`, which quantifies over all particulars of the
-   relation's universal — so the universal must be the range).
-   Properties: reflexivity (proved), symmetry (proved), both need
-   updating after the signature change.
+7. **Co-classification operation** — **Implemented.**
+   Signature: `(C: U₁ ⭢ᶜ U₂) → Rel (range C : Universal) (range C : Universal)`.
+   Dependent return type (prevents wrapping as `CongruentUnaryOperation`).
+   Binary predicate on the range delegates congruence to existing
+   `co_classified_by` on U₂. Bridge theorem `co_classification_unfold`
+   uses `.val` to access underlying `U₂.Particular`.
+   Properties: reflexivity (proved), symmetry (proved).
 8. **Equivalence relation predicates** (in Relations). **Implemented.**
    `is_reflexive`, `is_symmetric`, `is_transitive`,
    `is_equivalence_relation` with congruence proofs.

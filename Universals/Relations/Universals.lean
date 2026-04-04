@@ -1,1 +1,2 @@
 import Universals.Relations.Universals.EquivalenceRelation
+import Universals.Relations.Universals.PartialEquivalenceRelation

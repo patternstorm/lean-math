@@ -14,8 +14,8 @@ correspondence `U₁ ⭢ᶜ U₃` whose classification chains through both:
 (C₂ ∘ᶜ C₁)(a) = C₂(C₁(a))
 ```
 
-At the arrow level, an arrow `(a ⭢ᵃ W)` is in `C₂ ∘ᶜ C₁` iff
-`W` equals the result of applying C₂ to the class produced by C₁
+At the arrow level, an arrow `(a ⭢ᵃ S)` is in `C₂ ∘ᶜ C₁` iff
+`S` equals the result of applying C₂ to the set, i.e. classification, produced by C₁
 from the singleton `{a}ₛₑₜ`.
 
 Composition is a binary operation on correspondences, congruent in

@@ -1,0 +1,2 @@
+import Universals.Relations.Universals.PartialEquivalenceRelation.Universal
+import Universals.Relations.Universals.PartialEquivalenceRelation.Properties

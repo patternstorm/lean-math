@@ -16,6 +16,7 @@ elab_rules (kind := ndAndElim) : tactic
         let targetType ← goal.getType
         let hExpr ← Term.elabTerm h none
         let hType ← inferType hExpr
+        let hType ← whnf hType
         match hType.consumeMData with
         | Expr.app (Expr.app (Expr.const ``And _) left) right =>
             if ← isDefEq targetType left then
