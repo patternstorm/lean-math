@@ -5,8 +5,8 @@ import Universals.Relations.Universal
 # Co-Classification Relation
 
 A correspondence `C: U₁ ⭢ᶜ U₂` induces a binary relation on the target
-universal U₂: two target particulars are **co-classified** iff they belong
-to the same class in the basis — some source particular co-classifies both.
+universal U₂, i.e. two target particulars are related iff a unique
+source particular **co-classifies** both.
 
 ```
 (co_classification C).pred (b₁ ⋈ b₂)  ↔  ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C (↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C (↑{a}ₛₑₜ)

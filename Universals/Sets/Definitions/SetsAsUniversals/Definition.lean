@@ -8,14 +8,14 @@ namespace Sets
 
 open Logic.PC₁
 
--- A set S over U induces a sub-universal of U: the type of elements belonging to S.
+-- A set S over U induces a refined universal of U: the type of elements belonging to S.
 --
 -- This is syntactic sugar over FOL. We are NOT leaving FOL behind.
 -- Quantifying over the induced universal is equivalent to using membership with implication:
 --   ∀ x : S.Particular, Q ↑x   ≡   ∀ x : U.Particular, x ∈ S → Q x
 --
--- Since Set U = CongruentUnaryPredicate U, we can directly apply sub_universal.
-def set_as_universal (S : Set U) : Universal := sub_universal U S
+-- Since Set U = CongruentUnaryPredicate U, we can directly apply refined_universal.
+def set_as_universal (S : Set U) : Universal := U ↾ S
 
 -- Coercion: a set can be used wherever a Universal is expected.
 -- Uses CoeDep (value-dependent coercion) to avoid Lean's semi-out-param restriction.
@@ -26,7 +26,7 @@ instance {U : Universal} (S : Set U) : CoeDep (Set U) S Universal where
 -- Syntactic sugar: S.Particular instead of (set_as_universal S).Particular
 protected def Set.Particular (S : Set U) : Type := (set_as_universal S).Particular
 
--- Working with elements of a set-as-universal (see SubUniversal/Schema.lean for details):
+-- Working with elements of a set-as-universal (see RefinedUniversal/Schema.lean for details):
 --   x : S.Particular       -- x is a subtype element (value + proof)
 --   ↑x : U.Particular      -- the underlying element of U
 --   x.property : S.pred ↑x -- proof that ↑x satisfies S

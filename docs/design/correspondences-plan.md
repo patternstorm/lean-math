@@ -141,83 +141,194 @@ surjective C ↔ ∀ b : U₂.Particular, b ∈ₛₑₜ range C
 
 ### Co-Classification Relation (induced by a correspondence)
 
-A correspondence `C: U₁ ⭢ᶜ U₂` induces a binary relation **on its
-range**: two target particulars are **co-classified** iff they belong
-to the same class in the basis — some source particular co-classifies
-both.
+A correspondence `C: U₁ ⭢ᶜ U₂` induces a binary relation on the
+target universal U₂: two target particulars are **co-classified** iff
+a **unique** source particular co-classifies both.
 
 ```
-co_classification C : Rel (range C : Universal) (range C : Universal)
+co_classification C : Rel U₂ U₂
 
-(co_classification C).pred (b₁ ⋈ b₂)  ↔  ∃ a : U₁.Particular, ↑b₁ ∈ₛₑₜ C(↑{a}ₛₑₜ) ∧ ↑b₂ ∈ₛₑₜ C(↑{a}ₛₑₜ)
+(co_classification C).pred (b₁ ⋈ b₂)  ↔  ∃!₍U₁₎ a, b₁ ∈ₛₑₜ C(↑{a}ₛₑₜ) ∧ b₂ ∈ₛₑₜ C(↑{a}ₛₑₜ)
 ```
 
-where `b₁ b₂ : (range C).Particular` and `↑b₁, ↑b₂ : U₂.Particular`.
+The `∃!` (unique existence) is essential. With plain `∃`, the relation
+would be reflexive on the entire range and always an equivalence
+relation — making injectivity trivial. With `∃!`, co-classification
+encodes that `b₁` and `b₂` belong to the **same class and no other**.
+This is the correct semantics: co-classification means belonging to
+exactly one shared class.
 
-The relation lives on the range — the part of the target universal on
-which the base classification lives. This is the correct type: the
-co-classification relation is inherently about elements that are
-co-classified by some source particular, i.e. elements in the range.
+The relation lives on U₂ (not on the range sub-universal). This avoids
+dependent type complications — see the Injectivity section below.
 
-This relation is always **reflexive** and always **symmetric**.
-However, it is **not always transitive**. Transitivity fails when
-classes overlap without being identical: if `b₁` is co-classified by
-`a₁`, and `b₂` is co-classified by both `a₁` and `a₂`, and `b₃` is
-co-classified only by `a₂`, then `b₁ ~_C b₂` and `b₂ ~_C b₃` but not
-`b₁ ~_C b₃`.
-
-**Implementation note**: The `Set → Universal` coercion (via `CoeDep`)
-allows writing `(range C : Universal)` instead of
-`set_as_universal (range C)`. See
-`Sets/Definitions/SetsAsUniversals/Definition.lean`.
+This relation is always **symmetric** (swap the conjuncts under the
+same unique witness). It is **not reflexive in general**: `b ⋈ b`
+requires a unique `a` with `b ∈ C({a})`, which fails if `b` belongs
+to multiple classes. It is **not transitive in general**: transitivity
+fails when classes overlap without being identical.
 
 The ternary predicate layers (`co_classified_with`, `co_classified_by`,
-`co_classification_predicate`) remain defined on U₂ — they capture
-the *condition* for co-classification. The operation
-`co_classification` wraps this condition as a relation on the range.
+`co_classification_predicate`) capture the condition on U₂. The
+operation `co_classification` wraps this as a `Rel U₂ U₂` via
+`relation_from`, with a defining axiom and bridge theorem
+`co_classification_unfold`.
 
 ### Injective
 
-A correspondence is **injective** iff its co-classification relation is an
-equivalence relation.
+**Core insight**: A correspondence is injective when its base
+classification on the range is proper — each target particular belongs
+to exactly one class. In other words, co-classification is an
+equivalence relation on the range.
+
+#### The problem: expressing "equivalence relation on the range"
+
+The natural definition is:
 
 ```
-injective C ↔ is_equivalence_relation (co_classification C)
+injective C ↔ is_equivalence_relation_on (co_classification C) (range C)
 ```
 
-This is now well-typed: `co_classification C` is a
-`Rel (range C : Universal) (range C : Universal)`, so
-`is_equivalence_relation` unfolds with `is_reflexive` quantifying
-over `(range C).Particular` — exactly reflexivity on the range, which
-is always satisfied.
+where `is_equivalence_relation_on R S` means R is an equivalence
+relation when restricted to elements of S. But expressing this
+cleanly in the framework has proven non-trivial.
 
-Ontologically, an injective correspondence partitions its range into
-equivalence classes, each indexed by a domain element. The classes
-`C(a)` *are* the equivalence classes. Pairwise disjointness of
-classes — the classical formulation — is a *consequence* of this
-partition structure, not the definition.
+#### Why PER alone is too weak
 
-**Note for proofs**: Since reflexivity and symmetry are always
-satisfied, the only condition that can fail is transitivity. So in
-practice, proving injectivity reduces to proving transitivity of the
-co-classification relation.
+The initial attempt defined injectivity as "co-classification is a
+partial equivalence relation (symmetric + transitive)." This is
+**wrong** — an empty relation is vacuously a PER:
 
-**Theorem (pairwise disjointness follows)**: If C is injective, then
-for all `a₁ a₂` in the domain, if `apply C (↑{a₁}ₛₑₜ)` and
-`apply C (↑{a₂}ₛₑₜ)` share any element, then `a₁ =₍U₁₎ a₂`.
+> Counterexample: `C({a₁}) = {b₁}, C({a₂}) = {b₁}, C({a₃}) = {b₂}`.
+> The co-classification relation (with `∃!`) relates nothing — every
+> pair fails uniqueness since `b₁` belongs to both `C({a₁})` and
+> `C({a₂})`. The empty relation is a PER, yet classes are not disjoint.
 
-The same theorems hold:
+Adding "non-empty" doesn't help either:
 
-1. **Composition**: injective C₁ ∧ injective C₂ → injective (C₂ ∘ C₁)
-2. **Left-inverse**: C is injective ↔ ∃ C⁻¹, C⁻¹ ∘ C is the partial
+> Counterexample: `C({a₁}) = {b₁, b₂}, C({a₂}) = {b₁, b₃}`.
+> Co-classification relates `(b₁, b₂)` uniquely via `a₁` and
+> `(b₁, b₃)` uniquely via `a₂`. The relation is non-empty and a PER
+> (symmetric, vacuously transitive). But `b₁` is in two classes.
+
+#### Equivalent correct definitions
+
+Three equivalent formulations, all correct:
+
+1. **Pairwise disjoint classes**:
+   ```
+   ∀ a₁ a₂ : U₁, ∀ b : U₂, b ∈ₛₑₜ C({a₁}) → b ∈ₛₑₜ C({a₂}) → a₁ =₍U₁₎ a₂
+   ```
+
+2. **Reflexive on range** (co-classification is reflexive on range):
+   ```
+   ∀ b : U₂, b ∈ₛₑₜ range C → (co_classification C).pred (b ⋈ b)
+   ```
+   This requires that every element in the range belongs to exactly
+   one class (the uniqueness in `∃!` is what makes reflexivity
+   non-trivial).
+
+3. **Equivalence relation on range**: co-classification restricted to
+   `range C` is reflexive, symmetric, and transitive.
+
+**Key theorem**: Reflexive on range alone implies transitivity (and
+hence full equivalence on range), because: given `b₁ ~ b₂` and
+`b₂ ~ b₃`, the unique witnesses must be equal (both are the unique
+source for `b₂`), giving `b₁ ~ b₃` via the shared witness.
+
+#### Solution: Restriction + sub-universal quantifier bridge
+
+**Sub-universal subtyping principle**: If `V = set_as_universal S`
+(V <: U), then `V.Particular` embeds into `U.Particular` via `.val`.
+This embedding extends to compound structures: `Rel V V` embeds into
+`Rel U U` because any statement about V-elements can be expressed as
+a guarded statement about U-elements. When output types depend on an
+input (as with restriction), congruence is expressed by comparing at
+the parent-universal level.
+
+**Sub-universal quantifier bridge** (verified in
+`Test/SubUniversalBridge.lean`):
+
+```
+(∀ v : V.Particular, P v.val) ↔ (∀ x : U.Particular, x ∈ₛₑₜ S → P x)
+```
+
+Proved using element-level coercion (`v.val : U.Particular`) and
+subtype construction (`⟨x, h⟩ : V.Particular`), with `mem_def`
+bridging `∈ₛₑₜ` to `S.pred`. No `propext`, no `funext`, no Lean `=`.
+Stays within first-order logic.
+
+**Restriction operation**: Given `R : Rel U U` and `S : Set U`,
+restriction produces `Rel V V` where `V = set_as_universal S`:
+
+```
+(restrict R S).pred (v₁ ⋈ v₂) ↔ R.pred (v₁.val ⋈ v₂.val)
+```
+
+Constructed via `relation_from` with binary predicate
+`fun v₁ v₂ => R.pred (v₁.val ⋈ v₂.val)` — no new axioms needed.
+
+**Congruence of `restrict`** in both R and S. The output type
+`Rel V V` depends on S, but `Rel V V <: Rel U U` — so when S varies,
+congruence is expressed at the parent level:
+
+```
+R₁ =ᵣₑₗ R₂ → S₁ =ₛₑₜ S₂ →
+  ∀ x y : U.Particular, x ∈ₛₑₜ S₁ → y ∈ₛₑₜ S₁ →
+    (restrict R₁ S₁).pred (⟨x, _⟩ ⋈ ⟨y, _⟩) ↔
+    (restrict R₂ S₂).pred (⟨x, _⟩ ⋈ ⟨y, _⟩)
+```
+
+This unfolds to `R₁.pred (x ⋈ y) ↔ R₂.pred (x ⋈ y)`, which follows
+directly from `R₁ =ᵣₑₗ R₂`. The dependent type dissolves when
+comparing through the parent universal.
+
+**Injectivity definition**:
+
+```
+is_injective C ↔ is_equivalence_relation (restrict (co_classification C) (range C))
+```
+
+Reads transparently: co-classification restricted to the range is an
+equivalence relation. The `is_reflexive` component quantifies over
+`(range C).Particular` — exactly the range elements.
+
+**Congruence of `is_injective`**: Uses the bridge to unfold past the
+dependent type, then compares at the parent-universal level:
+
+```
+is_injective C₁
+↔ is_equivalence_relation (restrict (co_classification C₁) (range C₁))
+↔ ∀ x : U₂, x ∈ₛₑₜ range C₁ → (co_classification C₁).pred (x ⋈ x) ∧ ...
+                                                    [bridge for range C₁]
+↔ ∀ x : U₂, x ∈ₛₑₜ range C₂ → (co_classification C₂).pred (x ⋈ x) ∧ ...
+                                   [range_cong + co_classification_cong]
+↔ is_equivalence_relation (restrict (co_classification C₂) (range C₂))
+                                                    [bridge for range C₂]
+↔ is_injective C₂
+```
+
+Each bridge application works for a fixed S. The comparison happens
+at U₂ where `=ᵣₑₗ` and `=ₛₑₜ` work normally.
+
+#### Current implementation (stale, needs update)
+
+The file `Predicates/Unary/Injective/Predicate.lean` currently uses the
+PER-based definition. Must be updated to use restriction + equivalence
+relation.
+
+#### Expected theorems
+
+1. **Pairwise disjointness**: injective ↔ classes are pairwise disjoint
+2. **Composition**: injective C₁ ∧ injective C₂ → injective (C₂ ∘ C₁)
+3. **Left-inverse**: C is injective ↔ ∃ C⁻¹, C⁻¹ ∘ C is the partial
    identity on domain(C)
-3. **Cancellation (monomorphism)**: injective C → (C ∘ F =ₛₑₜ C ∘ G
+4. **Cancellation (monomorphism)**: injective C → (C ∘ F =ₛₑₜ C ∘ G
    on domain(C) → F = G on relevant parts)
-4. **Distributive law**: injective C → apply C (S₁ ∩ S₂) =ₛₑₜ
+5. **Distributive law**: injective C → apply C (S₁ ∩ S₂) =ₛₑₜ
    apply C S₁ ∩ apply C S₂
-5. **Inverse-image equivalence**: for injective C, direct image of the
+6. **Inverse-image equivalence**: for injective C, direct image of the
    relational inverse equals the pre-image
-6. **Idempotent round-trip**: C⁻¹ ∘ C is idempotent (projection onto
+7. **Idempotent round-trip**: C⁻¹ ∘ C is idempotent (projection onto
    domain)
 
 ### Inverse
@@ -292,16 +403,18 @@ Composition needs to be shown congruent in both arguments (C₁ and C₂).
    **Implemented.** `co_classified_with`, `co_classified_by`,
    `co_classification_predicate`.
 7. **Co-classification operation** — **Implemented.**
-   Signature: `(C: U₁ ⭢ᶜ U₂) → Rel (range C : Universal) (range C : Universal)`.
-   Dependent return type (prevents wrapping as `CongruentUnaryOperation`).
-   Binary predicate on the range delegates congruence to existing
-   `co_classified_by` on U₂. Bridge theorem `co_classification_unfold`
-   uses `.val` to access underlying `U₂.Particular`.
-   Properties: reflexivity (proved), symmetry (proved).
+   Signature: `(C: U₁ ⭢ᶜ U₂) → Rel U₂ U₂` (lives on U₂, not range).
+   Uses `∃!₍U₁₎` (unique existence). Constructed via `relation_from`
+   with axiom + defining equality. Wrapped as `CongruentUnaryOperation`.
+   Bridge theorem `co_classification_unfold` recovers pointwise iff.
+   Properties: symmetry (proved). Reflexivity deleted (no longer holds
+   in general with `∃!` — requires injectivity).
 8. **Equivalence relation predicates** (in Relations). **Implemented.**
    `is_reflexive`, `is_symmetric`, `is_transitive`,
    `is_equivalence_relation` with congruence proofs.
-9. **Injective** — co-classification is an equivalence relation
+9. **Injective** — co-classification is an equivalence relation on range.
+   **In progress.** Definition approach undecided — see Injectivity section.
+   Current PER-based definition in code is stale.
 10. **Inverse** — definition + congruence + theorem (inverse = dual)
 11. **Bijective** — conjunction of total + injective + surjective
 12. **Functional** — predicate definition (singleton → singleton)

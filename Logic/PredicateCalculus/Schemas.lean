@@ -2,4 +2,6 @@ import Logic.PredicateCalculus.Schemas.Equality
 import Logic.PredicateCalculus.Schemas.Universal
 import Logic.PredicateCalculus.Schemas.CongruentPredicates
 import Logic.PredicateCalculus.Schemas.CongruentOperations
-import Logic.PredicateCalculus.Schemas.SubUniversal.Schema
+import Logic.PredicateCalculus.Schemas.Operations
+import Logic.PredicateCalculus.Schemas.RefinedUniversal
+import Logic.PredicateCalculus.Schemas.SubUniversal
