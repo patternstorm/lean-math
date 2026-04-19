@@ -39,8 +39,14 @@ open Lean Elab Command in
 elab "unary_operation " name:ident " : " U₁:term:max " ⟴ " U₂:term:max " from " ext:term : command => do
   let symName := mkIdent (name.getId.appendAfter "_sym")
   let defName := mkIdent (name.getId.appendAfter "_def")
-  elabCommand (← `(axiom $symName : ($U₁).Particular → ($U₂).Particular))
-  elabCommand (← `(axiom $defName : ∀ (x: ($U₁).Particular), ∀ (y: ($U₂).Particular),
+  -- Type ascription `(U : Universal)` on each Universal occurrence triggers
+  -- Lean's auto-implicit binding when the caller uses a free variable (e.g.,
+  -- `U ⟴ U from equals`). Without the ascription, `(U).Particular` is parsed
+  -- as field notation on an un-typed term, which blocks auto-implicit before
+  -- it can bind `U`. The ascription is a no-op when the caller passes a term
+  -- already of type `Universal` (e.g., `Set U`).
+  elabCommand (← `(axiom $symName : ($U₁ : Universal).Particular → ($U₂ : Universal).Particular))
+  elabCommand (← `(axiom $defName : ∀ (x: ($U₁ : Universal).Particular), ∀ (y: ($U₂ : Universal).Particular),
     ($symName x =₍$U₂₎ y) ↔ (($ext).pred x).pred y))
   elabCommand (← `(noncomputable def $name : UnaryOperation $U₁ $U₂ :=
     { ext := $ext, op := $symName, «def» := $defName }))

@@ -15,7 +15,7 @@ For every universal U and congruent unary predicate P on U, the refined
 universal U ↾ P embeds into U. This file defines the following schemas,
 parameterized over U and P:
 
-- `embedding_graph`: the binary predicate G(x, y) = y =₍U₎ ↑x, built from `equal_to`
+- `embedding_graph`: the binary predicate G(x, y) = ↑x =₍U₎ y, built from `equal_to`
 - `embedding_sym` + `embedding_def`: the operation symbol and its
   defining axiom, following the standard ADT pattern (axiom + defining iff)
 - `embedding`: the congruent unary operation bundling graph, symbol, and
@@ -25,7 +25,7 @@ parameterized over U and P:
 
 -/
 
--- The binary predicate G(x, y) = y =₍U₎ ↑x, built from the schema-level `equal_to`.
+-- The binary predicate G(x, y) = ↑x =₍U₎ y, built from the schema-level `equal_to`.
 -- Inner congruence (in y) is provided by `equal_to`. Outer congruence (in x) is
 -- proved from transitivity and symmetry of U.eq.
 --
@@ -33,7 +33,7 @@ parameterized over U and P:
 noncomputable def embedding_graph {U: Universal} (P: CongruentUnaryPredicate U): CongruentBinaryPredicate (U ↾ P) U :=
   let Uₚ: Universal := U ↾ P
   let pred: Uₚ.Particular → CongruentUnaryPredicate U := (x: Uₚ.Particular ↦ equal_to ↑x)
-  -- Outer congruence (in x): x₁ =₍Uₚ₎ x₂ → (z =₍U₎ ↑x₁ ↔ z =₍U₎ ↑x₂)
+  -- Outer congruence (in x): x₁ =₍Uₚ₎ x₂ → (↑x₁ =₍U₎ z ↔ ↑x₂ =₍U₎ z)
   -- x₁ =₍Uₚ₎ x₂ is definitionally ↑x₁ =₍U₎ ↑x₂, so this follows
   -- from transitivity and symmetry of U.eq.
   let cong: ∀ (x₁: Uₚ.Particular), ∀ (x₂: Uₚ.Particular), ∀ (z: U.Particular), x₁ =₍Uₚ₎ x₂ → ((pred x₁).pred z ↔ (pred x₂).pred z) := by forall_intro
@@ -43,25 +43,25 @@ noncomputable def embedding_graph {U: Universal} (P: CongruentUnaryPredicate U):
     assume(h₁: x₁ =₍Uₚ₎ x₂)
     -- h₁ is definitionally ↑x₁ =₍U₎ ↑x₂
     have h₂: (pred x₁).pred z → (pred x₂).pred z := by
-      assume(h₃: z =₍U₎ ↑x₁)
-      have h₄: z =₍U₎ ↑x₁ ∧ ↑x₁ =₍U₎ ↑x₂ := by and_intro h₃, h₁
-      have h₅: z =₍U₎ ↑x₁ ∧ ↑x₁ =₍U₎ ↑x₂ → z =₍U₎ ↑x₂ := by forall_elim U.eq.trans, z, ↑x₁, ↑x₂
-      have h₆: z =₍U₎ ↑x₂ := by modus_ponens h₅, h₄
-      iterate h₆
-    have h₇: (pred x₂).pred z → (pred x₁).pred z := by
-      assume(h₈: z =₍U₎ ↑x₂)
-      have h₉: ↑x₁ =₍U₎ ↑x₂ → ↑x₂ =₍U₎ ↑x₁ := by forall_elim U.eq.sym, ↑x₁, ↑x₂
-      have h₁₀: ↑x₂ =₍U₎ ↑x₁ := by modus_ponens h₉, h₁
-      have h₁₁: z =₍U₎ ↑x₂ ∧ ↑x₂ =₍U₎ ↑x₁ := by and_intro h₈, h₁₀
-      have h₁₂: z =₍U₎ ↑x₂ ∧ ↑x₂ =₍U₎ ↑x₁ → z =₍U₎ ↑x₁ := by forall_elim U.eq.trans, z, ↑x₂, ↑x₁
-      have h₁₃: z =₍U₎ ↑x₁ := by modus_ponens h₁₂, h₁₁
+      assume(h₃: ↑x₁ =₍U₎ z)
+      have h₄: ↑x₁ =₍U₎ ↑x₂ → ↑x₂ =₍U₎ ↑x₁ := by forall_elim U.eq.sym, ↑x₁, ↑x₂
+      have h₅: ↑x₂ =₍U₎ ↑x₁ := by modus_ponens h₄, h₁
+      have h₆: ↑x₂ =₍U₎ ↑x₁ ∧ ↑x₁ =₍U₎ z := by and_intro h₅, h₃
+      have h₇: ↑x₂ =₍U₎ ↑x₁ ∧ ↑x₁ =₍U₎ z → ↑x₂ =₍U₎ z := by forall_elim U.eq.trans, ↑x₂, ↑x₁, z
+      have h₈: ↑x₂ =₍U₎ z := by modus_ponens h₇, h₆
+      iterate h₈
+    have h₉: (pred x₂).pred z → (pred x₁).pred z := by
+      assume(h₁₀: ↑x₂ =₍U₎ z)
+      have h₁₁: ↑x₁ =₍U₎ ↑x₂ ∧ ↑x₂ =₍U₎ z := by and_intro h₁, h₁₀
+      have h₁₂: ↑x₁ =₍U₎ ↑x₂ ∧ ↑x₂ =₍U₎ z → ↑x₁ =₍U₎ z := by forall_elim U.eq.trans, ↑x₁, ↑x₂, z
+      have h₁₃: ↑x₁ =₍U₎ z := by modus_ponens h₁₂, h₁₁
       iterate h₁₃
-    have h₁₄: (pred x₁).pred z ↔ (pred x₂).pred z := by iff_intro h₂, h₇
+    have h₁₄: (pred x₁).pred z ↔ (pred x₂).pred z := by iff_intro h₂, h₉
     iterate h₁₄
   { pred := pred, cong := cong }
 
 -- The embedding operation symbol: the canonical injection (U ↾ P) → U.
--- Defining axiom: embedding_sym P x =₍U₎ y ↔ y =₍U₎ ↑x.
+-- Defining axiom: embedding_sym P x =₍U₎ y ↔ ↑x =₍U₎ y.
 axiom embedding_sym {U: Universal} (P: CongruentUnaryPredicate U):(U ↾ P).Particular → U.Particular
 axiom embedding_def {U: Universal} (P: CongruentUnaryPredicate U): ∀ (x: (U ↾ P).Particular), ∀ (y: U.Particular),
     (embedding_sym P x =₍U₎ y) ↔ ((embedding_graph P).pred x).pred y

@@ -7,32 +7,33 @@ namespace Logic
 
 namespace PC₁
 
+-- `equal_to a` is the currying of universal equality by its first argument:
+-- `(equal_to a).pred x := a =₍U₎ x`. The parameter sits on the LEFT of the
+-- relation and the test variable on the RIGHT. This convention is what lets
+-- the binary lift `equals.pred x := equal_to x` yield the domain-first graph
+-- `(equals.pred x).pred y = x =₍U₎ y` automatically. Any unary predicate built
+-- by currying a binary relation should follow the same discipline.
 def equal_to(a: U.Particular): CongruentUnaryPredicate U :=
-  let pred: U.Particular → Prop := (x: U.Particular ↦ x =₍U₎ a)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (x =₍U₎ a ↔ y =₍U₎ a):= by forall_intro
+  let pred: U.Particular → Prop := (x: U.Particular ↦ a =₍U₎ x)
+  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (a =₍U₎ x ↔ a =₍U₎ y):= by forall_intro
     variable(u: U.Particular)
     variable(v: U.Particular)
     assume(h₁: u =₍U₎ v)
-    have h₂: u =₍U₎ a → v =₍U₎ a := by
-      assume(h₂₁: u =₍U₎ a)
-      have h₂₂: ∀ (y: U.Particular), ∀  (z: U.Particular), v =₍U₎ y ∧ y =₍U₎ z → v =₍U₎ z := by forall_elim U.eq.trans, v
-      have h₂₃: ∀  (z: U.Particular), v =₍U₎ u ∧ u =₍U₎ z → v =₍U₎ z := by forall_elim h₂₂, u
-      have h₂₄: v =₍U₎ u ∧ u =₍U₎ a → v =₍U₎ a := by forall_elim h₂₃, a
-      have h₂₅: ∀ (y: U.Particular), u =₍U₎ y → y =₍U₎ u := by forall_elim U.eq.sym, u
-      have h₂₆: u =₍U₎ v → v =₍U₎ u := by forall_elim h₂₅, v
-      have h₂₇: v =₍U₎ u := by modus_ponens h₂₆, h₁
-      have h₂₅: v =₍U₎ u ∧ u =₍U₎ a := by and_intro h₂₇, h₂₁
-      have h₃₆: v =₍U₎ a := by modus_ponens h₂₄, h₂₅
+    have h₂: a =₍U₎ u → a =₍U₎ v := by
+      assume(h₂₁: a =₍U₎ u)
+      have h₂₂: a =₍U₎ u ∧ u =₍U₎ v := by and_intro h₂₁, h₁
+      have h₂₃: a =₍U₎ u ∧ u =₍U₎ v → a =₍U₎ v := by forall_elim U.eq.trans, a, u, v
+      have h₂₄: a =₍U₎ v := by modus_ponens h₂₃, h₂₂
+      iterate h₂₄
+    have h₃: a =₍U₎ v → a =₍U₎ u := by
+      assume(h₃₁: a =₍U₎ v)
+      have h₃₂: u =₍U₎ v → v =₍U₎ u := by forall_elim U.eq.sym, u, v
+      have h₃₃: v =₍U₎ u := by modus_ponens h₃₂, h₁
+      have h₃₄: a =₍U₎ v ∧ v =₍U₎ u := by and_intro h₃₁, h₃₃
+      have h₃₅: a =₍U₎ v ∧ v =₍U₎ u → a =₍U₎ u := by forall_elim U.eq.trans, a, v, u
+      have h₃₆: a =₍U₎ u := by modus_ponens h₃₅, h₃₄
       iterate h₃₆
-    have h₃: v =₍U₎ a → u =₍U₎ a := by
-      assume(h₃₁: v =₍U₎ a)
-      have h₃₂: ∀ (y: U.Particular), ∀  (z: U.Particular), u =₍U₎ y ∧ y =₍U₎ z → u =₍U₎ z := by forall_elim U.eq.trans, u
-      have h₃₃: ∀  (z: U.Particular), u =₍U₎ v ∧ v =₍U₎ z → u =₍U₎ z := by forall_elim h₃₂, v
-      have h₃₄: u =₍U₎ v ∧ v =₍U₎ a → u =₍U₎ a := by forall_elim h₃₃, a
-      have h₃₅: u =₍U₎ v ∧ v =₍U₎ a := by and_intro h₁, h₃₁
-      have h₃₆: u =₍U₎ a := by modus_ponens h₃₄, h₃₅
-      iterate h₃₆
-    have h₄: u =₍U₎ a ↔ v =₍U₎ a := by iff_intro h₂, h₃
+    have h₄: a =₍U₎ u ↔ a =₍U₎ v := by iff_intro h₂, h₃
     iterate h₄
   { pred := pred, cong := cong }
 

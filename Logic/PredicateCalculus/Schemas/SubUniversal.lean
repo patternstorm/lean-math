@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Schemas.SubUniversal.Schema
+import Logic.PredicateCalculus.Schemas.SubUniversal.Properties
