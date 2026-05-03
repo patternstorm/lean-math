@@ -86,39 +86,31 @@ our axiomatized composite types.
 
 `SubUniversal` fills this gap. It is framework infrastructure that compensates
 for Lean not being a native many-sorted FOL engine. The `embedding` field, the
-`preserves_eq` proof, the lift axioms, and the CoeDep instances are all machinery
+`preserves_eq` proof, the subsume axioms, and the CoeDep instances are all machinery
 that a proper many-sorted engine would provide for free.
 
 ## How `<:` propagates through composite universals
 
-Each composite universal (Dyads, Relations, ...) must provide, as part of its
-ADT specification (alongside constructors, equality, and exhaustiveness):
+`<:` is a typeclass. This allows automated subsuming of Sub-Universals using a a single generic CoeDep instance.
 
-1. **Lift axioms** — one per component position, parameterized by `<:`.
-   For example, `U2' <: U2` induces `(U1 ⧓ U2') <: (U1 ⧓ U2)`.
+Each composite universal (Dyads, Relations, ...) must provide, subsume operations
+that lift component sub-universality into composite sub-universality and use them
+to register the composite sub-universality instance.
 
-2. **Lift defining axioms** — behavior on constructors, e.g.:
-   `dyad_lift_right e (a ⋈ v) =ₗₓₗ (a ⋈ e.embedding v)`
-
-3. **CoeDep instances** — one per concrete coercion path, making lifts
-   transparent. Writing `(right_restrict R S : Rel U1 U2)` silently
-   inserts the lift. Uses CoeDep (not Coe) because Lean's instance resolution
-   cannot recover S from the type alone (semi-out-param limitation).
-
-Note: we tried making `<:` a type class so Lean would resolve coercions
-generically. This DOES NOT WORK: Lean's instance resolution cannot unfold
-`set_as_universal S` to `U2 ↾ S` during matching. So each composite universal
-needs its own concrete CoeDep instances. This is a minor inconvenience — one
-instance per coercion path — but each is a one-liner.
 -/
 
--- Registration mechanism: records that U' sits faithfully inside U via
+-- Sub-Universality Registration mechanism: records that U' sits faithfully inside U via
 -- an embedding (UnaryOperation) that preserves equality in both directions.
-structure SubUniversal (U₁: Universal) (U₂: Universal): Type where
+class SubUniversal (U₁: Universal) (U₂: Universal): Type where
   embedding: U₁ ⟴ U₂
   preserves_eq: ∀ (x: U₁.Particular), ∀ (y: U₁.Particular), x =₍U₁₎ y ↔ (embedding x =₍U₂₎ embedding y)
 
 notation:25 U':26 " <: " U:26 => SubUniversal U' U
+
+-- Generic CoeDep for automated sub-universal subsumption
+noncomputable instance {U₁ U₂: Universal} [e: U₁ <: U₂]
+    (x: U₁.Particular): CoeDep U₁.Particular x U₂.Particular where
+  coe := e.embedding x
 
 end PC₁
 

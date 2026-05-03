@@ -21,7 +21,7 @@ namespace PC₁
 --             ⇒ x =₍U₎ y (by trans + sym).
 --
 -- Proof by Claude Opus 4.7, 2026-04-19
-noncomputable def subuniversal_refl (U: Universal): U <: U :=
+noncomputable instance subuniversal_refl (U: Universal): U <: U :=
   let e: U ⟴ U := identity
   let preserves_eq: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y ↔ (e x =₍U₎ e y) := by forall_intro
     variable(x: U.Particular)

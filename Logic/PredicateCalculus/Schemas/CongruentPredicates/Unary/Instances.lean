@@ -1,3 +1,2 @@
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.True
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.False
-import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.Equals

@@ -1,1 +1,1 @@
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Properties.SubUniversal
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Properties.Subsumptivity

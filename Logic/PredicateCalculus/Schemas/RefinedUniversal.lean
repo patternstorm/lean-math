@@ -1,2 +1,4 @@
 import Logic.PredicateCalculus.Schemas.RefinedUniversal.Schema
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations
 import Logic.PredicateCalculus.Schemas.RefinedUniversal.Properties
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates

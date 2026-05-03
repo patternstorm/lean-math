@@ -12,7 +12,7 @@ open Logic.PC₁
 
 -- # Function Universal
 -- The refined universal of Corr U₁ U₂ whose particulars are functional correspondences.
-def FunctionUniversal (U₁: Universal) (U₂: Universal): Universal := (CorrespondenceUniversal U₁ U₂) ↾ (functional_predicate U₁ U₂)
+@[reducible] def FunctionUniversal (U₁: Universal) (U₂: Universal): Universal := (CorrespondenceUniversal U₁ U₂) ↾ (functional_predicate U₁ U₂)
 
 notation "𝐅𝐮𝐧𝐜" => FunctionUniversal
 notation:35 U₁:36 " ➔ " U₂:36 => FunctionUniversal U₁ U₂

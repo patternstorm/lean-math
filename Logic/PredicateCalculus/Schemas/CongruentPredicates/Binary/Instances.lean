@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.UnaryOperationGraph

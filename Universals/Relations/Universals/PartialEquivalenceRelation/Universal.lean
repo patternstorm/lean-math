@@ -14,7 +14,7 @@ open Logic.PC₁
 -- The refined universal of Rel U U whose particulars are partial equivalence relations.
 -- A particular of this universal is a relation R bundled with a proof that
 -- is_symmetric R ∧ is_transitive R.
-def PEqRelUniversal (U: Universal): Universal := (𝐑𝐞𝐥 U U) ↾ (partial_equivalence_relation_predicate U)
+@[reducible] def PEqRelUniversal (U: Universal): Universal := (𝐑𝐞𝐥 U U) ↾ (partial_equivalence_relation_predicate U)
 notation "𝐏𝐄𝐪𝐑𝐞𝐥" => PEqRelUniversal
 
 def PEqRel (U: Universal): Type := (𝐏𝐄𝐪𝐑𝐞𝐥 U).Particular

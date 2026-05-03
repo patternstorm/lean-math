@@ -16,8 +16,8 @@ namespace PC₁
 -- Proof by Claude Opus 4.7, 2026-04-19
 theorem identity_invariance: ∀ (z: U.Particular), identity z =₍U₎ z := by forall_intro
   variable(z: U.Particular)
-  have h₁: ∀ (w: U.Particular), (identity z =₍U₎ w) ↔ (identity.ext.pred z).pred w := by forall_elim identity.«def», z
-  have h₂: (identity z =₍U₎ z) ↔ (identity.ext.pred z).pred z := by forall_elim h₁, z
+  have h₁: ∀ (w: U.Particular), (identity z =₍U₎ w) ↔ (identity.graph.pred z).pred w := by forall_elim identity.«def», z
+  have h₂: (identity z =₍U₎ z) ↔ (identity.graph.pred z).pred z := by forall_elim h₁, z
   have h₃: z =₍U₎ z := by forall_elim U.eq.refl, z
   have h₄: identity z =₍U₎ z := PC₀.deductive_eq_r2l h₂ h₃
   iterate h₄

@@ -1,0 +1,2 @@
+import Universals.Dyads.Predicates.SubsumeGraph.Properties.LeftTotality
+import Universals.Dyads.Predicates.SubsumeGraph.Properties.RightDeterminacy

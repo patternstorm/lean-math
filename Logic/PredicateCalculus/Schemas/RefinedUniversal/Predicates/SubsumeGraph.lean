@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph.Predicate
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph.Properties

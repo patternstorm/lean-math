@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals.Properties.LeftTotality
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals.Properties.RightDeterminacy

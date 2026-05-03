@@ -12,15 +12,19 @@ Declaring a `UnaryOperation` manually requires three steps:
 
 1. `axiom my_op_sym : U₁.Particular → U₂.Particular` — the operation function symbol
 2. `axiom my_op_def : ∀ x y, (my_op_sym x =₍U₂₎ y) ↔ (G.pred x).pred y` — the defining axiom
-3. `noncomputable def my_op : U₁ ⟴ U₂ := { ext := G, op := my_op_sym, def := my_op_def }`
+3. `noncomputable def my_op : U₁ ⟴ U₂ := { graph := G, op := my_op_sym, def := my_op_def }`
 
 This macro generates all three from a single line:
 
     unary_operation my_op : U₁ ⟴ U₂ from G
 
+The `from` term must have type `UnaryOperationGraph U₁ U₂` — a plain
+`CongruentBinaryPredicate` is not accepted, because totality and
+functionality are required to keep the generated defining axiom consistent.
+
 ## Usage example
 
-Given a congruent binary predicate `G : CongruentBinaryPredicate U₁ U₂`:
+Given a unary operation graph `powerset_graph : UnaryOperationGraph (Set U) (Set (Set U))`:
 
     unary_operation powerset : Set U ⟴ Set (Set U) from powerset_graph
 
@@ -31,12 +35,12 @@ This generates:
 
 After declaration, the following are available:
 - `powerset x` — apply the operation (via CoeFun)
-- `powerset.ext` — the graph predicate (reduces to `powerset_graph`)
+- `powerset.graph` — the operation's graph (exposes `.pred`, `.cong`, `.tot`, `.func`)
 - `powerset.def` — the defining axiom (usable via `forall_elim`)
 - `powerset.cong` — congruence (derived theorem, never assumed)
 -/
 open Lean Elab Command in
-elab "unary_operation " name:ident " : " U₁:term:max " ⟴ " U₂:term:max " from " ext:term : command => do
+elab "unary_operation " name:ident " : " U₁:term:max " ⟴ " U₂:term:max " from " graph:term : command => do
   let symName := mkIdent (name.getId.appendAfter "_sym")
   let defName := mkIdent (name.getId.appendAfter "_def")
   -- Type ascription `(U : Universal)` on each Universal occurrence triggers
@@ -46,10 +50,12 @@ elab "unary_operation " name:ident " : " U₁:term:max " ⟴ " U₂:term:max " f
   -- it can bind `U`. The ascription is a no-op when the caller passes a term
   -- already of type `Universal` (e.g., `Set U`).
   elabCommand (← `(axiom $symName : ($U₁ : Universal).Particular → ($U₂ : Universal).Particular))
+  -- `$graph` must be a `UnaryOperationGraph U₁ U₂`. Its `.pred` projection
+  -- comes from the inherited `CongruentBinaryPredicate` structure.
   elabCommand (← `(axiom $defName : ∀ (x: ($U₁ : Universal).Particular), ∀ (y: ($U₂ : Universal).Particular),
-    ($symName x =₍$U₂₎ y) ↔ (($ext).pred x).pred y))
+    ($symName x =₍$U₂₎ y) ↔ (($graph).pred x).pred y))
   elabCommand (← `(noncomputable def $name : UnaryOperation $U₁ $U₂ :=
-    { ext := $ext, op := $symName, «def» := $defName }))
+    { graph := $graph, op := $symName, «def» := $defName }))
 
 end PC₁
 

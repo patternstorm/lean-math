@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph.Properties.LeftTotality
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph.Properties.RightDeterminacy

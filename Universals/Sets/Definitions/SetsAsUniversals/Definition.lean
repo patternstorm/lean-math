@@ -15,7 +15,7 @@ open Logic.PC₁
 --   ∀ x : S.Particular, Q ↑x   ≡   ∀ x : U.Particular, x ∈ S → Q x
 --
 -- Since Set U = CongruentUnaryPredicate U, we can directly apply refined_universal.
-def set_as_universal (S : Set U) : Universal := U ↾ S
+@[reducible] def set_as_universal (S : Set U) : Universal := U ↾ S
 
 -- Coercion: a set can be used wherever a Universal is expected.
 -- Uses CoeDep (value-dependent coercion) to avoid Lean's semi-out-param restriction.
