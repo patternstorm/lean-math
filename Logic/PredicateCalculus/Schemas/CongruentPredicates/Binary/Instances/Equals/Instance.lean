@@ -37,6 +37,37 @@ def equal_to(a: U.Particular): CongruentUnaryPredicate U :=
     iterate h₄
   { pred := pred, cong := cong }
 
+  -- # Equal-From Predicate
+-- Fixes the second parameter: (x ↦ x =₍U₎ a)
+-- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-05-10
+def equal_from(a: U.Particular): CongruentUnaryPredicate U :=
+  let pred: U.Particular → Prop := (x: U.Particular ↦ x =₍U₎ a)
+  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (x =₍U₎ a ↔ y =₍U₎ a) := by forall_intro
+    variable(u: U.Particular)
+    variable(v: U.Particular)
+    assume(h₁: u =₍U₎ v)
+    have h₂: u =₍U₎ a → v =₍U₎ a := by
+      assume(h₂₁: u =₍U₎ a)
+      have h₂₂: u =₍U₎ v → v =₍U₎ u := by forall_elim U.eq.sym, u, v
+      have h₂₃: v =₍U₎ u := by modus_ponens h₂₂, h₁
+      have h₂₄: v =₍U₎ u ∧ u =₍U₎ a := by and_intro h₂₃, h₂₁
+      have h₂₅: v =₍U₎ u ∧ u =₍U₎ a → v =₍U₎ a := by forall_elim U.eq.trans, v, u, a
+      have h₂₆: v =₍U₎ a := by modus_ponens h₂₅, h₂₄
+      iterate h₂₆
+    have h₃: v =₍U₎ a → u =₍U₎ a := by
+      assume(h₃₁: v =₍U₎ a)
+      have h₃₂: u =₍U₎ v ∧ v =₍U₎ a := by and_intro h₁, h₃₁
+      have h₃₃: u =₍U₎ v ∧ v =₍U₎ a → u =₍U₎ a := by forall_elim U.eq.trans, u, v, a
+      have h₃₄: u =₍U₎ a := by modus_ponens h₃₃, h₃₂
+      iterate h₃₄
+    have h₄: u =₍U₎ a ↔ v =₍U₎ a := by iff_intro h₂, h₃
+    iterate h₄
+  { pred := pred, cong := cong }
+
+instance congruent_equal_from {U: Universal} {a: U.Particular}:
+    CongruentUnary U (x: U.Particular ↦ x =₍U₎ a) where
+  cong := (equal_from a).cong
+
 
 def equals: CongruentBinaryPredicate U U :=
   let pred: U.Particular → CongruentUnaryPredicate U := (x: U.Particular ↦ equal_to x)
@@ -62,6 +93,10 @@ def equals: CongruentBinaryPredicate U U :=
     have h₄: u =₍U₎ w ↔ v =₍U₎ w := by iff_intro h₂, h₃
     iterate h₄
   { pred := pred, cong := cong }
+
+instance congruent_equal_to {U: Universal} {a: U.Particular}:
+    CongruentUnary U (x: U.Particular ↦ a =₍U₎ x) where
+  cong := (equal_to a).cong
 
 end PC₁
 

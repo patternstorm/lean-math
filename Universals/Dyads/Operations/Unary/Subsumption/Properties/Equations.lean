@@ -1,6 +1,6 @@
 import Universe
 import Logic
-import Universals.Dyads.Operations.Unary.Subsume.Operation
+import Universals.Dyads.Operations.Unary.Subsumption.Operation
 
 namespace Universe
 namespace Dyads
@@ -27,9 +27,9 @@ theorem subsume_dyad {U₁' U₁ U₂' U₂: Universal} (e₁: U₁' <: U₁) (e
   have h₅: ∃ (a': U₁'.Particular), ∃ (b': U₂'.Particular), (a ⋈ b) =ₗₓₗ (a' ⋈ b') ∧ (e₁.embedding a ⋈ e₂.embedding b) =ₗₓₗ (e₁.embedding a' ⋈ e₂.embedding b') := by exists_intro h₄, a
   -- h₅ is ((subsume_ext e₁ e₂).pred (a ⋈ b)).pred (e₁ a ⋈ e₂ b) unfolded
   -- Use subsume_def to conclude
-  have h₆: ∀ (x: (U₁' ⧓ U₂').Particular), ∀ (y: U₁ ⋈ U₂), (subsume e₁ e₂ x =ₗₓₗ y) ↔ ((subsume_graph e₁ e₂).pred x).pred y := subsume_def e₁ e₂
-  have h₇: ∀ (y: U₁ ⋈ U₂), (subsume e₁ e₂ (a ⋈ b) =ₗₓₗ y) ↔ ((subsume_graph e₁ e₂).pred (a ⋈ b)).pred y := by forall_elim h₆, (a ⋈ b)
-  have h₈: (subsume e₁ e₂ (a ⋈ b) =ₗₓₗ (e₁.embedding a ⋈ e₂.embedding b)) ↔ ((subsume_graph e₁ e₂).pred (a ⋈ b)).pred (e₁.embedding a ⋈ e₂.embedding b) := by forall_elim h₇, (e₁.embedding a ⋈ e₂.embedding b)
+  have h₆: ∀ (x: (U₁' ⧓ U₂').Particular), ∀ (y: U₁ ⋈ U₂), (subsume e₁ e₂ x =ₗₓₗ y) ↔ ((subsumption_graph e₁ e₂).pred x).pred y := subsume_def e₁ e₂
+  have h₇: ∀ (y: U₁ ⋈ U₂), (subsume e₁ e₂ (a ⋈ b) =ₗₓₗ y) ↔ ((subsumption_graph e₁ e₂).pred (a ⋈ b)).pred y := by forall_elim h₆, (a ⋈ b)
+  have h₈: (subsume e₁ e₂ (a ⋈ b) =ₗₓₗ (e₁.embedding a ⋈ e₂.embedding b)) ↔ ((subsumption_graph e₁ e₂).pred (a ⋈ b)).pred (e₁.embedding a ⋈ e₂.embedding b) := by forall_elim h₇, (e₁.embedding a ⋈ e₂.embedding b)
   have h₉: subsume e₁ e₂ (a ⋈ b) =ₗₓₗ (e₁.embedding a ⋈ e₂.embedding b) := PC₀.deductive_eq_r2l h₈ h₅
   iterate h₉
 

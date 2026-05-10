@@ -13,7 +13,7 @@ elab_rules (kind := ndOrIntro) : tactic
   | `(tactic| or_intro $h) => do
       withMainContext do
         let goal ← getMainGoal
-        let targetType ← goal.getType
+        let targetType ← instantiateMVars (← whnf (← goal.getType))
         let hExpr ← Term.elabTerm h none
         let hType ← inferType hExpr
         -- Check if goal is P ∨ Q

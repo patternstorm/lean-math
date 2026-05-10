@@ -1,2 +1,0 @@
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsume.Operation
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsume.Properties

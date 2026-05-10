@@ -11,7 +11,7 @@ open Logic
 open Logic.PC₁
 
 -- The `Universal Set`
-def universal_set: Set U := { x: U.Particular | True } with (true U).cong
+def universal_set: Set U := { _: U.Particular | True }
 notation "Uₛₑₜ" => universal_set
 
 end Sets

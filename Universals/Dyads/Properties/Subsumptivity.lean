@@ -1,7 +1,7 @@
 import Universe
 import Logic
-import Universals.Dyads.Operations.Unary.Subsume.Operation
-import Universals.Dyads.Operations.Unary.Subsume.Properties.Equations
+import Universals.Dyads.Operations.Unary.Subsumption.Operation
+import Universals.Dyads.Operations.Unary.Subsumption.Properties.Equations
 
 /-!
 # Dyad Subsumptivity

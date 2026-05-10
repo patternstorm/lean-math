@@ -1,7 +1,7 @@
 import Logic.PredicateCalculus.Schemas.SubUniversal.Schema
 import Logic.PredicateCalculus.Schemas.RefinedUniversal.Schema
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsume.Operation
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsume.Properties.Equations
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsumption.Operation
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsumption.Properties.Equations
 import Logic.NaturalDeduction.Rules
 import Logic.PropositionalCalculus
 

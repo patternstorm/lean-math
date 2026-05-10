@@ -1,7 +1,7 @@
 import Universe
 import Logic
 import Universals.Dyads.Universal
-import Universals.Dyads.Predicates.SubsumeGraph
+import Universals.Dyads.Predicates.Binary.SubsumptionGraph
 
 /-!
 # Subsume — the dyad lift operation
@@ -14,7 +14,7 @@ sub-universal relations through the dyad constructor.
 ## Construction — parameterized `UnaryOperation` pattern
 
 The graph layer (predicate + properties) lives under
-`Universals.Dyads.Predicates.SubsumeGraph`. This module contributes the
+`Universals.Dyads.Predicates.SubsumptionGraph`. This module contributes the
 axiomatic layer:
 
 1. `subsume_sym e₁ e₂` — postulated function symbol `U₁' ⋈ U₂' → U₁ ⋈ U₂`.
@@ -38,11 +38,11 @@ axiom subsume_sym {U₁' U₁ U₂' U₂: Universal} (e₁: U₁' <: U₁) (e₂
 
 -- # Subsume defining axiom — referring to the graph
 axiom subsume_def {U₁' U₁ U₂' U₂: Universal} (e₁: U₁' <: U₁) (e₂: U₂' <: U₂):
-  ∀ (x: U₁' ⋈ U₂'), ∀ (y: U₁ ⋈ U₂), (subsume_sym e₁ e₂ x =ₗₓₗ y) ↔ ((subsume_graph e₁ e₂).pred x).pred y
+  ∀ (x: U₁' ⋈ U₂'), ∀ (y: U₁ ⋈ U₂), (subsume_sym e₁ e₂ x =ₗₓₗ y) ↔ ((subsumption_graph e₁ e₂).pred x).pred y
 
 -- # Subsume — the bundled UnaryOperation
 noncomputable def subsume {U₁' U₁ U₂' U₂: Universal} (e₁: U₁' <: U₁) (e₂: U₂' <: U₂): (U₁' ⧓ U₂') ⟴ (U₁ ⧓ U₂) :=
-  { graph := subsume_graph e₁ e₂,
+  { graph := subsumption_graph e₁ e₂,
     op := subsume_sym e₁ e₂,
     «def» := subsume_def e₁ e₂ }
 

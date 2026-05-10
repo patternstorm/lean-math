@@ -1,1 +1,0 @@
-import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.NegationPreservesCongruence

@@ -1,0 +1,2 @@
+import Universals.Dyads.Predicates.Binary.SubsumptionGraph.Predicate
+import Universals.Dyads.Predicates.Binary.SubsumptionGraph.Properties

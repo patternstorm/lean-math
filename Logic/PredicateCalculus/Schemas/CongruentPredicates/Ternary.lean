@@ -1,4 +1,2 @@
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Schema
-import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Instances
-import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Properties

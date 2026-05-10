@@ -45,6 +45,10 @@ def conjunction_preserves_congruence (P Q: CongruentUnaryPredicate U): Congruent
     iterate h₁₀
   { pred := pred, cong := cong }
 
+instance congruent_conjunction {U: Universal} {P Q: U.Particular → Prop} [p: CongruentUnary U P] [q: CongruentUnary U Q]:
+    CongruentUnary U (x: U.Particular ↦ P x ∧ Q x) where
+  cong := (conjunction_preserves_congruence { pred := P, cong := p.cong } { pred := Q, cong := q.cong }).cong
+
 end PC₁
 
 end Logic

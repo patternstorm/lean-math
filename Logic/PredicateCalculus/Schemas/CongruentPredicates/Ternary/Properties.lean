@@ -1,1 +1,0 @@
-import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Properties.NegationPreservesCongruence

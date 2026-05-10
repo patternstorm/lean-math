@@ -11,7 +11,7 @@ open Logic
 open Logic.PC₁
 
 -- The `Empty Set`.
-def empty_set : Set U := { x: U.Particular | False } with (false U).cong
+def empty_set : Set U := { _: U.Particular | False }
 notation "∅ₛₑₜ" => empty_set
 
 end Sets

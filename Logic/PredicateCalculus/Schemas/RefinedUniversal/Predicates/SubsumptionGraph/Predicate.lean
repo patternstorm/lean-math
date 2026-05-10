@@ -2,7 +2,7 @@ import Logic.PredicateCalculus.Schemas.RefinedUniversal.Schema
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.UnaryOperationGraph
 import Logic.PredicateCalculus.Schemas.Operations.Unary.Instances.Identity.Operation
 import Logic.PredicateCalculus.Definitions
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph.Properties
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumptionGraph.Properties
 
 namespace Logic
 
@@ -10,7 +10,7 @@ namespace PC₁
 
 -- # Subsume — the embedding operation from a refined universal into its parent
 
-private def subsume_graph_pred{U: Universal} (P: CongruentUnaryPredicate U)
+private def subsumption_graph_pred{U: Universal} (P: CongruentUnaryPredicate U)
   (a: (U ↾ P).Particular) (b: U.Particular): Prop := b =₍U₎ ↑a
 
 
@@ -23,7 +23,7 @@ private def subsume_graph_pred{U: Universal} (P: CongruentUnaryPredicate U)
 -- - `rdet`  ← `identity_graph.rdet`  applied to `↑x, y₁, y₂`
 --
 -- Proof by Claude Opus 4.7 Max, 2026-05-02
-noncomputable def subsume_graph {U: Universal} (P: CongruentUnaryPredicate U): UnaryOperationGraph (U ↾ P) U :=
+noncomputable def subsumption_graph {U: Universal} (P: CongruentUnaryPredicate U): UnaryOperationGraph (U ↾ P) U :=
   let Uₚ: Universal := U ↾ P
   let pred: Uₚ.Particular → CongruentUnaryPredicate U := (x: Uₚ.Particular ↦ equal_to ↑x)
   -- Outer congruence: reuse identity_graph.cong at (↑x₁, ↑x₂, z)

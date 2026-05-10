@@ -1,1 +1,1 @@
-import Universals.Dyads.Predicates.SubsumeGraph
+import Universals.Dyads.Predicates.Binary

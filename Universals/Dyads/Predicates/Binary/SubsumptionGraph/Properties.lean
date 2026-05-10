@@ -1,0 +1,2 @@
+import Universals.Dyads.Predicates.Binary.SubsumptionGraph.Properties.LeftTotality
+import Universals.Dyads.Predicates.Binary.SubsumptionGraph.Properties.RightDeterminacy

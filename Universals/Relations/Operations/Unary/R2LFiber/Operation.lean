@@ -16,33 +16,12 @@ open Logic
 open Logic.PC₁
 open Sets
 
--- Proof by GPT-5.4, 2026-03-08
-theorem r2l_fiber_pred_cong {U₁: Universal} (R: Rel U₁ U₂) (b: U₂.Particular):
-  ∀ (x: U₁.Particular), ∀ (y: U₁.Particular), x =₍U₁₎ y → (R.pred (x ⋈ b) ↔ R.pred (y ⋈ b)) := by forall_intro
-  variable(x₁: U₁.Particular)
-  variable(x₂: U₁.Particular)
-  assume(h₁: x₁ =₍U₁₎ x₂)
-  have h₂: b =₍U₂₎ b := U₂.eq.refl b
-  have h₃: x₁ =₍U₁₎ x₂ ∧ b =₍U₂₎ b := by and_intro h₁, h₂
-  have h₄: ∀ (b₁: U₂.Particular), ∀ (a₂: U₁.Particular), ∀ (b₂: U₂.Particular),
-    (x₁ ⋈ b₁) =ₗₓₗ (a₂ ⋈ b₂) ↔ x₁ =₍U₁₎ a₂ ∧ b₁ =₍U₂₎ b₂ := by forall_elim Dyads.eq_def, x₁
-  have h₅: ∀ (a₂: U₁.Particular), ∀ (b₂: U₂.Particular),
-    (x₁ ⋈ b) =ₗₓₗ (a₂ ⋈ b₂) ↔ x₁ =₍U₁₎ a₂ ∧ b =₍U₂₎ b₂ := by forall_elim h₄, b
-  have h₆: ∀ (b₂: U₂.Particular),
-    (x₁ ⋈ b) =ₗₓₗ (x₂ ⋈ b₂) ↔ x₁ =₍U₁₎ x₂ ∧ b =₍U₂₎ b₂ := by forall_elim h₅, x₂
-  have h₇: (x₁ ⋈ b) =ₗₓₗ (x₂ ⋈ b) ↔ x₁ =₍U₁₎ x₂ ∧ b =₍U₂₎ b := by forall_elim h₆, b
-  have h₈: (x₁ ⋈ b) =ₗₓₗ (x₂ ⋈ b) := PC₀.deductive_eq_r2l h₇ h₃
-  have h₉: ∀ (d₁: U₁ ⋈ U₂), ∀ (d₂: U₁ ⋈ U₂), d₁ =ₗₓₗ d₂ → (R.pred d₁ ↔ R.pred d₂) := R.cong
-  have h₁₀: ∀ (d₂: U₁ ⋈ U₂), (x₁ ⋈ b) =ₗₓₗ d₂ → (R.pred (x₁ ⋈ b) ↔ R.pred d₂) := by forall_elim h₉, (x₁ ⋈ b)
-  have h₁₁: (x₁ ⋈ b) =ₗₓₗ (x₂ ⋈ b) → (R.pred (x₁ ⋈ b) ↔ R.pred (x₂ ⋈ b)) := by forall_elim h₁₀, (x₂ ⋈ b)
-  have h₁₂: R.pred (x₁ ⋈ b) ↔ R.pred (x₂ ⋈ b) := by modus_ponens h₁₁, h₈
-  iterate h₁₂
 
 axiom r2l_fiber: Rel U₁ U₂ → U₂.Particular → Set U₁
 
 -- # Axiom definition
 axiom r2l_fiber_def: ∀ (R: Rel U₁ U₂), ∀ (b: U₂.Particular),
-  r2l_fiber R b =ₛₑₜ { x: U₁.Particular | R.pred (x ⋈ b) } with r2l_fiber_pred_cong R b
+  r2l_fiber R b =ₛₑₜ { x: U₁.Particular | R.pred (x ⋈ b) }
 
 -- # Congruence in R: equal relations produce equal fibers
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-03-14
@@ -57,8 +36,8 @@ theorem r2l_fiber_cong_rel: ∀ (R₁: Rel U₁ U₂), ∀ (R₂: Rel U₁ U₂)
   have h₃: R₁ =ₛₑₜ R₂ ↔ ∀ (d: U₁ ⋈ U₂), R₁.pred d ↔ R₂.pred d := by forall_elim h₂, R₂
   have h₄: ∀ (d: U₁ ⋈ U₂), R₁.pred d ↔ R₂.pred d := PC₀.deductive_eq_l2r h₃ h₁
   -- Name the fiber comprehension sets
-  let F₁ : Set U₁ := {x: U₁.Particular | R₁.pred (x ⋈ b)} with r2l_fiber_pred_cong R₁ b
-  let F₂ : Set U₁ := {x: U₁.Particular | R₂.pred (x ⋈ b)} with r2l_fiber_pred_cong R₂ b
+  let F₁ : Set U₁ := {x: U₁.Particular | R₁.pred (x ⋈ b)}
+  let F₂ : Set U₁ := {x: U₁.Particular | R₂.pred (x ⋈ b)}
   -- Fiber axiom: r2l_fiber Rᵢ b =ₛₑₜ Fᵢ
   have h₅: r2l_fiber R₁ b =ₛₑₜ F₁ := r2l_fiber_def R₁ b
   have h₆: r2l_fiber R₂ b =ₛₑₜ F₂ := r2l_fiber_def R₂ b
@@ -102,8 +81,8 @@ theorem r2l_fiber_cong_arg: ∀ (R: Rel U₁ U₂), ∀ (b₁: U₂.Particular),
   variable(b₂: U₂.Particular)
   assume(h₁: b₁ =₍U₂₎ b₂)
   -- Name the fiber comprehension sets
-  let F₁ : Set U₁ := {x: U₁.Particular | R.pred (x ⋈ b₁)} with r2l_fiber_pred_cong R b₁
-  let F₂ : Set U₁ := {x: U₁.Particular | R.pred (x ⋈ b₂)} with r2l_fiber_pred_cong R b₂
+  let F₁ : Set U₁ := {x: U₁.Particular | R.pred (x ⋈ b₁)}
+  let F₂ : Set U₁ := {x: U₁.Particular | R.pred (x ⋈ b₂)}
   -- Fiber axiom: r2l_fiber R bᵢ =ₛₑₜ Fᵢ
   have h₂: r2l_fiber R b₁ =ₛₑₜ F₁ := r2l_fiber_def R b₁
   have h₃: r2l_fiber R b₂ =ₛₑₜ F₂ := r2l_fiber_def R b₂

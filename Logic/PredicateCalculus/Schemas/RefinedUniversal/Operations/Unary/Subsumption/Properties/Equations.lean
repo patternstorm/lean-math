@@ -1,5 +1,5 @@
 import Logic.PredicateCalculus.Schemas.RefinedUniversal.Schema
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsume.Operation
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Operations.Unary.Subsumption.Operation
 
 namespace Logic
 

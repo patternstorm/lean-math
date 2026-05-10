@@ -1,1 +1,1 @@
-import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumeGraph
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Predicates.SubsumptionGraph

@@ -23,16 +23,15 @@ open Universe.Sets
 -- # Set operations.
 
 -- The union of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∨ P₍b₎(x)`.
-def union (A B: Set X): Set X := { x: X.Particular | A.pred x ∨ B.pred x } with sorry
+def union (A B: Set X): Set X := { x: X.Particular | A.pred x ∨ B.pred x }
 infixl:65 " ∪ₛₑₜ " => union
 
 -- The complementary of `Set` `A` is the `Set` defined by the `Predicate` `¬P₍a₎`.
-def compl (A: Set X): Set X := { x: X.Particular | ¬(A.pred x) } with negation_preserves_congruence1 A
+def compl (A: Set X): Set X := { x: X.Particular | ¬(A.pred x) }
 prefix:max "¬ₛₑₜ" => compl
 
-
 -- The intersection of the `Sets` `A` and `B` is a `Set` defined by the predicate `P₍a₎(x) ∧ P₍b₎(x)`.
-def inter (A B: Set X): Set X := fun (x: X.Particular) => A x ∧ B x
+def inter (A B: Set X): Set X := { x: X.Particular | A.pred x ∧ B.pred x }
 infixl:70 " ∩ₛₑₜ " => inter
 
 -- # Theorems

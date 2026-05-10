@@ -1,1 +1,1 @@
-import Universals.Dyads.Operations.Unary.Subsume
+import Universals.Dyads.Operations.Unary.Subsumption

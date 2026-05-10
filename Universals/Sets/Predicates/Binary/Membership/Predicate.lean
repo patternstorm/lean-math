@@ -104,7 +104,7 @@ def non_elements_of (x: U.Particular): CongruentUnaryPredicate (𝐒𝐞𝐭 U) 
   let cong: ∀ (X: Set U), ∀ (Y: Set U), X =ₛₑₜ Y → (x ∉ₛₑₜ X ↔ x ∉ₛₑₜ Y) := by forall_intro
     variable(A: Set U)
     variable(B: Set U)
-    have h₁: ∀ (Y: Set U), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence1 (elements_of x)), A
+    have h₁: ∀ (Y: Set U), A =ₛₑₜ Y → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ Y)) := by forall_elim (negation_preserves_congruence (elements_of x)), A
     have h₂: A =ₛₑₜ B → (¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B)) := by forall_elim h₁, B
     assume(h₃: A =ₛₑₜ B)
     have h₄: ¬(x ∈ₛₑₜ A) ↔ ¬(x ∈ₛₑₜ B) := by modus_ponens h₂, h₃
@@ -132,11 +132,12 @@ def not_mem_predicate: CongruentBinaryPredicate U (𝐒𝐞𝐭 U) :=
     variable(a: U.Particular)
     variable(b: U.Particular)
     variable(S: Set U)
-    have h₁: ∀ (y: U.Particular), ∀ (X: Set U), a =₍U₎ y → (¬(a ∈ₛₑₜ X) ↔ ¬(y ∈ₛₑₜ X)) := by forall_elim (negation_preserves_congruence2 mem_predicate), a
-    have h₂: ∀ (X: Set U), a =₍U₎ b → (¬(a ∈ₛₑₜ X) ↔ ¬(b ∈ₛₑₜ X)) := by forall_elim h₁, b
-    have h₃: a =₍U₎ b → (¬(a ∈ₛₑₜ S) ↔ ¬(b ∈ₛₑₜ S)) := by forall_elim h₂, S
+    have h₁: ∀ (y: U.Particular), ∀ (X: Set U), a =₍U₎ y → ((a ∈ₛₑₜ X) ↔ (y ∈ₛₑₜ X)) := by forall_elim mem_predicate.cong, a
+    have h₂: ∀ (X: Set U), a =₍U₎ b → ((a ∈ₛₑₜ X) ↔ (b ∈ₛₑₜ X)) := by forall_elim h₁, b
+    have h₃: a =₍U₎ b → ((a ∈ₛₑₜ S) ↔ (b ∈ₛₑₜ S)) := by forall_elim h₂, S
     assume(h₄: a =₍U₎ b)
-    have h₅: (¬(a ∈ₛₑₜ S) ↔ ¬(b ∈ₛₑₜ S)) := by modus_ponens h₃, h₄
+    have h₅₀: (a ∈ₛₑₜ S) ↔ (b ∈ₛₑₜ S) := by modus_ponens h₃, h₄
+    have h₅: (¬(a ∈ₛₑₜ S) ↔ ¬(b ∈ₛₑₜ S)) := PC₀.deductive_eq_l2r PC₀.iff_contrapositiveness h₅₀
     have h₆: a ∉ₛₑₜ S → b ∉ₛₑₜ S := by
       assume(h₆₁: a ∉ₛₑₜ S)
       have h₆₂: ¬(a ∈ₛₑₜ S) := PC₀.deductive_eq_l2r not_mem_iff_neg_mem h₆₁
