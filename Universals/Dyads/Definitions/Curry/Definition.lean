@@ -71,7 +71,7 @@ def curry_fiber_left {U₁ U₂: Universal} (R: CongruentUnaryPredicate (U₁ �
     iterate h₇
   { pred := pred, cong := cong }
 
--- # Congruent Binary for curried predicates
+-- # Curry Preserves Conguence
 -- A congruent unary predicate on dyads, when curried, is a congruent binary predicate.
 -- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-05-10
 def curry_cong {U₁ U₂: Universal} (R: CongruentUnaryPredicate (U₁ ⧓ U₂)): CongruentBinaryPredicate U₁ U₂ :=

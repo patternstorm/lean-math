@@ -1,5 +1,5 @@
 import Universals.Relations.Predicates.Unary.PartialEquivalenceRelation.Predicate
-import Universals.Relations.Predicates.Unary.QuasiReflexive.Predicate
+import Universals.Relations.Predicates.Unary.QuasiReflexiveRelation.Predicate
 
 /-!
 # Partial Equivalence Relations are Quasi-Reflexive

@@ -91,10 +91,10 @@ namespace Sets
 -- # =ₛₑₜ is an equivalence relation
 
 -- ## `Set` equality is reflexive
-theorem eq_refl: ∀ (S: Sets.Particular U), S =ₛₑₜ S := by forall_intro
+theorem eq_refl: ∀ (S: Sets.Particular U), eq S S := by forall_intro
   variable(A: Sets.Particular U)
-  have h₁: ∀ (S₂: Sets.Particular U), A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
-  have h₂: A =ₛₑₜ A ↔ ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_elim h₁, A
+  have h₁: ∀ (S₂: Sets.Particular U), eq A S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+  have h₂: eq A A ↔ ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_elim h₁, A
   have h₃: ∀ (x: U.Particular), A.pred x ↔ A.pred x := by forall_intro
     variable(a: U.Particular)
     have h₃₁: A.pred a → A.pred a := by
@@ -102,42 +102,42 @@ theorem eq_refl: ∀ (S: Sets.Particular U), S =ₛₑₜ S := by forall_intro
       iterate h₃₁₁
     have h₃₂: A.pred a ↔ A.pred a := by iff_intro h₃₁, h₃₁
     iterate h₃₂
-  have h₄: A =ₛₑₜ A := PC₀.deductive_eq_r2l h₂ h₃
+  have h₄: eq A A := PC₀.deductive_eq_r2l h₂ h₃
   iterate h₄
 
 -- ## `Set` equality is symmetric
-theorem eq_sym: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), S₁ =ₛₑₜ S₂ → S₂ =ₛₑₜ S₁ := by forall_intro
+theorem eq_sym: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), eq S₁ S₂ → eq S₂ S₁ := by forall_intro
   variable(A: Sets.Particular U)
   variable(B: Sets.Particular U)
-  have h₁: ∀ S₂: Sets.Particular U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
-  have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
-  have h₃: ∀ S₂: Sets.Particular U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
-  have h₄: B =ₛₑₜ A ↔ ∀ (x: U.Particular), B.pred x ↔ A.pred x := by forall_elim h₃, A
-  have h₅: A =ₛₑₜ B → B =ₛₑₜ A := by
-    assume(h₅₁: A =ₛₑₜ B)
+  have h₁: ∀ S₂: Sets.Particular U, eq A S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+  have h₂: eq A B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
+  have h₃: ∀ S₂: Sets.Particular U, eq B S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
+  have h₄: eq B A ↔ ∀ (x: U.Particular), B.pred x ↔ A.pred x := by forall_elim h₃, A
+  have h₅: eq A B → eq B A := by
+    assume(h₅₁: eq A B)
     have h₅₂: ∀ (x: U.Particular), B.pred x ↔ A.pred x := by forall_intro
       variable(a: U.Particular)
       have h₅₂₁: ∀ (x: U.Particular), A.pred x ↔ B.pred x := PC₀.deductive_eq_l2r h₂ h₅₁
       have h₅₂₂: A.pred a ↔ B.pred a := by forall_elim h₅₂₁, a
       have h₅₂₃: B.pred a ↔ A.pred a := PC₀.deductive_eq_l2r PC₀.iff_comm h₅₂₂
       iterate h₅₂₃
-    have h₅₃: B =ₛₑₜ A := PC₀.deductive_eq_r2l h₄ h₅₂
+    have h₅₃: eq B A := PC₀.deductive_eq_r2l h₄ h₅₂
     iterate h₅₃
   iterate h₅
 
 -- ## `Set` equality is transitive
-theorem eq_trans: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), ∀ (S₃: Sets.Particular U), S₁ =ₛₑₜ S₂ ∧ S₂ =ₛₑₜ S₃ → S₁ =ₛₑₜ S₃ := by forall_intro
+theorem eq_trans: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), ∀ (S₃: Sets.Particular U), eq S₁ S₂ ∧ eq S₂ S₃ → eq S₁ S₃ := by forall_intro
   variable(A: Sets.Particular U)
   variable(B: Sets.Particular U)
   variable(C: Sets.Particular U)
-  have h₁: ∀ S₂: Sets.Particular U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
-  have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
-  have h₃: ∀ S₂: Sets.Particular U, B =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
-  have h₄: B =ₛₑₜ C ↔ ∀ (x: U.Particular), B.pred x ↔ C.pred x := by forall_elim h₃, C
-  have h₅: A =ₛₑₜ C ↔ ∀ (x: U.Particular), A.pred x ↔ C.pred x := by forall_elim h₁, C
-  assume(h₆: A =ₛₑₜ B ∧ B =ₛₑₜ C)
-  have h₇: A =ₛₑₜ B := by and_elim h₆
-  have h₈: B =ₛₑₜ C := by and_elim h₆
+  have h₁: ∀ S₂: Sets.Particular U, eq A S₂ ↔ ∀ (x: U.Particular), A.pred x ↔ S₂.pred x := by forall_elim eq_def, A
+  have h₂: eq A B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
+  have h₃: ∀ S₂: Sets.Particular U, eq B S₂ ↔ ∀ (x: U.Particular), B.pred x ↔ S₂.pred x := by forall_elim eq_def, B
+  have h₄: eq B C ↔ ∀ (x: U.Particular), B.pred x ↔ C.pred x := by forall_elim h₃, C
+  have h₅: eq A C ↔ ∀ (x: U.Particular), A.pred x ↔ C.pred x := by forall_elim h₁, C
+  assume(h₆: eq A B ∧ eq B C)
+  have h₇: eq A B := by and_elim h₆
+  have h₈: eq B C := by and_elim h₆
   have h₉: ∀ (x: U.Particular), A.pred x ↔ B.pred x := PC₀.deductive_eq_l2r h₂ h₇
   have h₁₀: ∀ (x: U.Particular), B.pred x ↔ C.pred x := PC₀.deductive_eq_l2r h₄ h₈
   have h₁₁: ∀ (x: U.Particular), A.pred x ↔ C.pred x := by forall_intro
@@ -156,7 +156,7 @@ theorem eq_trans: ∀ (S₁: Sets.Particular U), ∀ (S₂: Sets.Particular U), 
       iterate h₁₁₄₃
     have h₁₁₃: A.pred a ↔ C.pred a := by iff_intro h₁₁₃, h₁₁₄
     iterate h₁₁₃
-  have h₁₂: A =ₛₑₜ C := PC₀.deductive_eq_r2l h₅ h₁₁
+  have h₁₂: eq A C := PC₀.deductive_eq_r2l h₅ h₁₁
   iterate h₁₂
 
 -- # `Set` equality
@@ -175,6 +175,8 @@ def SetsUniversal (U: Universal): Universal := {
 notation "𝐒𝐞𝐭" => SetsUniversal
 abbrev Set U := (SetsUniversal U).Particular
 
+-- # =ₛₑₜ notation
+notation:50 A:51 " =ₛₑₜ " B:51 => eq A B
 
 end Sets
 

@@ -107,10 +107,11 @@ class SubUniversal (U₁: Universal) (U₂: Universal): Type where
 
 notation:25 U':26 " <: " U:26 => SubUniversal U' U
 
--- Generic CoeDep for automated sub-universal subsumption
+-- Generic CoeDep for automated sub-universal subsumption (used for explicit ↑ coercion)
 noncomputable instance {U₁ U₂: Universal} [e: U₁ <: U₂]
     (x: U₁.Particular): CoeDep U₁.Particular x U₂.Particular where
   coe := e.embedding x
+
 
 end PC₁
 

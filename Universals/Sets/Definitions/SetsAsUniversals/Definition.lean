@@ -24,34 +24,35 @@ instance {U : Universal} (S : Set U) : CoeDep (Set U) S Universal where
   coe := set_as_universal S
 
 -- Syntactic sugar: S.Particular instead of (set_as_universal S).Particular
-protected def Set.Particular (S : Set U) : Type := (set_as_universal S).Particular
+protected abbrev Set.Particular (S : Set U) : Type := (set_as_universal S).Particular
 
 -- Working with elements of a set-as-universal (see RefinedUniversal/Schema.lean for details):
---   x : S.Particular       -- x is a subtype element (value + proof)
---   ↑x : U.Particular      -- the underlying element of U
---   x.property : S.pred ↑x -- proof that ↑x satisfies S
+--   x : S.Particular           -- x is a subtype element (value + proof)
+--   x.val : U.Particular       -- the underlying element of U
+--   x.property : S.pred x.val  -- proof that x.val satisfies S
 
 -- EXAMPLE 1: No ↑ needed - using sub-universal's equality on subtype elements
 example (S : Set U) :
     ∀ (x : S.Particular), x =₍(S : Universal)₎ x :=
   (S : Universal).eq.refl
 
--- EXAMPLE 2: ↑ needed - using a predicate Q defined on U
+-- EXAMPLE 2: .val needed - using a predicate Q defined on U
 example (S : Set U) (Q : CongruentUnaryPredicate U) :
-    ∀ (x : S.Particular), Q.pred ↑x → Q.pred ↑x :=
+    ∀ (x : S.Particular), Q.pred x.val → Q.pred x.val :=
   fun _ h => h
 
 -- EXAMPLE 3: Mixed - sub-universal equality + predicate on U
 -- "If x equals y in the sub-universal, and Q holds for x, then Q holds for y"
--- Here: x =₍...₎ y uses subtype elements, but Q.pred needs ↑
+-- Here: x =₍...₎ y uses subtype elements, but Q.pred needs .val
+-- Note: x =₍(S : Universal)₎ y is definitionally x.val =₍U₎ y.val
 example (S : Set U) (Q : CongruentUnaryPredicate U) :
     ∀ (x : S.Particular), ∀ (y : S.Particular),
-    x =₍(S : Universal)₎ y → Q.pred ↑x → Q.pred ↑y :=
-  fun x y heq hq => (Q.cong ↑x ↑y heq).mp hq
+    x =₍(S : Universal)₎ y → Q.pred x.val → Q.pred y.val :=
+  fun x y heq hq => (Q.cong x.val y.val heq).mp hq
 
--- EXAMPLE 4: ↑ needed - membership in another set T
--- "Every element of S is also in T" requires ↑ because ∈ₛₑₜ expects U.Particular
--- (Would need: ∀ x : S.Particular, ↑x ∈ₛₑₜ T)
+-- EXAMPLE 4: .val needed - membership in another set T
+-- "Every element of S is also in T" requires .val because ∈ₛₑₜ expects U.Particular
+-- (Would need: ∀ x : S.Particular, x.val ∈ₛₑₜ T)
 
 end Sets
 

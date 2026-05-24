@@ -17,7 +17,7 @@ open Logic.PC₁
 @[reducible] def SingletonSetUniversal (U: Universal): Universal := (𝐒𝐞𝐭 U) ↾ singleton_predicate
 notation "𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭" => SingletonSetUniversal
 
-def SingletonSet (U: Universal): Type := (𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭 U).Particular
+abbrev SingletonSet (U: Universal): Type := (𝐒𝐢𝐧𝐠𝐥𝐞𝐭𝐨𝐧𝐒𝐞𝐭 U).Particular
 
 
 end Sets

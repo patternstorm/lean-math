@@ -5,9 +5,9 @@ namespace Logic
 
 namespace PC₁
 
-theorem subsume_left_totality {U: Universal} (P: CongruentUnaryPredicate U): ∀ (x: (U ↾ P).Particular), ∃ (y: U.Particular), ↑x =₍U₎ y := by forall_intro
+theorem subsume_left_totality {U: Universal} (P: CongruentUnaryPredicate U): ∀ (x: (U ↾ P).Particular), ∃ (y: U.Particular), x.val =₍U₎ y := by forall_intro
     variable(x: (U ↾ P).Particular)
-    have h₁: ∃ (y: U.Particular), ↑x =₍U₎ y := by forall_elim identity_graph.ltot, (↑x: U.Particular)
+    have h₁: ∃ (y: U.Particular), x.val =₍U₎ y := by forall_elim identity_graph.ltot, (x.val: U.Particular)
     iterate h₁
 
 end PC₁

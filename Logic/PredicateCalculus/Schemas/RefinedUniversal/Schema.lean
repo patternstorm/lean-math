@@ -80,10 +80,6 @@ def refined_universal (U : Universal) (P : CongruentUnaryPredicate U) : Universa
 
 notation:max U " ↾ " P => refined_universal U P
 
--- Notation: ↑x extracts the underlying U.Particular from a refined universal element
--- This is clearer than .val and indicates extracting the underlying element
-scoped prefix:max "↑" => Subtype.val
-
 end PC₁
 
 end Logic

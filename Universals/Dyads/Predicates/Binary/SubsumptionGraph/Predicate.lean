@@ -17,7 +17,7 @@ open Logic.ND
   (d': U₁' ⋈ U₂', d: U₁ ⋈ U₂ ↦ ∃ (a': U₁'.Particular), ∃ (b': U₂'.Particular), d' =₍(U₁' ⧓ U₂')₎ (a' ⋈ b') ∧ d =₍(U₁ ⧓ U₂)₎ (e₁.embedding a' ⋈ e₂.embedding b'))
 
 -- # Subsume graph — binary operation graph
--- Outer congruence (in d') auto-derived via CongruentBinary bridge.
+
 noncomputable def subsumption_graph {U₁' U₁ U₂' U₂: Universal} (e₁: U₁' <: U₁) (e₂: U₂' <: U₂): UnaryOperationGraph (U₁' ⧓ U₂') (U₁ ⧓ U₂) :=
   let graph: CongruentBinaryPredicate (U₁' ⧓ U₂') (U₁ ⧓ U₂) := subsumption_graph_pred e₁ e₂
   let ltot := subsume_left_totality e₁ e₂
