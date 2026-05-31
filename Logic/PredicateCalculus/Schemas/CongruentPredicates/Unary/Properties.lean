@@ -4,3 +4,4 @@ import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.Disj
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.ExistentialPreservesCongruence
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.UniversalPreservesCongruence
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.ExistsUniquePreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.PropositionalEquivalencePreservesCongruence

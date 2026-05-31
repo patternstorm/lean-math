@@ -47,8 +47,8 @@ inherited — with two extra well-formedness obligations. Anywhere a
 Lean coercion.
 -/
 structure UnaryOperationGraph (U₁: Universal) (U₂: Universal): Type extends CongruentBinaryPredicate U₁ U₂ where
-  ltot: ∀ (x: U₁.Particular), ∃ (y: U₂.Particular), (pred x).pred y
-  rdet: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), (pred x).pred y₁ ∧ (pred x).pred y₂ → y₁ =₍U₂₎ y₂
+  ltot: ∀ (x: U₁.Particular), ∃ (y: U₂.Particular), pred x y
+  rdet: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), pred x y₁ ∧ pred x y₂ → y₁ =₍U₂₎ y₂
 
 end PC₁
 

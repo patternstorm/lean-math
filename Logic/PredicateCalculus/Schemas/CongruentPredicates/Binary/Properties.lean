@@ -1,0 +1,4 @@
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.FiberFirstPreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.FiberSecondPreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.PropositionalEquivalencePreservesBinaryCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.BinaryCongruenceFromCongruentFibers

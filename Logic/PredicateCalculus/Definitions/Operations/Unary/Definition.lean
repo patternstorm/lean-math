@@ -51,9 +51,10 @@ elab "unary_operation " name:ident " : " U₁:term:max " ⟴ " U₂:term:max " f
   -- already of type `Universal` (e.g., `Set U`).
   elabCommand (← `(axiom $symName : ($U₁ : Universal).Particular → ($U₂ : Universal).Particular))
   -- `$graph` must be a `UnaryOperationGraph U₁ U₂`. Its `.pred` projection
-  -- comes from the inherited `CongruentBinaryPredicate` structure.
+  -- comes from the inherited `CongruentBinaryPredicate` structure (flat shape:
+  -- `pred : U₁.Particular → U₂.Particular → Prop`).
   elabCommand (← `(axiom $defName : ∀ (x: ($U₁ : Universal).Particular), ∀ (y: ($U₂ : Universal).Particular),
-    ($symName x =₍$U₂₎ y) ↔ (($graph).pred x).pred y))
+    ($symName x =₍$U₂₎ y) ↔ ($graph).pred x y))
   elabCommand (← `(noncomputable def $name : UnaryOperation $U₁ $U₂ :=
     { graph := $graph, op := $symName, «def» := $defName }))
 

@@ -5,9 +5,8 @@ import Logic
 /-!
 # Sets — Particular
 
-The abstract data type specification for sets.
-Sets are congruent unary predicates over a Universal. The equality of sets is extensional:
-two sets are equal iff their predicates are logically equivalent.
+Sets are congruent unary predicates over a Universal.
+Two sets are equal iff their predicates are logically equivalent.
 -/
 
 namespace Universe
@@ -18,7 +17,7 @@ open Logic.PC₁
 
 namespace Sets
 
--- # `Sets`are "represented" by `Unary Predicates`
+-- # `Sets`are "created" by `Unary Predicates`
 protected abbrev Particular (U: Universal): Type := CongruentUnaryPredicate U
 
 -- # `Set` equality predicate

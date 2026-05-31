@@ -12,98 +12,80 @@ open Logic
 open Logic.PC₁
 open Logic.ND
 
--- # Singleton Predicate
+
+-- # Congruence for the singleton predicate.
+--
+-- Manual proof: the body `∃!₍U₎ x, x ∈ₛₑₜ S` varies in S through the
+-- membership predicate. We unpack via `Sets.set_extensionality` (to lift
+-- `S =ₛₑₜ S'` to pointwise membership equivalence) and `exists_unique_def`
+-- (to convert `∃!₍U₎` to a plain ∃ + uniqueness), repackaging on the other side.
+-- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-05-31
+theorem is_singleton_cong: ∀ (S: Set U), ∀ (S': Set U),
+      S =ₛₑₜ S' → ((∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S) ↔ (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S')) := by forall_intro
+  variable(S: Set U)
+  variable(S': Set U)
+  assume(h₁: S =ₛₑₜ S')
+  -- From set extensionality, S =ₛₑₜ S' gives us pointwise membership equivalence.
+  have h₂: ∀ (X: Set U), S =ₛₑₜ X ↔ (∀ (x: U.Particular), x ∈ₛₑₜ S ↔ x ∈ₛₑₜ X) := by forall_elim set_extensionality, S
+  have h₃: S =ₛₑₜ S' ↔ (∀ (x: U.Particular), x ∈ₛₑₜ S ↔ x ∈ₛₑₜ S') := by forall_elim h₂, S'
+  have h₄: ∀ (x: U.Particular), x ∈ₛₑₜ S ↔ x ∈ₛₑₜ S' := PC₀.deductive_eq_l2r h₃ h₁
+  -- Unpack ExistsUnique via the axiom schema.
+  have h₅: ∀ (P: U.Particular → Prop), ExistsUnique U P ↔ (∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x)) := by forall_elim exists_unique_def, U
+  have h₆: ExistsUnique U (x: U.Particular ↦ x ∈ₛₑₜ S) ↔ (∃ (x: U.Particular), x ∈ₛₑₜ S ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ x)) := by forall_elim h₅, (x: U.Particular ↦ x ∈ₛₑₜ S)
+  have h₇: ExistsUnique U (x: U.Particular ↦ x ∈ₛₑₜ S') ↔ (∃ (x: U.Particular), x ∈ₛₑₜ S' ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ x)) := by forall_elim h₅, (x: U.Particular ↦ x ∈ₛₑₜ S')
+  -- Forward: ∃!₍U₎ x, x ∈ₛₑₜ S → ∃!₍U₎ x, x ∈ₛₑₜ S'.
+  have h₈: (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S) → (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S') := by
+    assume(h₈₁: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S)
+    have h₈₂: ∃ (x: U.Particular), x ∈ₛₑₜ S ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ x) := PC₀.deductive_eq_l2r h₆ h₈₁
+    have ⟨(w: U.Particular), (h₈₃: w ∈ₛₑₜ S ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ w))⟩ := exists_elim h₈₂
+    have h₈₄: w ∈ₛₑₜ S := by and_elim h₈₃
+    have h₈₅: ∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ w := by and_elim h₈₃
+    -- Convert membership: w ∈ₛₑₜ S → w ∈ₛₑₜ S'.
+    have h₈₆: w ∈ₛₑₜ S ↔ w ∈ₛₑₜ S' := by forall_elim h₄, w
+    have h₈₇: w ∈ₛₑₜ S' := PC₀.deductive_eq_l2r h₈₆ h₈₄
+    -- Convert uniqueness: ∀ y, y ∈ₛₑₜ S' → y =₍U₎ w.
+    have h₈₈: ∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ w := by forall_intro
+      variable(v: U.Particular)
+      assume(h₈₈₁: v ∈ₛₑₜ S')
+      have h₈₈₂: v ∈ₛₑₜ S ↔ v ∈ₛₑₜ S' := by forall_elim h₄, v
+      have h₈₈₃: v ∈ₛₑₜ S := PC₀.deductive_eq_r2l h₈₈₂ h₈₈₁
+      have h₈₈₄: v ∈ₛₑₜ S → v =₍U₎ w := by forall_elim h₈₅, v
+      have h₈₈₅: v =₍U₎ w := by modus_ponens h₈₈₄, h₈₈₃
+      iterate h₈₈₅
+    -- Repack: ∃ x, ... → ∃!₍U₎ x, x ∈ₛₑₜ S'.
+    have h₈₉: w ∈ₛₑₜ S' ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ w) := by and_intro h₈₇, h₈₈
+    have h₈₁₀: ∃ (x: U.Particular), x ∈ₛₑₜ S' ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ x) := by exists_intro h₈₉, w
+    have h₈₁₁: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S' := PC₀.deductive_eq_r2l h₇ h₈₁₀
+    iterate h₈₁₁
+  -- Backward: symmetric.
+  have h₉: (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S') → (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S) := by
+    assume(h₉₁: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S')
+    have h₉₂: ∃ (x: U.Particular), x ∈ₛₑₜ S' ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ x) := PC₀.deductive_eq_l2r h₇ h₉₁
+    have ⟨(w: U.Particular), (h₉₃: w ∈ₛₑₜ S' ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ w))⟩ := exists_elim h₉₂
+    have h₉₄: w ∈ₛₑₜ S' := by and_elim h₉₃
+    have h₉₅: ∀ (y: U.Particular), y ∈ₛₑₜ S' → y =₍U₎ w := by and_elim h₉₃
+    have h₉₆: w ∈ₛₑₜ S ↔ w ∈ₛₑₜ S' := by forall_elim h₄, w
+    have h₉₇: w ∈ₛₑₜ S := PC₀.deductive_eq_r2l h₉₆ h₉₄
+    have h₉₈: ∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ w := by forall_intro
+      variable(v: U.Particular)
+      assume(h₉₈₁: v ∈ₛₑₜ S)
+      have h₉₈₂: v ∈ₛₑₜ S ↔ v ∈ₛₑₜ S' := by forall_elim h₄, v
+      have h₉₈₃: v ∈ₛₑₜ S' := PC₀.deductive_eq_l2r h₉₈₂ h₉₈₁
+      have h₉₈₄: v ∈ₛₑₜ S' → v =₍U₎ w := by forall_elim h₉₅, v
+      have h₉₈₅: v =₍U₎ w := by modus_ponens h₉₈₄, h₉₈₃
+      iterate h₉₈₅
+    have h₉₉: w ∈ₛₑₜ S ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ w) := by and_intro h₉₇, h₉₈
+    have h₉₁₀: ∃ (x: U.Particular), x ∈ₛₑₜ S ∧ (∀ (y: U.Particular), y ∈ₛₑₜ S → y =₍U₎ x) := by exists_intro h₉₉, w
+    have h₉₁₁: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S := PC₀.deductive_eq_r2l h₆ h₉₁₀
+    iterate h₉₁₁
+  have h₁₀: (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S) ↔ (∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S') := by iff_intro h₈, h₉
+  iterate h₁₀
+
+
+-- # Singleton predicate
 -- A set S is a singleton if it has exactly one element.
-axiom is_singleton: Set U → Prop
-axiom is_singleton_def: ∀ (S: Set U), is_singleton S ↔ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S
+unary_predicate is_singleton : (S : (𝐒𝐞𝐭 U).Particular ↦ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S) with is_singleton_cong
 
--- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-15
-def singleton_predicate: CongruentUnaryPredicate (𝐒𝐞𝐭 U) :=
-  let pred: Set U → Prop := (S: Set U ↦ is_singleton S)
-  let cong: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ → (is_singleton S₁ ↔ is_singleton S₂) := by forall_intro
-    variable(A: Set U)
-    variable(B: Set U)
-
-    -- From set extensionality, A =ₛₑₜ B gives us membership equivalence
-    have h₁: ∀ (S₂: Set U), A =ₛₑₜ S₂ ↔ (∀ (x: U.Particular), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ S₂) := by forall_elim set_extensionality, A
-    have h₂: A =ₛₑₜ B ↔ (∀ (x: U.Particular), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B) := by forall_elim h₁, B
-
-    -- Unfold is_singleton via axiom definition
-    have h₃: is_singleton A ↔ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ A := by forall_elim is_singleton_def, A
-    have h₄: is_singleton B ↔ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ B := by forall_elim is_singleton_def, B
-
-    -- Unpack ExistsUnique via the axiom schema
-    have h₅: ∀ (P: U.Particular → Prop), ExistsUnique U P ↔ (∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x)) := by forall_elim exists_unique_def, U
-    have h₆: ExistsUnique U (x: U.Particular ↦ x ∈ₛₑₜ A) ↔ (∃ (x: U.Particular), x ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ x)) := by forall_elim h₅, (x: U.Particular ↦ x ∈ₛₑₜ A)
-    have h₇: ExistsUnique U (x: U.Particular ↦ x ∈ₛₑₜ B) ↔ (∃ (x: U.Particular), x ∈ₛₑₜ B ∧ (∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ x)) := by forall_elim h₅, (x: U.Particular ↦ x ∈ₛₑₜ B)
-
-    assume(h₈: A =ₛₑₜ B)
-    have h₉: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ x ∈ₛₑₜ B := PC₀.deductive_eq_l2r h₂ h₈
-
-    -- Forward: is_singleton A → is_singleton B
-    have h₁₀: is_singleton A → is_singleton B := by
-      assume(h₁₀₁: is_singleton A)
-      -- Unfold: is_singleton A → ∃!₍U₎ → ∃ x, ...
-      have h₁₀₂: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ A := PC₀.deductive_eq_l2r h₃ h₁₀₁
-      have h₁₀₃: ∃ (x: U.Particular), x ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ x) := PC₀.deductive_eq_l2r h₆ h₁₀₂
-      have ⟨(w: U.Particular), (h₁₀₄: w ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ w))⟩ := exists_elim h₁₀₃
-      have h₁₀₅: w ∈ₛₑₜ A := by and_elim h₁₀₄
-      have h₁₀₆: ∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ w := by and_elim h₁₀₄
-
-      -- Convert membership: w ∈ₛₑₜ A → w ∈ₛₑₜ B
-      have h₁₀₇: w ∈ₛₑₜ A ↔ w ∈ₛₑₜ B := by forall_elim h₉, w
-      have h₁₀₈: w ∈ₛₑₜ B := PC₀.deductive_eq_l2r h₁₀₇ h₁₀₅
-
-      -- Convert uniqueness: ∀ y, y ∈ₛₑₜ B → y =₍U₎ w
-      have h₁₀₉: ∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ w := by forall_intro
-        variable(v: U.Particular)
-        assume(h₁₀₉₁: v ∈ₛₑₜ B)
-        have h₁₀₉₂: v ∈ₛₑₜ A ↔ v ∈ₛₑₜ B := by forall_elim h₉, v
-        have h₁₀₉₃: v ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₁₀₉₂ h₁₀₉₁
-        have h₁₀₉₄: v ∈ₛₑₜ A → v =₍U₎ w := by forall_elim h₁₀₆, v
-        have h₁₀₉₅: v =₍U₎ w := by modus_ponens h₁₀₉₄, h₁₀₉₃
-        iterate h₁₀₉₅
-
-      -- Repack: ∃ x, ... → ∃!₍U₎ → is_singleton B
-      have h₁₀₁₀: w ∈ₛₑₜ B ∧ (∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ w) := by and_intro h₁₀₈, h₁₀₉
-      have h₁₀₁₁: ∃ (x: U.Particular), x ∈ₛₑₜ B ∧ (∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ x) := by exists_intro h₁₀₁₀, w
-      have h₁₀₁₂: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ B := PC₀.deductive_eq_r2l h₇ h₁₀₁₁
-      have h₁₀₁₃: is_singleton B := PC₀.deductive_eq_r2l h₄ h₁₀₁₂
-      iterate h₁₀₁₃
-
-    -- Backward: is_singleton B → is_singleton A (symmetric)
-    have h₁₁: is_singleton B → is_singleton A := by
-      assume(h₁₁₁: is_singleton B)
-      have h₁₁₂: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ B := PC₀.deductive_eq_l2r h₄ h₁₁₁
-      have h₁₁₃: ∃ (x: U.Particular), x ∈ₛₑₜ B ∧ (∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ x) := PC₀.deductive_eq_l2r h₇ h₁₁₂
-      have ⟨(w: U.Particular), (h₁₁₄: w ∈ₛₑₜ B ∧ (∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ w))⟩ := exists_elim h₁₁₃
-      have h₁₁₅: w ∈ₛₑₜ B := by and_elim h₁₁₄
-      have h₁₁₆: ∀ (y: U.Particular), y ∈ₛₑₜ B → y =₍U₎ w := by and_elim h₁₁₄
-
-      -- Convert membership: w ∈ₛₑₜ B → w ∈ₛₑₜ A
-      have h₁₁₇: w ∈ₛₑₜ A ↔ w ∈ₛₑₜ B := by forall_elim h₉, w
-      have h₁₁₈: w ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₁₁₇ h₁₁₅
-
-      -- Convert uniqueness: ∀ y, y ∈ₛₑₜ A → y =₍U₎ w
-      have h₁₁₉: ∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ w := by forall_intro
-        variable(v: U.Particular)
-        assume(h₁₁₉₁: v ∈ₛₑₜ A)
-        have h₁₁₉₂: v ∈ₛₑₜ A ↔ v ∈ₛₑₜ B := by forall_elim h₉, v
-        have h₁₁₉₃: v ∈ₛₑₜ B := PC₀.deductive_eq_l2r h₁₁₉₂ h₁₁₉₁
-        have h₁₁₉₄: v ∈ₛₑₜ B → v =₍U₎ w := by forall_elim h₁₁₆, v
-        have h₁₁₉₅: v =₍U₎ w := by modus_ponens h₁₁₉₄, h₁₁₉₃
-        iterate h₁₁₉₅
-
-      -- Repack: ∃ x, ... → ∃!₍U₎ → is_singleton A
-      have h₁₁₁₀: w ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ w) := by and_intro h₁₁₈, h₁₁₉
-      have h₁₁₁₁: ∃ (x: U.Particular), x ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ x) := by exists_intro h₁₁₁₀, w
-      have h₁₁₁₂: ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ A := PC₀.deductive_eq_r2l h₆ h₁₁₁₁
-      have h₁₁₁₃: is_singleton A := PC₀.deductive_eq_r2l h₃ h₁₁₁₂
-      iterate h₁₁₁₃
-
-    have h₁₂: is_singleton A ↔ is_singleton B := by iff_intro h₁₀, h₁₁
-    iterate h₁₂
-  { pred := pred, cong := cong }
 
 end Sets
 

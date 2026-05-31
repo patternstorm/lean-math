@@ -7,96 +7,55 @@ namespace Logic
 
 namespace PC₁
 
--- # Equals Predicate
-private def equals_pred {U: Universal} (a: U.Particular)(b: U.Particular): Prop := a =₍U₎ b
-
--- # Equals Unary Predicate
--- Fixes first param
-
-def equal_to(a: U.Particular): CongruentUnaryPredicate U :=
-  let pred: U.Particular → Prop := equals_pred a
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (a =₍U₎ x ↔ a =₍U₎ y):= by forall_intro
-    variable(u: U.Particular)
-    variable(v: U.Particular)
-    assume(h₁: u =₍U₎ v)
-    have h₂: a =₍U₎ u → a =₍U₎ v := by
-      assume(h₂₁: a =₍U₎ u)
-      have h₂₂: a =₍U₎ u ∧ u =₍U₎ v := by and_intro h₂₁, h₁
-      have h₂₃: a =₍U₎ u ∧ u =₍U₎ v → a =₍U₎ v := by forall_elim U.eq.trans, a, u, v
-      have h₂₄: a =₍U₎ v := by modus_ponens h₂₃, h₂₂
-      iterate h₂₄
-    have h₃: a =₍U₎ v → a =₍U₎ u := by
-      assume(h₃₁: a =₍U₎ v)
-      have h₃₂: u =₍U₎ v → v =₍U₎ u := by forall_elim U.eq.sym, u, v
-      have h₃₃: v =₍U₎ u := by modus_ponens h₃₂, h₁
-      have h₃₄: a =₍U₎ v ∧ v =₍U₎ u := by and_intro h₃₁, h₃₃
-      have h₃₅: a =₍U₎ v ∧ v =₍U₎ u → a =₍U₎ u := by forall_elim U.eq.trans, a, v, u
-      have h₃₆: a =₍U₎ u := by modus_ponens h₃₅, h₃₄
-      iterate h₃₆
-    have h₄: a =₍U₎ u ↔ a =₍U₎ v := by iff_intro h₂, h₃
-    iterate h₄
-  { pred := pred, cong := cong }
-
-  -- # Equal-From Predicate
--- Fixes the second parameter: (x ↦ x =₍U₎ a)
--- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-05-10
-def equal_from(a: U.Particular): CongruentUnaryPredicate U :=
-  let pred: U.Particular → Prop := (x: U.Particular ↦ x =₍U₎ a)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (x =₍U₎ a ↔ y =₍U₎ a) := by forall_intro
-    variable(u: U.Particular)
-    variable(v: U.Particular)
-    assume(h₁: u =₍U₎ v)
-    have h₂: u =₍U₎ a → v =₍U₎ a := by
-      assume(h₂₁: u =₍U₎ a)
-      have h₂₂: u =₍U₎ v → v =₍U₎ u := by forall_elim U.eq.sym, u, v
-      have h₂₃: v =₍U₎ u := by modus_ponens h₂₂, h₁
-      have h₂₄: v =₍U₎ u ∧ u =₍U₎ a := by and_intro h₂₃, h₂₁
-      have h₂₅: v =₍U₎ u ∧ u =₍U₎ a → v =₍U₎ a := by forall_elim U.eq.trans, v, u, a
-      have h₂₆: v =₍U₎ a := by modus_ponens h₂₅, h₂₄
-      iterate h₂₆
-    have h₃: v =₍U₎ a → u =₍U₎ a := by
-      assume(h₃₁: v =₍U₎ a)
-      have h₃₂: u =₍U₎ v ∧ v =₍U₎ a := by and_intro h₁, h₃₁
-      have h₃₃: u =₍U₎ v ∧ v =₍U₎ a → u =₍U₎ a := by forall_elim U.eq.trans, u, v, a
-      have h₃₄: u =₍U₎ a := by modus_ponens h₃₃, h₃₂
-      iterate h₃₄
-    have h₄: u =₍U₎ a ↔ v =₍U₎ a := by iff_intro h₂, h₃
-    iterate h₄
-  { pred := pred, cong := cong }
-
-instance congruent_equal_from {U: Universal} {a: U.Particular}:
-    CongruentUnary U (x: U.Particular ↦ x =₍U₎ a) where
-  cong := (equal_from a).cong
-
-
+-- # Equals: the binary equality predicate as a `CongruentBinaryPredicate U U`.
+-- The combined cong proof is derived from `U.eq.sym` and `U.eq.trans`:
+-- if `x₁ =₍U₎ x₂` and `y₁ =₍U₎ y₂`, then `x₁ =₍U₎ y₁ ↔ x₂ =₍U₎ y₂`
+-- by chaining through `a₂ =₍U₎ a₁ ∧ a₁ =₍U₎ b₁ → a₂ =₍U₎ b₁`
+-- and `a₂ =₍U₎ b₁ ∧ b₁ =₍U₎ b₂ → a₂ =₍U₎ b₂` (and a symmetric chain for the reverse).
+-- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-05-31
 def equals: CongruentBinaryPredicate U U :=
-  let pred: U.Particular → CongruentUnaryPredicate U := (x: U.Particular ↦ equal_to x)
-  let cong: ∀ (x: U.Particular), ∀ (y: U.Particular), ∀ (z: U.Particular), x =₍U₎ y → (x =₍U₎ z ↔ y =₍U₎ z):= by forall_intro
-    variable(u: U.Particular)
-    variable(v: U.Particular)
-    variable(w: U.Particular)
-    assume(h₁: u =₍U₎ v)
-    have h₂: u =₍U₎ w → v =₍U₎ w := by
-      assume(h₂₁: u =₍U₎ w)
-      have h₂₂: u =₍U₎ v → v =₍U₎ u := by forall_elim U.eq.sym, u, v
-      have h₂₃: v =₍U₎ u := by modus_ponens h₂₂, h₁
-      have h₂₄: v =₍U₎ u ∧ u =₍U₎ w := by and_intro h₂₃, h₂₁
-      have h₂₅: v =₍U₎ u ∧ u =₍U₎ w → v =₍U₎ w := by forall_elim U.eq.trans, v, u, w
-      have h₂₆: v =₍U₎ w := by modus_ponens h₂₅, h₂₄
-      iterate h₂₆
-    have h₃: v =₍U₎ w → u =₍U₎ w := by
-      assume(h₃₁: v =₍U₎ w)
-      have h₃₂: u =₍U₎ v ∧ v =₍U₎ w := by and_intro h₁, h₃₁
-      have h₃₃: u =₍U₎ v ∧ v =₍U₎ w → u =₍U₎ w := by forall_elim U.eq.trans, u, v, w
-      have h₃₄: u =₍U₎ w := by modus_ponens h₃₃, h₃₂
-      iterate h₃₄
-    have h₄: u =₍U₎ w ↔ v =₍U₎ w := by iff_intro h₂, h₃
-    iterate h₄
+  let pred: U.Particular → U.Particular → Prop := (x: U.Particular, y: U.Particular ↦ x =₍U₎ y)
+  let cong: ∀ (x₁: U.Particular), ∀ (x₂: U.Particular), ∀ (y₁: U.Particular), ∀ (y₂: U.Particular),
+        x₁ =₍U₎ x₂ → y₁ =₍U₎ y₂ → (pred x₁ y₁ ↔ pred x₂ y₂) := by forall_intro
+    variable(a₁: U.Particular)
+    variable(a₂: U.Particular)
+    variable(b₁: U.Particular)
+    variable(b₂: U.Particular)
+    assume(h₁: a₁ =₍U₎ a₂)
+    assume(h₂: b₁ =₍U₎ b₂)
+    -- Forward direction: pred a₁ b₁ → pred a₂ b₂ — i.e. a₁ =₍U₎ b₁ → a₂ =₍U₎ b₂
+    have h₃: pred a₁ b₁ → pred a₂ b₂ := by
+      assume(h₃₁: a₁ =₍U₎ b₁)
+      -- a₂ =₍U₎ a₁ via sym on h₁
+      have h₃₂: a₁ =₍U₎ a₂ → a₂ =₍U₎ a₁ := by forall_elim U.eq.sym, a₁, a₂
+      have h₃₃: a₂ =₍U₎ a₁ := by modus_ponens h₃₂, h₁
+      -- a₂ =₍U₎ b₁ via trans on (a₂ =₍U₎ a₁) ∧ (a₁ =₍U₎ b₁)
+      have h₃₄: a₂ =₍U₎ a₁ ∧ a₁ =₍U₎ b₁ := by and_intro h₃₃, h₃₁
+      have h₃₅: a₂ =₍U₎ a₁ ∧ a₁ =₍U₎ b₁ → a₂ =₍U₎ b₁ := by forall_elim U.eq.trans, a₂, a₁, b₁
+      have h₃₆: a₂ =₍U₎ b₁ := by modus_ponens h₃₅, h₃₄
+      -- a₂ =₍U₎ b₂ via trans on (a₂ =₍U₎ b₁) ∧ (b₁ =₍U₎ b₂)
+      have h₃₇: a₂ =₍U₎ b₁ ∧ b₁ =₍U₎ b₂ := by and_intro h₃₆, h₂
+      have h₃₈: a₂ =₍U₎ b₁ ∧ b₁ =₍U₎ b₂ → a₂ =₍U₎ b₂ := by forall_elim U.eq.trans, a₂, b₁, b₂
+      have h₃₉: a₂ =₍U₎ b₂ := by modus_ponens h₃₈, h₃₇
+      iterate h₃₉
+    -- Backward direction: pred a₂ b₂ → pred a₁ b₁ — i.e. a₂ =₍U₎ b₂ → a₁ =₍U₎ b₁
+    have h₄: pred a₂ b₂ → pred a₁ b₁ := by
+      assume(h₄₁: a₂ =₍U₎ b₂)
+      -- a₁ =₍U₎ b₂ via trans on (a₁ =₍U₎ a₂) ∧ (a₂ =₍U₎ b₂)
+      have h₄₂: a₁ =₍U₎ a₂ ∧ a₂ =₍U₎ b₂ := by and_intro h₁, h₄₁
+      have h₄₃: a₁ =₍U₎ a₂ ∧ a₂ =₍U₎ b₂ → a₁ =₍U₎ b₂ := by forall_elim U.eq.trans, a₁, a₂, b₂
+      have h₄₄: a₁ =₍U₎ b₂ := by modus_ponens h₄₃, h₄₂
+      -- b₂ =₍U₎ b₁ via sym on h₂
+      have h₄₅: b₁ =₍U₎ b₂ → b₂ =₍U₎ b₁ := by forall_elim U.eq.sym, b₁, b₂
+      have h₄₆: b₂ =₍U₎ b₁ := by modus_ponens h₄₅, h₂
+      -- a₁ =₍U₎ b₁ via trans on (a₁ =₍U₎ b₂) ∧ (b₂ =₍U₎ b₁)
+      have h₄₇: a₁ =₍U₎ b₂ ∧ b₂ =₍U₎ b₁ := by and_intro h₄₄, h₄₆
+      have h₄₈: a₁ =₍U₎ b₂ ∧ b₂ =₍U₎ b₁ → a₁ =₍U₎ b₁ := by forall_elim U.eq.trans, a₁, b₂, b₁
+      have h₄₉: a₁ =₍U₎ b₁ := by modus_ponens h₄₈, h₄₇
+      iterate h₄₉
+    have h₅: pred a₁ b₁ ↔ pred a₂ b₂ := by iff_intro h₃, h₄
+    iterate h₅
   { pred := pred, cong := cong }
-
-instance congruent_equal_to {U: Universal} {a: U.Particular}:
-    CongruentUnary U (x: U.Particular ↦ a =₍U₎ x) where
-  cong := (equal_to a).cong
 
 end PC₁
 

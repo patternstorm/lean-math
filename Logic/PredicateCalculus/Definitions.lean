@@ -1,3 +1,4 @@
 import Logic.PredicateCalculus.Definitions.StatementTemplate
 import Logic.PredicateCalculus.Definitions.ExistsUnique
 import Logic.PredicateCalculus.Definitions.Operations
+import Logic.PredicateCalculus.Definitions.Predicates

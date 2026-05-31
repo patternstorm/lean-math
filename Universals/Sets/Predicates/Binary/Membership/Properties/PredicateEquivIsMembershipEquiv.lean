@@ -7,13 +7,13 @@ namespace Universe
 namespace Sets
 
 open Logic
+open Logic.PC₁
 
 -- ## Predicate equivalence is equivalent to membership equivalence
+-- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-05-31
 theorem pred_eq_iff_mem_eq {A B: Set U} {u: U.Particular}: (A.pred u ↔ B.pred u) ↔ (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
-  have h₁: ∀ (x: U.Particular), x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem_def, A
-  have h₁: u ∈ₛₑₜ A ↔ A.pred u := by forall_elim h₁, u
-  have h₂: ∀ (x: U.Particular), x ∈ₛₑₜ B ↔ B.pred x := by forall_elim mem_def, B
-  have h₂: u ∈ₛₑₜ B ↔ B.pred u := by forall_elim h₂, u
+  have h₁: mem u A ↔ A.pred u := by forall_elim mem.def, u, A
+  have h₂: mem u B ↔ B.pred u := by forall_elim mem.def, u, B
   have h₃: (A.pred u ↔ B.pred u) → (u ∈ₛₑₜ A ↔ u ∈ₛₑₜ B) := by
     assume (h₃₁: A.pred u ↔ B.pred u)
     have h₃₂: u ∈ₛₑₜ A → u ∈ₛₑₜ B := by

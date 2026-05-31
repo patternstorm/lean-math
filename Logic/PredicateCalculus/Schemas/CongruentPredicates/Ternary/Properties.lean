@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Properties.FiberFirstPreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Ternary.Properties.FiberFirstTwoPreservesCongruence

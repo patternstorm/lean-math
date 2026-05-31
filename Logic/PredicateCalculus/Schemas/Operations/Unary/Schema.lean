@@ -26,7 +26,7 @@ namespace PC₁
 -- Given a G : UnaryOperationGraph U₁ U₂, declare:
 --
 --     axiom my_op_sym : U₁.Particular → U₂.Particular
---     axiom my_op_def : ∀ x y, (my_op_sym x =₍U₂₎ y) ↔ (G.pred x).pred y
+--     axiom my_op_def : ∀ x y, (my_op_sym x =₍U₂₎ y) ↔ G.pred x y
 --     noncomputable def my_op : U₁ ⟴ U₂ :=
 --       { graph := G, op := my_op_sym, def := my_op_def }
 --
@@ -42,7 +42,7 @@ namespace PC₁
 structure UnaryOperation(U₁ U₂: Universal): Type where
   graph: UnaryOperationGraph U₁ U₂
   op: U₁.Particular → U₂.Particular
-  «def»: ∀ (x: U₁.Particular), ∀ (y: U₂.Particular), (op x =₍U₂₎ y) ↔ (graph.pred x).pred y
+  «def»: ∀ (x: U₁.Particular), ∀ (y: U₂.Particular), (op x =₍U₂₎ y) ↔ graph.pred x y
 
 notation:25 U₁:26 " ⟴ " U₂:26 => UnaryOperation U₁ U₂
 
@@ -59,38 +59,38 @@ instance: CoeFun (U₁ ⟴ U₂) (fun _ => U₁.Particular → U₂.Particular) 
 --
 -- Given a UnaryOperationGraph and the defining axiom, congruence follows:
 -- 1. By reflexivity + def forward: graph(x₁, op x₁)
--- 2. By graph congruence in 1st arg: graph(x₂, op x₁)
+-- 2. By graph congruence in 1st arg (combined cong instantiated with refl on op x₁):
+--    graph(x₂, op x₁)
 -- 3. By def backward at x₂: op x₂ =₍U₂₎ op x₁
 -- 4. By symmetry: op x₁ =₍U₂₎ op x₂
 --
--- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-04-12
+-- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-05-31
 theorem UnaryOperation.cong (op: U₁ ⟴ U₂):
   ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), x₁ =₍U₁₎ x₂ → (op x₁ =₍U₂₎ op x₂) := by forall_intro
   variable(x₁: U₁.Particular)
   variable(x₂: U₁.Particular)
   assume(h₁: x₁ =₍U₁₎ x₂)
 
-  -- ext(x₁, op x₁) via def forward + reflexivity
-  have h₂: ∀ (y: U₂.Particular), (op x₁ =₍U₂₎ y) ↔ (op.graph.pred x₁).pred y := by forall_elim op.def, x₁
-  have h₃: (op x₁ =₍U₂₎ op x₁) ↔ (op.graph.pred x₁).pred (op x₁) := by forall_elim h₂, (op x₁)
+  -- Step 1: graph(x₁, op x₁) via def forward + reflexivity.
+  have h₂: ∀ (y: U₂.Particular), (op x₁ =₍U₂₎ y) ↔ op.graph.pred x₁ y := by forall_elim op.def, x₁
+  have h₃: (op x₁ =₍U₂₎ op x₁) ↔ op.graph.pred x₁ (op x₁) := by forall_elim h₂, (op x₁)
   have h₄: op x₁ =₍U₂₎ op x₁ := by forall_elim U₂.eq.refl, (op x₁)
-  have h₅: (op.graph.pred x₁).pred (op x₁) := PC₀.deductive_eq_l2r h₃ h₄
+  have h₅: op.graph.pred x₁ (op x₁) := PC₀.deductive_eq_l2r h₃ h₄
 
-  -- Graph congruence in 1st arg: graph(x₁, op x₁) → graph(x₂, op x₁)
-  have h₆: ∀ (y: U₁.Particular), ∀ (z: U₂.Particular), x₁ =₍U₁₎ y → ((op.graph.pred x₁).pred z ↔ (op.graph.pred y).pred z) := by forall_elim op.graph.cong, x₁
-  have h₇: ∀ (z: U₂.Particular), x₁ =₍U₁₎ x₂ → ((op.graph.pred x₁).pred z ↔ (op.graph.pred x₂).pred z) := by forall_elim h₆, x₂
-  have h₈: x₁ =₍U₁₎ x₂ → ((op.graph.pred x₁).pred (op x₁) ↔ (op.graph.pred x₂).pred (op x₁)) := by forall_elim h₇, (op x₁)
-  have h₉: (op.graph.pred x₁).pred (op x₁) ↔ (op.graph.pred x₂).pred (op x₁) := by modus_ponens h₈, h₁
-  have h₁₀: (op.graph.pred x₂).pred (op x₁) := PC₀.deductive_eq_l2r h₉ h₅
+  -- Step 2: graph(x₁, op x₁) → graph(x₂, op x₁) via combined cong with refl on op x₁.
+  have h₆: x₁ =₍U₁₎ x₂ → op x₁ =₍U₂₎ op x₁ → (op.graph.pred x₁ (op x₁) ↔ op.graph.pred x₂ (op x₁)) := by forall_elim op.graph.cong, x₁, x₂, (op x₁), (op x₁)
+  have h₇: op x₁ =₍U₂₎ op x₁ → (op.graph.pred x₁ (op x₁) ↔ op.graph.pred x₂ (op x₁)) := by modus_ponens h₆, h₁
+  have h₈: op.graph.pred x₁ (op x₁) ↔ op.graph.pred x₂ (op x₁) := by modus_ponens h₇, h₄
+  have h₉: op.graph.pred x₂ (op x₁) := PC₀.deductive_eq_l2r h₈ h₅
 
-  -- graph(x₂, op x₁) → op x₂ =₍U₂₎ op x₁ via def backward
-  have h₁₁: ∀ (y: U₂.Particular), (op x₂ =₍U₂₎ y) ↔ (op.graph.pred x₂).pred y := by forall_elim op.def, x₂
-  have h₁₂: (op x₂ =₍U₂₎ op x₁) ↔ (op.graph.pred x₂).pred (op x₁) := by forall_elim h₁₁, (op x₁)
-  have h₁₃: op x₂ =₍U₂₎ op x₁ := PC₀.deductive_eq_r2l h₁₂ h₁₀
+  -- Step 3: graph(x₂, op x₁) → op x₂ =₍U₂₎ op x₁ via def backward at x₂.
+  have h₁₀: ∀ (y: U₂.Particular), (op x₂ =₍U₂₎ y) ↔ op.graph.pred x₂ y := by forall_elim op.def, x₂
+  have h₁₁: (op x₂ =₍U₂₎ op x₁) ↔ op.graph.pred x₂ (op x₁) := by forall_elim h₁₀, (op x₁)
+  have h₁₂: op x₂ =₍U₂₎ op x₁ := PC₀.deductive_eq_r2l h₁₁ h₉
 
-  -- By symmetry: op x₁ =₍U₂₎ op x₂
-  have h₁₄₁: op x₂ =₍U₂₎ op x₁ → op x₁ =₍U₂₎ op x₂ := by forall_elim U₂.eq.sym, (op x₂), (op x₁)
-  have h₁₄: op x₁ =₍U₂₎ op x₂ := by modus_ponens h₁₄₁, h₁₃
+  -- Step 4: op x₂ =₍U₂₎ op x₁ → op x₁ =₍U₂₎ op x₂ via symmetry.
+  have h₁₃: op x₂ =₍U₂₎ op x₁ → op x₁ =₍U₂₎ op x₂ := by forall_elim U₂.eq.sym, (op x₂), (op x₁)
+  have h₁₄: op x₁ =₍U₂₎ op x₂ := by modus_ponens h₁₃, h₁₂
   iterate h₁₄
 
 end PC₁

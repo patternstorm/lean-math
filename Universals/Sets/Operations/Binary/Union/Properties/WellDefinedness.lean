@@ -20,13 +20,10 @@ theorem union_mem: ∀ (A: Set U), ∀ (B: Set U), ∀ (x: U.Particular),
   variable(B: Set U)
   variable(x: U.Particular)
 
-  -- mem_def for each set
-  have h₁: ∀ (y: U.Particular), y ∈ₛₑₜ (A ∪ₛₑₜ B) ↔ (A ∪ₛₑₜ B).pred y := by forall_elim mem_def, (A ∪ₛₑₜ B)
-  have h₂: x ∈ₛₑₜ (A ∪ₛₑₜ B) ↔ (A ∪ₛₑₜ B).pred x := by forall_elim h₁, x
-  have h₃: ∀ (y: U.Particular), y ∈ₛₑₜ A ↔ A.pred y := by forall_elim mem_def, A
-  have h₄: x ∈ₛₑₜ A ↔ A.pred x := by forall_elim h₃, x
-  have h₅: ∀ (y: U.Particular), y ∈ₛₑₜ B ↔ B.pred y := by forall_elim mem_def, B
-  have h₆: x ∈ₛₑₜ B ↔ B.pred x := by forall_elim h₅, x
+  -- mem.def for each set (new arg order: x first, S second)
+  have h₂: x ∈ₛₑₜ (A ∪ₛₑₜ B) ↔ (A ∪ₛₑₜ B).pred x := by forall_elim mem.def, x, (A ∪ₛₑₜ B)
+  have h₄: x ∈ₛₑₜ A ↔ A.pred x := by forall_elim mem.def, x, A
+  have h₆: x ∈ₛₑₜ B ↔ B.pred x := by forall_elim mem.def, x, B
 
   -- union_def
   have h₇: ∀ (B': Set U), ∀ (y: U.Particular), (A ∪ₛₑₜ B').pred y ↔ A.pred y ∨ B'.pred y := by forall_elim union_def, A

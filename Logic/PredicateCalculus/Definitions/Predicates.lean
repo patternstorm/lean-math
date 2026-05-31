@@ -1,0 +1,2 @@
+import Logic.PredicateCalculus.Definitions.Predicates.Unary
+import Logic.PredicateCalculus.Definitions.Predicates.Binary

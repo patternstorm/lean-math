@@ -25,9 +25,12 @@ Introduces a fresh variable and requires proving the body for that variable. Use
 
 **Elimination** — `forall_elim`:
 ```lean
+-- Eliminate one ∀:
 have h₂: P specific_value := by forall_elim h₁, specific_value
+-- Eliminate multiple ∀s in one call (up to 6 supported; left-to-right):
+have h₃: <fully-instantiated-type> := by forall_elim h, v₁, v₂, v₃, v₄, v₅, v₆
 ```
-Instantiates a universally quantified hypothesis with a specific value. Comma-separated: `forall_elim hypothesis, value`.
+Always prefer the multi-arg form over chaining several `forall_elim` lines — it collapses bookkeeping. The intermediate types are uninteresting; only the final post-instantiation proposition matters, and that's what the `have`'s type declares.
 
 ### Implication
 
@@ -261,35 +264,64 @@ have h₅: A₁ ⊆ₛₑₜ A ↔ A₂ ⊆ₛₑₜ A := by modus_ponens h₄, 
 
 ## Hypothesis Naming Convention
 
-- Use `h₁`, `h₂`, `h₃` for sequential steps
-- Use nested numbering for sub-proofs: `h₂₁`, `h₂₂` inside a block started by `h₂`
-- Always follow this convention — no descriptive names like `h_forward`, `h_P`, etc.
+**The only legal hypothesis name is `h` followed by subscript digits**: `h₁`, `h₂`, …, `h₁₀`, `h₁₁`, …
+
+- **Sequential at each scope level**: `h₁`, `h₂`, `h₃`, … in the order introduced. Numbering restarts inside nested sub-blocks (see below).
+- **`assume(h_n: …)` participates in the sequence**: the first `assume` at a scope is `h₁`, the next is `h₂`, the first `have` after them is `h₃`, etc. (`variable(…)` and `forall_intro` introduce *terms*, not hypotheses, so they don't consume names.)
+- **Nested subscripts inside sub-blocks**: inside the `by` body of `have h_n: … := by`, child hypotheses use the parent's subscript as a prefix — `h_n_1`, `h_n_2`, …. So inside `have h₈: … := by`, children are `h₈₁`, `h₈₂`, `h₈₃`, …
+- **Never use letters, primes, descriptive suffixes**: `hx`, `hy`, `hxx`, `hX`, `h_forward`, `h_P`, `h_step1` are all forbidden. If a hypothesis records "x =₍U₎ x" (refl), it still gets the next sequential `h_n` name like any other.
+
+Reason: the natural-deduction style depends on a rigid mechanical naming so the reader can scan the proof linearly without parsing semantic suffixes. Combined with the explicit-type rule below, this makes each line a self-contained assertion.
+
+## Every `have` Clause Must Declare Its Type
+
+```lean
+-- WRONG — reader has to chase backwards to discover what h₇ is:
+have h₇ := by forall_elim h₆, z₂
+
+-- RIGHT — type makes the assertion explicit; tactic confirms derivation:
+have h₇: x =₍U₁₎ x → y =₍U₂₎ y → z₁ =₍U₃₎ z₂ → (R.pred x y z₁ ↔ R.pred x y z₂)
+    := by forall_elim h₆, z₂
+```
+
+This applies to every step — `forall_elim`, `modus_ponens`, `and_intro`, term-mode `PC₀.deductive_eq_l2r`, everything. The proof reads as a sequence of declared propositions; tactics are justification, not exposition. The only exception is the *root* `theorem` or `def` declaration, whose type is the goal.
 
 ## Authorship Convention
 
-When Claude writes a proof, add an authorship comment:
+When Claude writes a proof, add an authorship comment using the **current model name and current date** (look them up from the environment — don't copy a stale example):
 
 ```lean
--- Proof by Claude Opus 4.6 (claude-opus-4-6), 2026-02-15
+-- Proof by Claude <Model Name> (<model-id>), YYYY-MM-DD
 theorem my_theorem: ... := by forall_intro
 ```
 
-Use the current model name and date. The user has explicitly requested this.
+## Schema Fields Are Always Eliminated Explicitly — Never in Term Mode
 
-## Equality Schema in Term Mode
-
-The `Equality` schema fields (`U.eq.refl`, `U.eq.sym`, `U.eq.trans`) can be applied directly in term mode — no need to multi-step `forall_elim` on them:
+**Schema fields carrying `∀`-quantifiers — `U.eq.refl`, `U.eq.sym`, `U.eq.trans`, and any analogous field on any other schema — must never be applied in term mode.** Each quantifier instantiation requires an explicit `forall_elim`; each implication application requires an explicit `modus_ponens`. Term-mode application of such fields is **forbidden**, even though Lean would accept it.
 
 ```lean
--- Symmetry: from h₅ : a =₍U₎ b, derive b =₍U₎ a
+-- ✗ FORBIDDEN — hides two `forall_elim`s and a `modus_ponens` in one opaque term:
 have h₆: b =₍U₎ a := U.eq.sym a b h₅
 
--- Transitivity: from h₁ : y =₍U₎ a and h₂ : a =₍U₎ b, derive y =₍U₎ b
-have h₃: y =₍U₎ a ∧ a =₍U₎ b := by and_intro h₁, h₂
-have h₄: y =₍U₎ b := U.eq.trans y a b h₃
+-- ✓ REQUIRED — each ND step is explicit, named, and typed:
+have h₆: a =₍U₎ b → b =₍U₎ a := by forall_elim U.eq.sym, a, b
+have h₇: b =₍U₎ a := by modus_ponens h₆, h₅
 ```
 
-This is much more concise than instantiating the schema step-by-step with `forall_elim`. Works for any Universal's equality.
+Same for `U.eq.trans`:
+
+```lean
+-- ✗ FORBIDDEN:
+have h₄: y =₍U₎ b := U.eq.trans y a b h₃
+
+-- ✓ REQUIRED:
+have h₄: y =₍U₎ a ∧ a =₍U₎ b → y =₍U₎ b := by forall_elim U.eq.trans, y, a, b
+have h₅: y =₍U₎ b := by modus_ponens h₄, h₃
+```
+
+**Why this matters**: the framework's discipline is that every first-order reasoning step is visible. Term-mode application of a quantified schema field silently composes multiple `forall_elim`s with a `modus_ponens` into one term, hiding the structure of the proof. The longer form is the right form — every step has a name and a stated type, every elimination is a separate line.
+
+**Boundary**: this rule targets *schema fields with `∀`-quantifiers*. Term-mode application of propositional helpers like `PC₀.deductive_eq_l2r h₁ h₂` is fine — those are closed propositional theorems, not ND eliminations, so they don't hide any first-order steps.
 
 ## Key Propositional Logic Helpers (`PC₀`)
 
@@ -300,12 +332,8 @@ This is much more concise than instantiating the schema step-by-step with `foral
 
 ## Pitfalls
 
-- **`forall_elim` uses comma syntax**: `by forall_elim h, value` — not `by forall_elim h value`.
+- **`forall_elim` uses comma syntax**: `by forall_elim h, value` — not `by forall_elim h value`. Use the multi-arg form (up to 6) instead of chaining.
 - **`iterate` is mandatory**: Every sub-proof branch must end with `iterate`. Without it, the proof won't close.
 - **Don't mix Lean tactics**: Even `exact` is forbidden. Use `iterate` to deliver results.
-- **Lambda types in predicates**: Always use explicit type annotation in lambdas: `(x: U.Particular ↦ ...)`. Never rely on inference.
+- **Predicate-shape lambdas always use the project's statement template syntax `(x: T ↦ body)`** — never `fun x : T => body` and never untyped `fun x => body`. The project defines a dedicated notation for predicate-shape lambdas in `Logic/PredicateCalculus/Definitions/StatementTemplate/Definition.lean`, supporting unary `(x: T ↦ body)`, binary `(x: T₁, y: T₂ ↦ body)`, and ternary `(x: T₁, y: T₂, z: T₃ ↦ body)`. Standard `fun` is reserved for non-predicate functions where the statement-template syntax doesn't apply (e.g., the value of a `let pred` inside a definition body where the type is already determined). When in doubt for a predicate, use `↦`.
 - **`noncomputable` keyword**: Required when a `def` bundles axioms into a structure (e.g., `noncomputable def powerset_operation`).
-
-## Report Deviations
-
-At the end of the analysis, list any deviations or workarounds made from this skill specification. This helps identify where the skill needs improvement.

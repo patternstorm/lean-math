@@ -24,6 +24,12 @@ instance (priority := 50) congruent_pred {U: Universal} {R: CongruentUnaryPredic
     CongruentUnary U R.pred where
   cong := R.cong
 
+-- # `CoeFun`: lets us write `P x` instead of `P.pred x`.
+-- A `CongruentUnaryPredicate U` is callable as a 1-argument function returning
+-- the proposition "x satisfies P". The `.pred` projection becomes implicit.
+instance {U: Universal}: CoeFun (CongruentUnaryPredicate U) (fun _ => U.Particular → Prop) where
+  coe P := P.pred
+
 end PC₁
 
 end Logic
