@@ -1,1 +1,1 @@
-import Universals.Sets.Operations.Binary.Union.Properties.WellDefinedness
+import Universals.Sets.Operations.Binary.Union.Properties.Membership

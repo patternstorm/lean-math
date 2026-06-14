@@ -1,6 +1,7 @@
 import Logic.NaturalDeduction.Rules
 import Logic.PredicateCalculus.Schemas.Universal.Schema
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Schema
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 import Logic.PropositionalCalculus
 import Logic.PredicateCalculus.Definitions.StatementTemplate.Definition
 

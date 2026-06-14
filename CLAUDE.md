@@ -18,6 +18,7 @@ Load the relevant skill before starting work:
 - **`/lean-math-overview`** — Project architecture, philosophy, schemas, sub-universals, file structure. Start here for new sessions.
 - **`/lean-math-proofs`** — Custom natural deduction tactics, proof patterns, congruence proofs.
 - **`/lean-math-predicates`** — Named predicate macros (`unary_predicate`/`binary_predicate`), the `Congruent*Predicate` ↔ named-predicate layering, `CoeHead` upcast, auto-cong machinery (`CongruentUnary`/`CongruentBinary` typeclasses), fiber preservation theorems, and the named-arg use-site pattern.
+- **`/lean-math-operations`** — Graph-based operation pattern (`UnaryOperationGraph` → `UnaryOperation`), the `unary_operation` macro, the role of the graph predicate (factored as `<name>_graph_pred`), file organization for graph + properties + operation + derived theorems, and the OLD `CongruentUnaryOperation` → NEW pattern migration path. Unary only for now; constants + binary will be added when those framework layers exist.
 - **`/lean-math-sets`** — The Set Universal: sets as predicates, membership, inclusion, powerset, stratification.
 - **`/lean-math-dyads`** — The Dyad Universal: co-existence, predicate curry/uncurry, predicate associativity, `⋈` notation.
 - **`/lean-math-conventions`** — Naming, file organization (ADT barrel pattern), notation, user preferences.

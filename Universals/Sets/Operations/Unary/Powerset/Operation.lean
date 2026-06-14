@@ -1,9 +1,7 @@
 import Logic
 import Universe
 import Universals.Sets.Universal
-import Universals.Sets.Predicates.Binary.Membership.Predicate
-import Universals.Sets.Predicates.Binary.Inclusion.Predicate
-import Universals.Sets.Properties.SetExtensionality
+import Universals.Sets.Predicates.Binary.PowersetGraph
 
 namespace Universe
 
@@ -12,64 +10,35 @@ namespace Sets
 open Logic
 open Logic.PC₁
 
--- The `Powerset` operation: given a set S, returns the set of all subsets of S.
+-- # The `Powerset` operation
+--
+-- Given a set `S : Set U`, returns the set of all subsets of `S` —
+-- i.e., `𝒫 S : Set (𝐒𝐞𝐭 U)`.
 --
 -- In ZFC, the Powerset Axiom must be postulated: "∀A ∃P ∀B (B ∈ P ↔ B ⊆ A)".
--- This is an existence claim — without it, ZFC cannot prove that the collection
--- of all subsets forms a set.
+-- This is an existence claim — without it, ZFC cannot prove that the
+-- collection of all subsets of a set forms a set.
 --
--- Our predicate-based approach avoids this. We define powerset as an operation
--- and specify its behavior: S' ∈ 𝒫 S ↔ S' ⊆ S. The predicate `S' ↦ S' ⊆ₛₑₜ S`
--- is well-formed over Set U, so the powerset is simply the extension of this
--- predicate — no existence axiom required.
-axiom powerset: Set U → Set (𝐒𝐞𝐭 U)
+-- Our framework avoids this. The predicate "S' is a subset of S" is
+-- well-formed over `Set U` (it's a unary predicate, captured by `subsets_of`),
+-- so the powerset is simply the extension of that predicate via set
+-- comprehension — no existence axiom required. Totality and right-determinacy
+-- of the powerset graph (`powerset_graph`) discharge any potential consistency
+-- concern: there always exists exactly one such set, by construction.
+--
+-- The `unary_operation` macro takes `powerset_graph` as input and introduces:
+-- - `powerset_sym : Set U → Set (𝐒𝐞𝐭 U)`                  (opaque axiom — the function symbol)
+-- - `powerset_def : ∀ S P, (powerset_sym S =ₛₑₜ P) ↔ powerset_graph_pred S P`   (axiom — defining equation)
+-- - `powerset     : 𝐒𝐞𝐭 U ⟴ 𝐒𝐞𝐭 (𝐒𝐞𝐭 U)`                  (the bundled operation value)
+-- The operation's congruence (`powerset.cong`) is then derived as a theorem
+-- by the schema — never assumed.
+--
+-- The classical "membership" characterization `S' ∈ₛₑₜ 𝒫 S ↔ S' ⊆ₛₑₜ S` is
+-- derived from `powerset.def` in `Properties/PowersetMembership.lean`.
+
+unary_operation powerset : (𝐒𝐞𝐭 U) ⟴ (𝐒𝐞𝐭 (𝐒𝐞𝐭 U)) from powerset_graph
 prefix:max "𝒫" => powerset
 
--- Behavior: S' is in the powerset of S iff S' is a subset of S.
-axiom powerset_def: ∀ (S: Set U), ∀ (S': Set U), S' ∈ₛₑₜ (𝒫 S) ↔ S' ⊆ₛₑₜ S
-
--- Congruence: powerset respects set equality
--- Proof by Claude Opus 4.5 (claude-opus-4-5-20251101), 2026-01-17
-theorem powerset_cong: ∀ (S₁: Set U), ∀ (S₂: Set U), S₁ =ₛₑₜ S₂ → (𝒫 S₁) =ₛₑₜ (𝒫 S₂) := by forall_intro
-  variable (S₁: Set U)
-  variable (S₂: Set U)
-  assume (h₁: S₁ =ₛₑₜ S₂)
-
-  -- By set extensionality, we need to show: ∀ S', S' ∈ 𝒫 S₁ ↔ S' ∈ 𝒫 S₂
-  have h₂: ∀ (S': Set U), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ (𝒫 S₂) := by forall_intro
-    variable (A: (𝐒𝐞𝐭 U).Particular)
-    -- By powerset_def: A ∈ 𝒫 S ↔ A ⊆ S
-    have h₂₁: ∀ (S: Set U), S ∈ₛₑₜ (𝒫 S₁) ↔ S ⊆ₛₑₜ S₁ := by forall_elim powerset_def, S₁
-    have h₂₂: A ∈ₛₑₜ (𝒫 S₁) ↔ A ⊆ₛₑₜ S₁ := by forall_elim h₂₁, A
-    have h₂₃: ∀ (S: Set U), S ∈ₛₑₜ (𝒫 S₂) ↔ S ⊆ₛₑₜ S₂ := by forall_elim powerset_def, S₂
-    have h₂₄: A ∈ₛₑₜ (𝒫 S₂) ↔ A ⊆ₛₑₜ S₂ := by forall_elim h₂₃, A
-    -- By supersets_of congruence: if S₁ = S₂, then A ⊆ S₁ ↔ A ⊆ S₂
-    have h₂₅: A ⊆ₛₑₜ S₁ ↔ A ⊆ₛₑₜ S₂ := (supersets_of A).cong S₁ S₂ h₁
-    -- Chain the equivalences: 𝒫 S₁ ↔ ⊆ S₁ ↔ ⊆ S₂ ↔ 𝒫 S₂
-    have h₂₆: A ∈ₛₑₜ (𝒫 S₁) → A ∈ₛₑₜ (𝒫 S₂) := by
-      assume(h₂₆₁: A ∈ₛₑₜ (𝒫 S₁))
-      have h₂₆₂: A ⊆ₛₑₜ S₁ := PC₀.deductive_eq_l2r h₂₂ h₂₆₁
-      have h₂₆₃: A ⊆ₛₑₜ S₂ := PC₀.deductive_eq_l2r h₂₅ h₂₆₂
-      have h₂₆₄: A ∈ₛₑₜ (𝒫 S₂) := PC₀.deductive_eq_r2l h₂₄ h₂₆₃
-      iterate h₂₆₄
-    have h₂₇: A ∈ₛₑₜ (𝒫 S₂) → A ∈ₛₑₜ (𝒫 S₁) := by
-      assume(h₂₇₁: A ∈ₛₑₜ (𝒫 S₂))
-      have h₂₇₂: A ⊆ₛₑₜ S₂ := PC₀.deductive_eq_l2r h₂₄ h₂₇₁
-      have h₂₇₃: A ⊆ₛₑₜ S₁ := PC₀.deductive_eq_r2l h₂₅ h₂₇₂
-      have h₂₇₄: A ∈ₛₑₜ (𝒫 S₁) := PC₀.deductive_eq_r2l h₂₂ h₂₇₃
-      iterate h₂₇₄
-    have h₂₈: A ∈ₛₑₜ (𝒫 S₁) ↔ A ∈ₛₑₜ (𝒫 S₂) := by iff_intro h₂₆, h₂₇
-    iterate h₂₈
-
-  -- Convert to set equality via extensionality
-  have h₃: ∀ (S: Set (𝐒𝐞𝐭 U)), (𝒫 S₁) =ₛₑₜ S ↔ (∀ (S': Set U), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ S) := by forall_elim set_extensionality, (𝒫 S₁)
-  have h₄: (𝒫 S₁) =ₛₑₜ (𝒫 S₂) ↔ (∀ (S': Set U), S' ∈ₛₑₜ (𝒫 S₁) ↔ S' ∈ₛₑₜ (𝒫 S₂)) := by forall_elim h₃, (𝒫 S₂)
-  have h₅: (𝒫 S₁) =ₛₑₜ (𝒫 S₂) := PC₀.deductive_eq_r2l h₄ h₂
-  iterate h₅
-
--- Bundle powerset as a CongruentUnaryOperation
-noncomputable def powerset_operation: CongruentUnaryOperation (𝐒𝐞𝐭 U) (𝐒𝐞𝐭 (𝐒𝐞𝐭 U)) :=
-  { op := powerset, cong := powerset_cong }
 
 end Sets
 

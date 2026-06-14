@@ -4,6 +4,7 @@ import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Schema
 import Logic.PredicateCalculus.Definitions.ExistsUnique.Definition
 import Logic.PropositionalCalculus
 import Logic.PredicateCalculus.Definitions.StatementTemplate.Definition
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 
 namespace Logic
 

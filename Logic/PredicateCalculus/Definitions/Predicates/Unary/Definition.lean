@@ -32,12 +32,39 @@ same notation used elsewhere in the project. The macro extracts the binder
 type as the domain and the body as the defining condition.
 -/
 
--- With explicit cong proof
+-- The `with` clause has two variants:
+--   `with <ident>`  — external: refers to a previously declared cong theorem
+--   `with cong : <type> := <proof>` — inline: declares the cong theorem here
+-- The optional `: <type> := <proof>` suffix discriminates inline from external.
 syntax (name := unaryPredicateCmd)
-  "unary_predicate " ident " : " "(" stmtBinder " ↦ " term ")" (" with " term)? : command
+  "unary_predicate " ident " : " "(" stmtBinder " ↦ " term ")"
+  (" with " ident (" : " term " := " term)?)? : command
 
+-- Inline form (with-clause carries explicit type + proof). Auto-generates a
+-- public top-level theorem `<name>_cong` from the inline block.
 macro_rules
-  | `(unary_predicate $name:ident : ($b:stmtBinder ↦ $body:term) with $cong:term) => do
+  | `(unary_predicate $name:ident : ($b:stmtBinder ↦ $body:term) with $_marker:ident : $cong_type:term := $cong_proof:term) => do
+    let nameStr := name.getId.toString
+    let symIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_sym"))
+    let defIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_def"))
+    let congIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_cong"))
+    match b with
+    | `(stmtBinder| $x:ident : $t:term) =>
+      `(
+        theorem $congIdent : $cong_type := $cong_proof
+        axiom $symIdent : $t → Prop
+        axiom $defIdent : ∀ ($x : $t), $symIdent $x ↔ $body
+        noncomputable def $name : UnaryPredicate _ (fun $x : $t => $body) := {
+          pred  := $symIdent
+          «def» := $defIdent
+          cong  := propositional_equivalence_preserves_congruence $symIdent (fun $x : $t => $body) $defIdent $congIdent
+        }
+      )
+    | _ => Lean.Macro.throwError "expected named binder (x : T ↦ body) in unary_predicate (inline cong form)"
+
+-- External form (with-clause references a previously declared theorem)
+macro_rules
+  | `(unary_predicate $name:ident : ($b:stmtBinder ↦ $body:term) with $cong:ident) => do
     let nameStr := name.getId.toString
     let symIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_sym"))
     let defIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_def"))

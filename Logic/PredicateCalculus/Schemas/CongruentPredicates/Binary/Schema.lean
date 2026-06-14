@@ -23,15 +23,15 @@ open ND
 structure CongruentBinaryPredicate (U₁: Universal) (U₂: Universal): Type where
   pred: U₁.Particular → U₂.Particular → Prop
   cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular),
-        x₁ =₍U₁₎ x₂ → y₁ =₍U₂₎ y₂ → (pred x₁ y₁ ↔ pred x₂ y₂)
+        U₁.eq x₁ x₂ → U₂.eq y₁ y₂ → (pred x₁ y₁ ↔ pred x₂ y₂) -- TODO refactor to use and
 
 -- Typeclass form. Kept as inner+outer cong (the natural shape for structural
 -- auto-derivation via connectives). The two per-argument congs are combined
 -- into the structure's single cong field via `binary_congruence_from_congruent_fibers`
 -- (in `Binary.Properties.BinaryCongruenceFromCongruentFibers`) at coercion time.
 class CongruentBinary (U₁: Universal) (U₂: Universal) (P: U₁.Particular → U₂.Particular → Prop) where
-  inner_cong: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), y₁ =₍U₂₎ y₂ → (P x y₁ ↔ P x y₂)
-  outer_cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), ∀ (z: U₂.Particular), x₁ =₍U₁₎ x₂ → (P x₁ z ↔ P x₂ z)
+  inner_cong: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), U₂.eq y₁ y₂ → (P x y₁ ↔ P x y₂)
+  outer_cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), ∀ (z: U₂.Particular), U₁.eq x₁ x₂ → (P x₁ z ↔ P x₂ z)
 
 -- Bridge: derives `CongruentBinary` from per-argument `CongruentUnary` instances.
 -- For each fixed `x`, `P x` must be congruent in `y` (inner).
@@ -43,22 +43,22 @@ instance (priority := 50) congruent_binary_from_fibers {U₁ U₂: Universal}
     [inner: ∀ x: U₁.Particular, CongruentUnary U₂ (P x)]
     [outer: ∀ z: U₂.Particular, CongruentUnary U₁ (fun x => P x z)]:
     CongruentBinary U₁ U₂ P where
-  inner_cong: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), y₁ =₍U₂₎ y₂ → (P x y₁ ↔ P x y₂) := by forall_intro
+  inner_cong: ∀ (x: U₁.Particular), ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular), U₂.eq y₁ y₂ → (P x y₁ ↔ P x y₂) := by forall_intro
     variable(x: U₁.Particular)
     variable(y₁: U₂.Particular)
     variable(y₂: U₂.Particular)
-    assume(h₁: y₁ =₍U₂₎ y₂)
-    have h₂: ∀ (b: U₂.Particular), y₁ =₍U₂₎ b → (P x y₁ ↔ P x b) := by forall_elim (inner x).cong, y₁
-    have h₃: y₁ =₍U₂₎ y₂ → (P x y₁ ↔ P x y₂) := by forall_elim h₂, y₂
+    assume(h₁: U₂.eq y₁ y₂)
+    have h₂: ∀ (b: U₂.Particular), U₂.eq y₁ b → (P x y₁ ↔ P x b) := by forall_elim (inner x).cong, y₁
+    have h₃: U₂.eq y₁ y₂ → (P x y₁ ↔ P x y₂) := by forall_elim h₂, y₂
     have h₄: P x y₁ ↔ P x y₂ := by modus_ponens h₃, h₁
     iterate h₄
-  outer_cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), ∀ (z: U₂.Particular), x₁ =₍U₁₎ x₂ → (P x₁ z ↔ P x₂ z) := by forall_intro
+  outer_cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular), ∀ (z: U₂.Particular), U₁.eq x₁ x₂ → (P x₁ z ↔ P x₂ z) := by forall_intro
     variable(x₁: U₁.Particular)
     variable(x₂: U₁.Particular)
     variable(z: U₂.Particular)
-    assume(h₁: x₁ =₍U₁₎ x₂)
-    have h₂: ∀ (b: U₁.Particular), x₁ =₍U₁₎ b → ((fun x => P x z) x₁ ↔ (fun x => P x z) b) := by forall_elim (outer z).cong, x₁
-    have h₃: x₁ =₍U₁₎ x₂ → ((fun x => P x z) x₁ ↔ (fun x => P x z) x₂) := by forall_elim h₂, x₂
+    assume(h₁: U₁.eq x₁ x₂)
+    have h₂: ∀ (b: U₁.Particular), U₁.eq x₁ b → ((fun x => P x z) x₁ ↔ (fun x => P x z) b) := by forall_elim (outer z).cong, x₁
+    have h₃: U₁.eq x₁ x₂ → ((fun x => P x z) x₁ ↔ (fun x => P x z) x₂) := by forall_elim h₂, x₂
     have h₄: (fun x => P x z) x₁ ↔ (fun x => P x z) x₂ := by modus_ponens h₃, h₁
     iterate h₄
 

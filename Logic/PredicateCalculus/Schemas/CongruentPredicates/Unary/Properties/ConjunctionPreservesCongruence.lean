@@ -1,4 +1,5 @@
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Schema
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 import Logic.NaturalDeduction.Rules
 import Logic.PropositionalCalculus
 import Logic.PredicateCalculus.Definitions.StatementTemplate.Definition

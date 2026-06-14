@@ -1,5 +1,6 @@
 import Logic.PredicateCalculus.Schemas.Universal.Schema
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Schema
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 
 namespace Logic
 
@@ -59,7 +60,7 @@ Given `RU := U ↾ P` and `x : RU.Particular`:
 --
 -- Lean does provide subtyping infrastructure (Subtype, coercions), but it knows
 -- nothing about our axiomatized equalities (=₍U₎). So we implement this engine-level
--- operation manually for our Universals. The fun lambdas delegating to U.eq are the
+-- operation manually for our Universals. The fun lambdas delegating to `=₍U₎` are the
 -- implementation of what the engine would provide for free.
 --
 -- Mathematics starts when you use the resulting Universal in ND proofs — proving

@@ -1,0 +1,2 @@
+import Universals.Sets.Predicates.Binary.PowersetGraph.Properties.LeftTotality
+import Universals.Sets.Predicates.Binary.PowersetGraph.Properties.RightDeterminacy

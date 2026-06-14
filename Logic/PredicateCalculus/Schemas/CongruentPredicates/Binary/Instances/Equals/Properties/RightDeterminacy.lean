@@ -8,7 +8,7 @@ namespace PC₁
 -- # universal equality right determinacy — every particular is at most equal to another particular, i.e. itself
 
 -- Proof by Claude Opus 4.7 Max, 2026-05-02
-theorem equals_right_determinacy:
+theorem equals_right_determinacy {U: Universal}:
   ∀ (x: U.Particular), ∀ (y₁: U.Particular), ∀ (y₂: U.Particular), x =₍U₎ y₁ ∧ x =₍U₎ y₂ → y₁ =₍U₎ y₂ := by forall_intro
   variable(a: U.Particular)
   variable(b: U.Particular)

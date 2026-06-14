@@ -1,6 +1,6 @@
 ---
 name: lean-math-predicates
-description: This skill should be used when declaring predicates, proving congruence, or working with the auto-congruence machinery in the lean-math project. It covers the macro-generated named predicates (`unary_predicate`, `binary_predicate`), their relationship with `CongruentUnaryPredicate`/`CongruentBinaryPredicate`, the `extends` chain and `CoeHead` upcast, the fiber preservation theorems, the `CongruentUnary`/`CongruentBinary` typeclass machinery, and the named-argument pattern needed at use sites where Lean can't resolve implicit arguments for coercion.
+description: This skill should be used when declaring predicates, proving congruence, or working with the auto-congruence machinery in the lean-math project. It covers the three-tier congruence architecture (foundational named predicates with manual Universal-specific cong, derived named predicates with macro-auto-derived cong, and compound un-named predicates with on-demand auto-cong), the macro-generated named predicates (`unary_predicate`, `binary_predicate`), their relationship with `CongruentUnaryPredicate`/`CongruentBinaryPredicate`, the `extends` chain and `CoeHead` upcast, the fiber preservation theorems, the `CongruentUnary`/`CongruentBinary` typeclass machinery, and the named-argument pattern needed at use sites where Lean can't resolve implicit arguments for coercion.
 ---
 
 # Lean-Math Predicates
@@ -16,33 +16,57 @@ The project distinguishes two layers of predicate-shaped abstractions, deliberat
 
 Use the named layer when introducing a mathematical concept (`mem`, `inclusion`, `is_singleton`, `is_reflexive`, etc.). Use the congruent layer when *deriving* a predicate from existing ones (fibers, restrictions, projections, etc.).
 
+## Where congruence work lives — the three tiers
+
+Congruence is the framework's heaviest soundness obligation. The architecture localizes it to **exactly the layer where new opacity is introduced**, and beyond that point, makes it structural and free. There are three tiers:
+
+**Tier 1 — Foundational named predicates** (`mem`, `inclusion`, `equals`, eventually `addition`, `succ`, etc.). Manual cong is **unavoidable**: the reasoning is Universal-specific. For example, `mem.cong` must unfold `Sets.eq_def` (the pointwise-equivalence characterization of `=ₛₑₜ`) — a Sets-specific fact the generic auto-cong machinery does not, and should not, know. This is the "varying-a-Set" gap (see the dedicated section below). Use the macro's **Form 3** (`with cong : ... := ...`) to discharge cong manually.
+
+**Tier 2 — Derived named predicates** built compositionally from existing congruent things (e.g., `is_trivial : (S ↦ ∀ x, S.pred x)`). The macro **auto-derives cong** via the `CongruentUnary` / `CongruentBinary` typeclass machinery — no manual proof needed. Use **Form 1** (no `with` clause). The macro synthesizes cong from the body's connectives and transports it onto the opaque symbol via `propositional_equivalence_preserves_congruence`.
+
+**Tier 3 — Compound (un-named) predicates** built from existing congruent things, used **transiently** without introducing a new symbol (e.g., the graph predicates of operations like `powerset_graph_pred`, `union_graph_pred`). Just a `@[reducible] def` — no macro, no symbol, no cong field. Cong is synthesised **on demand** at the use site via `CoeDep` to a `CongruentBinaryPredicate` / `CongruentTernaryPredicate`. See `lean-math-operations` for the canonical use case (`<Arity>OperationGraph.fromCongPred`).
+
+**The architectural principle**: cong work is **bounded by new opacity introductions**. Tier 1 is the irreducible minimum — every primitive symbol must carry its Universal-specific congruence evidence, because primitiveness means the cong fact cannot be derived from structure. Tier 2 and Tier 3 are free, because once a predicate is congruent, composing it with the connectives the framework knows is automatic — that machinery (one file per connective in `Schemas/CongruentPredicates/Unary/Properties/`) is proven once and forever.
+
 ## The macros — `unary_predicate` and `binary_predicate`
 
 Single-line declaration of a named predicate. Files:
 - `Logic/PredicateCalculus/Definitions/Predicates/Unary/Definition.lean`
 - `Logic/PredicateCalculus/Definitions/Predicates/Binary/Definition.lean`
 
+Each macro supports **three forms**, differing only in how congruence is supplied:
+
 ```lean
--- Explicit congruence proof:
-unary_predicate is_singleton : (S : (𝐒𝐞𝐭 U).Particular ↦ ∃!₍U₎ (x: U.Particular), x ∈ₛₑₜ S)
-  with is_singleton_cong
-
-binary_predicate mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ S.pred x)
-  with mem_cong
-
--- Auto-inferred congruence (via [CongruentUnary] / [CongruentBinary] typeclass):
+-- Form 1: Auto-derived congruence (the macro infers cong via the typeclass machinery).
+--         Use when the body is built from generic auto-cong-capable connectives.
 unary_predicate is_trivial : (S : (𝐒𝐞𝐭 U).Particular ↦ ∀ x, S.pred x)
+
+-- Form 2: External congruence reference. The cong theorem is declared in
+--         ANOTHER file and referenced by name.
+binary_predicate not_mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ ¬(S.pred x))
+  with shared_neg_cong
+
+-- Form 3: Inline congruence. The cong type and proof are attached directly
+--         to the predicate via `with cong : <type> := <proof>`. This is the
+--         default form when the cong proof is local to this file.
+binary_predicate mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ S.pred x)
+  with cong :
+    ∀ (x₁ x₂ : U.Particular), ∀ (S₁ S₂ : Set U),
+      x₁ =₍U₎ x₂ → S₁ =ₛₑₜ S₂ → (S₁.pred x₁ ↔ S₂.pred x₂) := by
+    forall_intro
+    -- ...full ND proof body...
 ```
 
-The macro generates **three** declarations from one line:
+The macro generates **three** declarations from one line (and a fourth in the inline form):
 
 | Generated | Kind | What it is |
 |-----------|------|------------|
 | `<name>_sym` | `axiom` | The opaque predicate symbol, type `T → Prop` (or `T₁ → T₂ → Prop`) |
 | `<name>_def` | `axiom` | The propositional bridge: `∀ args, <name>_sym args ↔ body args` |
 | `<name>` | `noncomputable def` | The `UnaryPredicate U body` / `BinaryPredicate U₁ U₂ body` value bundling `pred := <name>_sym`, `def := <name>_def`, and `cong := ...` |
+| `<name>_cong` *(inline form only)* | `theorem` | The body cong proof, declared as a public top-level theorem (accessible to other files) |
 
-After declaration, the following are available:
+After declaration, the following are available regardless of form:
 
 | Access | What you get |
 |--------|--------------|
@@ -55,36 +79,69 @@ After declaration, the following are available:
 
 **Binder order in the macro determines `<name>_def`'s argument order.** E.g., `binary_predicate mem : (x : ..., S : ... ↦ S.pred x)` produces `mem_def : ∀ x S, mem.pred x S ↔ S.pred x`. Downstream `forall_elim mem.def, ...` must respect this order — use multi-arg form `forall_elim mem.def, u, A`.
 
-## The `<pred>_cong` convention
+## Which form to use — the rule
 
-When using `with`, the convention is:
+| Situation | Tier | Form | Example |
+|-----------|------|------|---------|
+| Body fits generic auto-cong (no Universal-specific facts) — derived named predicate | 2 | Form 1 (no `with`) | `unary_predicate is_trivial : (S ↦ ∀ x, S.pred x)` |
+| **Cong proof Universal-specific (foundational named predicate)** | **1** | **Form 3 (inline `with cong : ... := ...`)** | `binary_predicate mem : (...) with cong : ... := ...` |
+| Cong proof declared in another file and reused | 1 | Form 2 (external `with <name>`) | `binary_predicate foo : (...) with shared_cong` |
 
-- **The cong theorem lives in the same file as the predicate**, named `<pred>_cong`.
-- Its shape is exactly the combined cong on the *body* (not on `<name>_sym`).
-- The macro adapts it to the structure's cong field via `propositional_equivalence_preserves_congruence` / `propositional_equivalence_preserves_binary_congruence`.
+**The default for non-auto-cong predicates is Form 3 (inline).** Reasons:
+
+1. **Readability** — the predicate name and body are read first, not after 30-50 lines of proof. The cong type and proof come after, attached to the predicate they belong to.
+2. **Locality** — the cong is structurally bound to the predicate it certifies; you don't have to jump elsewhere to find it.
+3. **Still public** — the inline form auto-generates `<name>_cong` as a public top-level theorem, so other files can still reference it the same way they would with Form 2.
+
+**Form 2 (external) is reserved for** genuinely reused cong proofs that live in a separate file — e.g., when one cong theorem certifies multiple predicate variants and lives in its own helper file.
+
+### Worked example: inline form (Form 3)
 
 ```lean
 -- In Sets/Predicates/Binary/Membership/Predicate.lean:
-theorem mem_cong:
-    ∀ (x₁ x₂ : U.Particular), ∀ (S₁ S₂ : Set U),
-      x₁ =₍U₎ x₂ → S₁ =ₛₑₜ S₂ → (S₁.pred x₁ ↔ S₂.pred x₂) := by ...
-
-binary_predicate mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ S.pred x) with mem_cong
+binary_predicate mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ S.pred x)
+  with cong :
+    ∀ (x₁: U.Particular), ∀ (x₂: U.Particular), ∀ (S₁: Set U), ∀ (S₂: Set U),
+      x₁ =₍U₎ x₂ → S₁ =ₛₑₜ S₂ → (S₁.pred x₁ ↔ S₂.pred x₂) := by forall_intro
+    variable(x₁: U.Particular)
+    -- ...full ND proof...
+    iterate h₁₂
 ```
 
-**For variants** (e.g. `not_mem`), import the base predicate's cong file and derive via simpler operations:
+The macro generates `mem_sym`, `mem_def`, `mem_cong` (public theorem), and the `mem` struct value. `mem.cong`, `mem.def`, `mem.pred` all work as expected, and `mem_cong` is accessible from other files (e.g., NonMembership reaches in via `import` to derive `not_mem_cong`).
+
+### Worked example: variant deriving from another file's cong
+
+`not_mem`'s cong is derived from `mem_cong` via the contrapositive. Even though the *derivation* uses an imported theorem (`mem_cong`), the `not_mem_cong` proof itself lives in the same file as `not_mem` — so it still uses Form 3:
 
 ```lean
 -- In NonMembership/Predicate.lean
 import Universals.Sets.Predicates.Binary.Membership.Predicate
 
-theorem not_mem_cong:
-    ∀ ..., (¬S₁.pred x₁ ↔ ¬S₂.pred x₂) := by ...   -- uses mem_cong + iff_contrapositiveness
-
-binary_predicate not_mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ ¬(S.pred x)) with not_mem_cong
+binary_predicate not_mem : (x : U.Particular, S : (𝐒𝐞𝐭 U).Particular ↦ ¬(S.pred x))
+  with cong :
+    ∀ (x₁: U.Particular), ∀ (x₂: U.Particular), ∀ (S₁: Set U), ∀ (S₂: Set U),
+      x₁ =₍U₎ x₂ → S₁ =ₛₑₜ S₂ → (¬S₁.pred x₁ ↔ ¬S₂.pred x₂) := by forall_intro
+    -- ...derives by applying `mem_cong` + `PC₀.iff_contrapositiveness`...
 ```
 
-One-way dependency: variant → base.
+One-way dependency: variant → base. The variant's proof imports and references the base's `<name>_cong` theorem; the macro still generates the variant's own public `not_mem_cong` from the inline block.
+
+### When you would use Form 2 (external)
+
+If `not_mem_cong` and (hypothetically) `not_subset_cong` both had identical proof bodies modulo renaming, you might extract a generic `negated_set_predicate_cong` lemma into a separate helper file and reference it from both predicate declarations via Form 2:
+
+```lean
+-- Helper file: GenericCongs.lean
+theorem negated_set_predicate_cong (P : ...) : ... := ...
+
+-- Predicate file:
+import GenericCongs
+
+binary_predicate not_mem : (...) with (negated_set_predicate_cong mem)
+```
+
+This is the kind of scenario Form 2 is reserved for.
 
 ## The auto-cong machinery (`without with`)
 
@@ -109,7 +166,7 @@ When `with` is omitted, the macro calls `(inferInstance : CongruentUnary _ _).co
 
 For body `fun S => S.pred x` (fix `x`, vary the Set), no auto-cong rule fires. The fact "S₁ =ₛₑₜ S₂ ⇒ ∀ x, S₁.pred x ↔ S₂.pred x" is `Sets.eq_def` — Sets-specific knowledge that the generic auto-cong machinery doesn't (and shouldn't) know. **We do not add Universal-specific facts as auto-cong instances** — user principle: "no machinery for specific universals."
 
-Every predicate body that varies-a-Set (`mem`, `not_mem`, `inclusion`, `is_singleton`, ...) needs explicit `with <name>_cong`, with the cong proven manually using `Sets.eq_def` + `S.cong`. Same applies to any other Universal whose equality requires unfolding to expose congruence in inner positions.
+Every predicate body that varies-a-Set (`mem`, `not_mem`, `inclusion`, `is_singleton`, ...) needs an explicit `with cong : ... := ...` clause (Form 3), with the cong proven manually using `Sets.eq_def` + `S.cong`. Same applies to any other Universal whose equality requires unfolding to expose congruence in inner positions.
 
 ## `UnaryPredicate` extends `CongruentUnaryPredicate` — the upcast
 
@@ -217,7 +274,7 @@ This introduces **no new opacity** — it's pure packaging. The opaque symbol is
 
 - **Don't introduce Universal-specific auto-cong instances.** Generic machinery only; Universal-specific facts (`Sets.eq_def`, `Dyads.eq_def`, etc.) are used in *manual* `<name>_cong` proofs, not registered as instances.
 
-- **Auto-cong on `=₍U₎` bodies is currently broken.** `equal_to`/`equal_from` instances were deleted in the Equals refactor. Bodies with `a =₍U₎ x` shape need explicit `with`.
+- **Universal-specific equality aliases must expand through `=₍U'₎`.** The `=₍U₎` notation expands to `@equals U a b` (with `equals : CongruentBinaryPredicate U U`), so equality bodies elaborate to the `equals.pred ...` form that the standard `fiber_*_binary_congruent_unary equals` instances match — auto-cong fires uniformly, no bridge instances needed. Universal-specific aliases (`=ₛₑₜ`, `=ₙₐₜ`, ...) only work if defined to expand via `=₍U'₎` (e.g., `notation A " =ₛₑₜ " B => A =₍SetsUniversal _₎ B`). If an alias expands directly to the underlying `eq` axiom, the universe is hidden from the unifier and auto-cong cannot match — `with cong : ... := ...` is required.
 
 - **`noncomputable` required**: the macro generates `noncomputable def <name>` because it depends on axioms. Consumers that build something on top of a named predicate (e.g. `SingletonSetUniversal := (𝐒𝐞𝐭 U) ↾ is_singleton`) must also be marked `noncomputable`.
 

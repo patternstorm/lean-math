@@ -5,3 +5,5 @@ import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.Exis
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.UniversalPreservesCongruence
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.ExistsUniquePreservesCongruence
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.PropositionalEquivalencePreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.IffPreservesCongruence
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Properties.ImplicationPreservesCongruence

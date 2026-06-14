@@ -29,28 +29,28 @@ noncomputable instance subsumptivity {U: Universal} (P: CongruentUnaryPredicate 
     have h₃: x =₍Uₚ₎ y → (subsume x =₍U₎ subsume y) := by
       assume(h₄: x =₍Uₚ₎ y)
       -- h₄ is definitionally x.val =₍U₎ y.val
-      -- e x =₍U₎ x.val ∧ x.val =₍U₎ y.val → e x =₍U₎ y.val
+      -- subsume x =₍U₎ x.val ∧ x.val =₍U₎ y.val → subsume x =₍U₎ y.val
       have h₅: subsume x =₍U₎ x.val ∧ x.val =₍U₎ y.val := by and_intro h₁, h₄
       have h₆: subsume x =₍U₎ x.val ∧ x.val =₍U₎ y.val → subsume x =₍U₎ y.val := by forall_elim U.eq.trans, subsume x, x.val, y.val
       have h₇: subsume x =₍U₎ y.val := by modus_ponens h₆, h₅
-      -- y.val =₍U₎ e y (sym of h₂)
+      -- y.val =₍U₎ subsume y (sym of h₂)
       have h₈: subsume y =₍U₎ y.val → y.val =₍U₎ subsume y := by forall_elim U.eq.sym, subsume y, y.val
       have h₉: y.val =₍U₎ subsume y := by modus_ponens h₈, h₂
-      -- e x =₍U₎ y.val ∧ y.val =₍U₎ e y → e x =₍U₎ e y
+      -- subsume x =₍U₎ y.val ∧ y.val =₍U₎ subsume y → subsume x =₍U₎ subsume y
       have h₁₀: subsume x =₍U₎ y.val ∧ y.val =₍U₎ subsume y := by and_intro h₇, h₉
       have h₁₁: subsume x =₍U₎ y.val ∧ y.val =₍U₎ subsume y → subsume x =₍U₎ subsume y := by forall_elim U.eq.trans, subsume x, y.val, subsume y
       have h₁₂: subsume x =₍U₎ subsume y := by modus_ponens h₁₁, h₁₀
       iterate h₁₂
     have h₁₃: (subsume x =₍U₎ subsume y) → x =₍Uₚ₎ y := by
       assume(h₁₄: subsume x =₍U₎ subsume y)
-      -- x.val =₍U₎ e x (sym of h₁)
+      -- x.val =₍U₎ subsume x (sym of h₁)
       have h₁₅: subsume x =₍U₎ x.val → x.val =₍U₎ subsume x := by forall_elim U.eq.sym, subsume x, x.val
       have h₁₆: x.val =₍U₎ subsume x := by modus_ponens h₁₅, h₁
-      -- x.val =₍U₎ e x ∧ e x =₍U₎ e y → x.val =₍U₎ e y
+      -- x.val =₍U₎ subsume x ∧ subsume x =₍U₎ subsume y → x.val =₍U₎ subsume y
       have h₁₇: x.val =₍U₎ subsume x ∧ subsume x =₍U₎ subsume y := by and_intro h₁₆, h₁₄
       have h₁₈: x.val =₍U₎ subsume x ∧ subsume x =₍U₎ subsume y → x.val =₍U₎ subsume y := by forall_elim U.eq.trans, x.val, subsume x, subsume y
       have h₁₉: x.val =₍U₎ subsume y := by modus_ponens h₁₈, h₁₇
-      -- x.val =₍U₎ e y ∧ e y =₍U₎ y.val → x.val =₍U₎ y.val
+      -- x.val =₍U₎ subsume y ∧ subsume y =₍U₎ y.val → x.val =₍U₎ y.val
       have h₂₀: x.val =₍U₎ subsume y ∧ subsume y =₍U₎ y.val := by and_intro h₁₉, h₂
       have h₂₁: x.val =₍U₎ subsume y ∧ subsume y =₍U₎ y.val → x.val =₍U₎ y.val := by forall_elim U.eq.trans, x.val, subsume y, y.val
       have h₂₂: x.val =₍U₎ y.val := by modus_ponens h₂₁, h₂₀

@@ -6,10 +6,10 @@ namespace PC₁
 
 structure CongruentUnaryPredicate (U: Universal): Type where
   pred: U.Particular → Prop
-  cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (pred x ↔ pred y)
+  cong: ∀ (x: U.Particular), ∀ (y: U.Particular), U.eq x y → (pred x ↔ pred y)
 
 class CongruentUnary (U: Universal) (P: U.Particular → Prop) where
-  cong: ∀ (x: U.Particular), ∀ (y: U.Particular), x =₍U₎ y → (P x ↔ P y)
+  cong: ∀ (x: U.Particular), ∀ (y: U.Particular), U.eq x y → (P x ↔ P y)
 
 -- Coercion: when Lean expects a CongruentUnaryPredicate U and finds a predicate P,
 -- it coerces automatically if CongruentUnary U P is synthesizable.

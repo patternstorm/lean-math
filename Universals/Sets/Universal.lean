@@ -176,7 +176,13 @@ notation "𝐒𝐞𝐭" => SetsUniversal
 abbrev Set U := (SetsUniversal U).Particular
 
 -- # =ₛₑₜ notation
-notation:50 A:51 " =ₛₑₜ " B:51 => eq A B
+-- Expands via the generic `=₍_₎` form (with the universe inferred) rather than
+-- the raw `eq` axiom directly. This is required for auto-cong on equality
+-- bodies: the `congruent_equal_to`/`congruent_equal_from` instances match the
+-- `=₍U₎` notation pattern, and an alias that expands to `eq A B` would hide the
+-- universe from the unifier. Definitionally `(A =₍SetsUniversal U₎ B) = eq A B`,
+-- so existing consumers are unaffected.
+notation:50 A:51 " =ₛₑₜ " B:51 => A =₍SetsUniversal _₎ B
 
 end Sets
 

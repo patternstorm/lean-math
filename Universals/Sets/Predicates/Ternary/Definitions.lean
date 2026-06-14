@@ -1,0 +1,1 @@
+import Universals.Sets.Predicates.Ternary.Definitions.UnionGraphPredicate

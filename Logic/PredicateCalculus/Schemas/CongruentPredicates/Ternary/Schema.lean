@@ -1,5 +1,6 @@
 import Logic.PredicateCalculus.Schemas.Universal.Schema
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Schema
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 import Logic.PredicateCalculus.Definitions.StatementTemplate.Definition
 import Logic.PropositionalCalculus
 
@@ -21,8 +22,7 @@ structure CongruentTernaryPredicate (U₁: Universal) (U₂: Universal) (U₃: U
   cong: ∀ (x₁: U₁.Particular), ∀ (x₂: U₁.Particular),
         ∀ (y₁: U₂.Particular), ∀ (y₂: U₂.Particular),
         ∀ (z₁: U₃.Particular), ∀ (z₂: U₃.Particular),
-        x₁ =₍U₁₎ x₂ → y₁ =₍U₂₎ y₂ → z₁ =₍U₃₎ z₂ →
-        (pred x₁ y₁ z₁ ↔ pred x₂ y₂ z₂)
+        x₁ =₍U₁₎ x₂ → y₁ =₍U₂₎ y₂ → z₁ =₍U₃₎ z₂ → (pred x₁ y₁ z₁ ↔ pred x₂ y₂ z₂)  -- TOO use and
 
 -- Typeclass form. Three independent per-argument cong fields, kept for the
 -- natural shape of structural auto-derivation via connectives.

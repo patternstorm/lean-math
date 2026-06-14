@@ -34,8 +34,7 @@ theorem fiber_first_preserves_congruence {U₁ U₂ U₃: Universal} (P: Congrue
 -- yields a `CongruentBinary` body in the remaining two arguments. Each cong
 -- direction (inner/outer) is derived from `P.cong` directly with refls on
 -- the unchanged arguments.
-instance fiber_first_congruent_binary {U₁ U₂ U₃: Universal}
-    (P: CongruentTernaryPredicate U₁ U₂ U₃) (x: U₁.Particular):
+instance fiber_first_congruent_binary {U₁ U₂ U₃: Universal} (P: CongruentTernaryPredicate U₁ U₂ U₃) (x: U₁.Particular):
     CongruentBinary U₂ U₃ (fun y z => P.pred x y z) where
   inner_cong: ∀ (y: U₂.Particular), ∀ (z₁: U₃.Particular), ∀ (z₂: U₃.Particular),
       z₁ =₍U₃₎ z₂ → (P.pred x y z₁ ↔ P.pred x y z₂) := by forall_intro
@@ -67,8 +66,8 @@ instance fiber_first_congruent_binary {U₁ U₂ U₃: Universal}
     have h₅: ∀ (z₁': U₃.Particular), ∀ (z₂': U₃.Particular), x =₍U₁₎ x → y₁ =₍U₂₎ y₂ → z₁' =₍U₃₎ z₂' → (P.pred x y₁ z₁' ↔ P.pred x y₂ z₂') := by forall_elim h₄, y₂
     have h₆: ∀ (z₂': U₃.Particular), x =₍U₁₎ x → y₁ =₍U₂₎ y₂ → z =₍U₃₎ z₂' → (P.pred x y₁ z ↔ P.pred x y₂ z₂') := by forall_elim h₅, z
     have h₇: x =₍U₁₎ x → y₁ =₍U₂₎ y₂ → z =₍U₃₎ z → (P.pred x y₁ z ↔ P.pred x y₂ z) := by forall_elim h₆, z
-    have h₈: x =₍U₁₎ x := U₁.eq.refl x
-    have h₉: z =₍U₃₎ z := U₃.eq.refl z
+    have h₈: x =₍U₁₎ x := U₁.eq.refl x -- TODO use forall elim
+    have h₉: z =₍U₃₎ z := U₃.eq.refl z -- TODO use forall elim
     have h₁₀: y₁ =₍U₂₎ y₂ → z =₍U₃₎ z → (P.pred x y₁ z ↔ P.pred x y₂ z) := by modus_ponens h₇, h₈
     have h₁₁: z =₍U₃₎ z → (P.pred x y₁ z ↔ P.pred x y₂ z) := by modus_ponens h₁₀, h₁
     have h₁₂: P.pred x y₁ z ↔ P.pred x y₂ z := by modus_ponens h₁₁, h₉

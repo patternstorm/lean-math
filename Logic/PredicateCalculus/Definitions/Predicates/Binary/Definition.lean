@@ -1,6 +1,7 @@
 import Logic.PredicateCalculus.Schemas.Predicates.Binary
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.PropositionalEquivalencePreservesBinaryCongruence
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Properties.BinaryCongruenceFromCongruentFibers
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Binary.Instances.Equals
 import Logic.PredicateCalculus.Definitions.StatementTemplate.Definition
 
 namespace Logic
@@ -44,12 +45,39 @@ the same notation used elsewhere in the project. The macro extracts the
 binder types as the two domains and the body as the defining condition.
 -/
 
--- With explicit cong proof
+-- The `with` clause has two variants:
+--   `with <ident>`  — external: refers to a previously declared cong theorem
+--   `with cong : <type> := <proof>` — inline: declares the cong theorem here
+-- The optional `: <type> := <proof>` suffix discriminates inline from external.
 syntax (name := binaryPredicateCmd)
-  "binary_predicate " ident " : " "(" stmtBinder ", " stmtBinder " ↦ " term ")" (" with " term)? : command
+  "binary_predicate " ident " : " "(" stmtBinder ", " stmtBinder " ↦ " term ")"
+  (" with " ident (" : " term " := " term)?)? : command
 
+-- Inline form (with-clause carries explicit type + proof). Auto-generates a
+-- public top-level theorem `<name>_cong` from the inline block.
 macro_rules
-  | `(binary_predicate $name:ident : ($b₁:stmtBinder, $b₂:stmtBinder ↦ $body:term) with $cong:term) => do
+  | `(binary_predicate $name:ident : ($b₁:stmtBinder, $b₂:stmtBinder ↦ $body:term) with $_marker:ident : $cong_type:term := $cong_proof:term) => do
+    let nameStr := name.getId.toString
+    let symIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_sym"))
+    let defIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_def"))
+    let congIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_cong"))
+    match b₁, b₂ with
+    | `(stmtBinder| $x:ident : $t₁:term), `(stmtBinder| $y:ident : $t₂:term) =>
+      `(
+        theorem $congIdent : $cong_type := $cong_proof
+        axiom $symIdent : $t₁ → $t₂ → Prop
+        axiom $defIdent : ∀ ($x : $t₁) ($y : $t₂), $symIdent $x $y ↔ $body
+        noncomputable def $name : BinaryPredicate _ _ (fun $x : $t₁ => fun $y : $t₂ => $body) := {
+          pred  := $symIdent
+          «def» := $defIdent
+          cong  := propositional_equivalence_preserves_binary_congruence $symIdent (fun $x : $t₁ => fun $y : $t₂ => $body) $defIdent $congIdent
+        }
+      )
+    | _, _ => Lean.Macro.throwError "expected named binders (x : T₁, y : T₂ ↦ body) in binary_predicate (inline cong form)"
+
+-- External form (with-clause references a previously declared theorem)
+macro_rules
+  | `(binary_predicate $name:ident : ($b₁:stmtBinder, $b₂:stmtBinder ↦ $body:term) with $cong:ident) => do
     let nameStr := name.getId.toString
     let symIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_sym"))
     let defIdent := Lean.mkIdent (Lean.Name.mkSimple (nameStr ++ "_def"))
