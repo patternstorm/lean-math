@@ -37,7 +37,7 @@ open Logic.PC₁
 -- derived from `powerset.def` in `Properties/PowersetMembership.lean`.
 
 unary_operation powerset : (𝐒𝐞𝐭 U) ⟴ (𝐒𝐞𝐭 (𝐒𝐞𝐭 U)) from powerset_graph
-prefix:max "𝒫" => powerset
+prefix:max "𝒫" => powerset.op
 
 
 end Sets

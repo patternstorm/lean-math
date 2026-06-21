@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Schemas.RefinedUniversal.Properties.Subsumptivity
+import Logic.PredicateCalculus.Schemas.RefinedUniversal.Properties.ParticularSatisfiesRefinement

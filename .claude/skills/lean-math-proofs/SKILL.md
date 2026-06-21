@@ -231,27 +231,38 @@ have h₁: ∀ S₂: Set U, A =ₛₑₜ S₂ ↔ ∀ (x: U.Particular), A.pred 
 have h₂: A =ₛₑₜ B ↔ ∀ (x: U.Particular), A.pred x ↔ B.pred x := by forall_elim h₁, B
 ```
 
-### ExistsUnique Pack/Unpack Pattern
+### Working with `∃!₍U₎`
 
-When proving congruence for predicates involving `∃!₍U₎`, you must explicitly convert between `ExistsUnique` and its existential form via `exists_unique_def`:
+`ExistsUnique` is an axiom — Lean cannot unfold it definitionally. Pick the right helper for the shape your proof needs.
+
+**Extract a witness** — the most common case, when you have `∃!₍U₎ x, P x` and just need `∃ x, P x` (uniqueness discarded):
 
 ```lean
--- 1. Instantiate the axiom schema for the current Universal
-have h₃: ∀ (P: U.Particular → Prop), ExistsUnique U P ↔ (∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x)) := by forall_elim exists_unique_def, U
-
--- 2. Unpack for specific predicates
-have h₄: ExistsUnique U (x: U.Particular ↦ x ∈ₛₑₜ A) ↔ (∃ (x: U.Particular), x ∈ₛₑₜ A ∧ (∀ (y: U.Particular), y ∈ₛₑₜ A → y =₍U₎ x)) := by forall_elim h₃, (x: U.Particular ↦ x ∈ₛₑₜ A)
-
--- 3. Convert: pred A (= ExistsUnique) → existential form
-have h₈₂: ∃ ... := PC₀.deductive_eq_l2r h₄ h₈₁
-
--- 4. Work with the existential (exists_elim, and_elim, etc.)
-
--- 5. Repack: existential form → pred B (= ExistsUnique)
-have h₈₁₁: pred B := PC₀.deductive_eq_r2l h₅ h₈₁₀
+have h₂: ∃ (x: U.Particular), P x := unique_existence_implies_existence h₁
 ```
 
-This pattern is necessary because `ExistsUnique` is an axiom — Lean cannot unfold it definitionally. See `Universals/Sets/Predicates/Unary/Singleton/Predicate.lean` for a complete example.
+Defined at `Logic/PredicateCalculus/Definitions/ExistsUnique/Properties/UniqueExistenceImpliesExistence.lean`.
+
+**Collapse two witnesses to the same value** — when you have `∃!₍U₎ x, P x` and need to show any two particulars satisfying `P` are equal (typical of right-determinacy proofs):
+
+```lean
+have h₂: ∀ (y₁: U.Particular), ∀ (y₂: U.Particular), P y₁ ∧ P y₂ → y₁ =₍U₎ y₂ := unique_existence_implies_uniqueness h₁
+```
+
+Defined at `Logic/PredicateCalculus/Definitions/ExistsUnique/Properties/UniqueExistenceImpliesUniqueness.lean`.
+
+**Pack/unpack via `exists_unique_def`** — when you need the full `∃ x, P x ∧ uniqueness` shape (cong proofs that transport `∃!` across an iff, or any work where the uniqueness clause matters). Instantiate at both `U` and the predicate in one `forall_elim` call:
+
+```lean
+-- 1. Convert ∃! ↔ ∃ ∧ uniqueness (peels both ∀s in one call)
+have h₁: (∃!₍U₎ (x: U.Particular), Q x) ↔ (∃ (x: U.Particular), Q x ∧ (∀ (y: U.Particular), Q y → y =₍U₎ x))
+    := by forall_elim exists_unique_def, U, (x: U.Particular ↦ Q x)
+-- 2. Convert ∃! → existential via deductive_eq_l2r
+-- 3. Work with the existential (exists_elim, and_elim, etc.)
+-- 4. Repack via deductive_eq_r2l if needed
+```
+
+See `Universals/Sets/Predicates/Unary/Singleton/Predicate.lean` for a complete pack/unpack example (cong proof). For the simpler shortcuts, the canonical examples are `Universals/Sets/Predicates/Binary/SingletonElemGraph/Properties/LeftTotality.lean` (extract witness) and `RightDeterminacy.lean` in the same directory (collapse two witnesses).
 
 ### Using Existing Congruence Proofs
 
@@ -272,6 +283,29 @@ have h₅: A₁ ⊆ₛₑₜ A ↔ A₂ ⊆ₛₑₜ A := by modus_ponens h₄, 
 - **Never use letters, primes, descriptive suffixes**: `hx`, `hy`, `hxx`, `hX`, `h_forward`, `h_P`, `h_step1` are all forbidden. If a hypothesis records "x =₍U₎ x" (refl), it still gets the next sequential `h_n` name like any other.
 
 Reason: the natural-deduction style depends on a rigid mechanical naming so the reader can scan the proof linearly without parsing semantic suffixes. Combined with the explicit-type rule below, this makes each line a self-contained assertion.
+
+## Variable Naming Convention
+
+Distinguish **quantified variables** (bound names in propositions) from **fresh constants** introduced by ∀-introduction:
+
+- **Quantified variables** in `∀ (x: T), …` and `∃ (x: T), …` — use `x`, `y`, `z`, with subscripts when more than three appear (`x₁`, `x₂`, `y₁`, `y₂`, …). These are bound names belonging to the proposition.
+- **Fresh constants** introduced by the `variable(c: T)` tactic — use names typically reserved for constants (`a`, `b`, `c`, `d`, …). These name specific witnesses standing in for arbitrary values in the proof body.
+
+```lean
+-- ✓ Right
+theorem foo: ∀ (x: U.Particular), ∀ (y: U.Particular), P x y := by forall_intro
+  variable(a: U.Particular)
+  variable(b: U.Particular)
+  have h₁: P a b := ...
+  iterate h₁
+
+-- ✗ Wrong — quantified names reused as constants
+theorem foo: ∀ (x: U.Particular), ∀ (y: U.Particular), P x y := by forall_intro
+  variable(x: U.Particular)
+  variable(y: U.Particular)
+```
+
+Reason: the role of every identifier should be clear at a glance. `x`/`y`/`z` always mean "bound by a quantifier in the proposition," and `a`/`b`/`c` always mean "fresh constant standing in for an arbitrary value." A reader doesn't have to look up whether a name is bound or introduced.
 
 ## Every `have` Clause Must Declare Its Type
 

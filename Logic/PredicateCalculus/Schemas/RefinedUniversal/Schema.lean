@@ -68,12 +68,9 @@ Given `RU := U ↾ P` and `x : RU.Particular`:
 -- natural deduction rules apply.
 def refined_universal (U : Universal) (P : CongruentUnaryPredicate U) : Universal :=
   let T := { x : U.Particular // P.pred x }
-  let pred: T → T → Prop :=
-    fun (a: T) (b: T) => a.val =₍U₎ b.val
-  let refl: ∀ (a: T), pred a a :=
-    fun (a: T) => U.eq.refl a.val
-  let sym: ∀ (a: T), ∀ (b: T), pred a b → pred b a :=
-    fun (a: T) (b: T) (h: a.val =₍U₎ b.val) => U.eq.sym a.val b.val h
+  let pred: T → T → Prop := fun (a: T) (b: T) => a.val =₍U₎ b.val
+  let refl: ∀ (a: T), pred a a := fun (a: T) => U.eq.refl a.val
+  let sym: ∀ (a: T), ∀ (b: T), pred a b → pred b a := fun (a: T) (b: T) (h: a.val =₍U₎ b.val) => U.eq.sym a.val b.val h
   let trans: ∀ (a: T), ∀ (b: T), ∀ (c: T), pred a b ∧ pred b c → pred a c :=
     fun (a: T) (b: T) (c: T) (h: a.val =₍U₎ b.val ∧ b.val =₍U₎ c.val) =>
       U.eq.trans a.val b.val c.val h

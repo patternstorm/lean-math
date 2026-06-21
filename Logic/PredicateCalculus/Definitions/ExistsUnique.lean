@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Definitions.ExistsUnique.Definition
+import Logic.PredicateCalculus.Definitions.ExistsUnique.Properties

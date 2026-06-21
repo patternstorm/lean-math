@@ -1,1 +1,2 @@
 import Logic.PredicateCalculus.Schemas.SubUniversal.Properties.Reflexivity
+import Logic.PredicateCalculus.Schemas.SubUniversal.Properties.EmbeddingPreservesCongruence

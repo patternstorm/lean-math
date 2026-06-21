@@ -1,7 +1,7 @@
 import Logic
 import Universe
 import Universals.Sets.Universal
-import Universals.Sets.Predicates.Binary.Membership.Predicate
+import Universals.Sets.Predicates.Unary.UniversalSetGraph
 import Universals.Sets.Operations.Constants.UniversalSet.Constant
 
 namespace Universe
@@ -11,13 +11,14 @@ namespace Sets
 open Logic
 open Logic.PC₁
 
--- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-05-31
-theorem universal_set_contains_all_elements {U: Universal}: ∀ (x: U.Particular), x ∈ₛₑₜ Uₛₑₜ := by forall_intro
-    variable (u: U.Particular)
-    have h₁: (Uₛₑₜ).pred u := by true_intro
-    have h₂: u ∈ₛₑₜ Uₛₑₜ ↔ (Uₛₑₜ).pred u := by forall_elim mem.def, u, Uₛₑₜ
-    have h₃: u ∈ₛₑₜ Uₛₑₜ := PC₀.deductive_eq_r2l h₂ h₁
-    iterate h₃
+
+-- The `Universal Set` contains all `Particulars`.
+-- Derived directly from the satisfies axiom `universal_set.satisfies`, which
+-- unfolds (via the `@[reducible]` `universal_set_graph_pred`) to `∀ x, x ∈ₛₑₜ Uₛₑₜ`.
+-- Proof by Kimi K2.7, 2026-06-21
+theorem universal_set_contains_all_elements {U: Universal}: ∀ (x: U.Particular), x ∈ₛₑₜ Uₛₑₜ := universal_set.satisfies
+
+
 end Sets
 
 end Universe

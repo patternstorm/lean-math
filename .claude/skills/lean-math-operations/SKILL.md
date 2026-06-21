@@ -1,6 +1,6 @@
 ---
 name: lean-math-operations
-description: This skill should be used when defining new operations in the framework's graph-based pattern. It covers the two-layer architecture (`<Arity>OperationGraph` refining `Congruent<Arity+1>Predicate` with totality/functionality obligations, then `<Arity>Operation` introduced axiomatically by the `unary_operation`/`binary_operation` macros on top), the `fromCongPred` smart constructor that builds the graph value without a hand-written cong proof (operation graph predicates sit in tier 3 of the three-tier congruence architecture — see `lean-math-predicates` for tiers 1 and 2), the role of the graph predicate as a `@[reducible]` def so typeclass synthesis can see through it, file organization for graph + properties + operation + derived theorems, and the curried-form rationale for binary operations (so partial application yields a framework `UnaryOperation`, not a raw Lean function). Currently scoped to unary and binary operations; constants will be added once that framework layer is built.
+description: This skill should be used when defining new operations in the framework's graph-based pattern. It covers the two-layer architecture (`<Arity>OperationGraph` refining `Congruent<Arity+1>Predicate` with totality/functionality obligations, then `<Arity>Operation` introduced axiomatically by the `constant`/`unary_operation`/`binary_operation` macros on top), the `fromCongPred` smart constructor that builds the graph value without a hand-written cong proof (operation graph predicates sit in tier 3 of the three-tier congruence architecture — see `lean-math-predicates` for tiers 1 and 2), the role of the graph predicate as a `@[reducible]` def so typeclass synthesis can see through it, file organization for graph + properties + operation + derived theorems, and the curried-form rationale for binary operations (so partial application yields a framework `UnaryOperation`, not a raw Lean function).
 ---
 
 # Lean-Math Operations
@@ -19,10 +19,10 @@ The graph's `pred` and `cong` come from the parent congruent predicate; ltot and
 **Layer 2 — the operation.** `UnaryOperation U₁ U₂` (notation `U₁ ⟴ U₂`) and `BinaryOperation U₁ U₂ U₃` (notation `U₁ ⟴ U₂ ⟴ U₃`) are introduced **axiomatically** by the `unary_operation` / `binary_operation` macros on top of a graph. The macros generate:
 
 - An opaque function symbol (axiom).
-- A defining axiom `op x =₍U₂₎ y ↔ graph.pred x y`.
-- A bundled value carrying the graph, the symbol, the def, and a **derived** `cong` theorem.
+- A satisfies axiom `∀ x, graph.pred x (op x)` (arity-shaped: bare `graph.pred sym` for constants, `∀ x y, graph.pred x y (op x y)` for binary).
+- A bundled value carrying the graph, the symbol, and satisfies, with `.def` (bidirectional iff `op x =₍U_target₎ y ↔ graph.pred x y`) and `.cong` as **derived** theorems in the schema namespace.
 
-**Why this layering matters.** The defining axiom is consistent **only** when the graph is total and functional. By requiring an `<Arity>OperationGraph` (not a plain congruent predicate) at the macro's input, the framework forces totality and functionality to be discharged BEFORE the axiomatic symbol is introduced — no silently inconsistent operation can be declared. And by deriving `.cong` as a theorem (not assuming it as a field), every operation's congruence is sound by construction; a field could be supplied with the wrong proof, a derived theorem cannot.
+**Why this layering matters.** The satisfies axiom is consistent **only** when the graph is total and functional. By requiring an `<Arity>OperationGraph` (not a plain congruent predicate) at the macro's input, the framework forces totality and functionality to be discharged BEFORE the axiomatic symbol is introduced — no silently inconsistent operation can be declared. And by deriving `.cong` and `.def` as theorems (not assuming them as fields), both are sound by construction; a field could be supplied with the wrong proof, a derived theorem cannot.
 
 ## Auto-cong: graph predicates are auto-congruent
 
@@ -154,14 +154,15 @@ The macro's source/target universes use `term:max` precedence, so **compound uni
 After declaration the macro provides:
 - `<name> x` (or `<name> x y` for binary, via chained `CoeFun`) — apply.
 - `<name>.graph` — the underlying graph (`.pred`, `.cong`, `.ltot`, `.rdet`).
-- `<name>.«def»` (or the raw axiom `<name>_def`) — the defining equation `op ... =₍U_target₎ z ↔ graph.pred ... z`. **French quotes are required because `def` is a Lean reserved word.**
+- `<name>.satisfies` (or the raw axiom `<name>_satisfies`) — `∀ inputs, graph.pred inputs (<name> inputs)`. The most direct way to extract the characterization at the operation's output.
+- `<name>.«def»` — derived defining iff `∀ inputs y, (<name> inputs =₍U_target₎ y) ↔ graph.pred inputs y`. **French quotes are required because `def` is a Lean reserved word.**
 - `<name>.cong` — the derived congruence theorem.
 
 For binary, also: `<name> x` is a real `UnaryOperation U₂ U₃` (partial application is first-class — see the curried-form rationale below).
 
 ### Step 6 — derive characterization theorems
 
-The old-style `_def` axioms become derived theorems in `Operations/<m>/<Name>/Properties/`. The standard proof shape: instantiate `<name>.«def»` at `(input, <name> input)`, use `=₍U_target₎`-reflexivity on `<name> input` to extract `<name>_graph.pred input (<name> input)`, which unfolds (via the `@[reducible]` graph_pred) to the original characterization.
+The old-style `_def` axioms become derived theorems in `Operations/<m>/<Name>/Properties/`. The standard proof shape: apply `<name>.satisfies` (with `forall_elim` at the inputs) to extract `<name>_graph.pred inputs (<name> inputs)` directly, which unfolds (via the `@[reducible]` graph_pred) to the original characterization. Use `<name>.«def»` instead when the bidirectional iff form is what the proof needs (e.g., transferring an equality to a characterization or vice versa).
 
 ```lean
 theorem powerset_membership {U: Universal}:
@@ -176,6 +177,24 @@ Binary operations follow the same pattern with one critical design choice: **the
 
 **Cong hypothesis is conjunctive** (not curried): `BinaryOperation.cong` has antecedent `x₁ =₍U₁₎ x₂ ∧ y₁ =₍U₂₎ y₂ → ...`. Consumers `and_intro` the two equalities before invoking.
 
+## Constants: the 0-arity case
+
+A constant `c : U` is the k=0 specialisation of the same pattern. The graph is a **unary** predicate `<name>_graph_pred : U.Particular → Prop` characterising the constant (e.g., "this set has no members"). `ConstantOperationGraph U` extends `CongruentUnaryPredicate U` with `ltot` (∃ c, pred c — left-totality collapses to bare existence at 0-arity) and `rdet` (∀ c₁ c₂, pred c₁ ∧ pred c₂ → c₁ =₍U₎ c₂ — right-determinacy collapses to uniqueness). Names match unary/binary for architectural symmetry.
+
+The `constant` macro:
+
+```lean
+constant empty_set : 𝐒𝐞𝐭 U from empty_set_graph
+```
+
+generates `empty_set_sym : (𝐒𝐞𝐭 U).Particular` (a value, not a function), `empty_set_satisfies : empty_set_graph.pred empty_set_sym`, and `noncomputable def empty_set : ConstantOperation (𝐒𝐞𝐭 U)`.
+
+**Use via `Coe`, not `CoeFun`.** The structure carries a `Coe (ConstantOperation U) U.Particular` instance, so `empty_set` itself behaves as the underlying particular at use sites (`x ∈ₛₑₜ empty_set` works directly). There's no `empty_set arg` form — a constant takes no arguments.
+
+**`.cong` is derived trivially** as `op =₍U₎ op` (reflexivity) — the 0-input collapse of the cong shape used at higher arities. Kept for architectural symmetry; use sites write `empty_set.cong` instead of fishing for reflexivity. Available accessors: `empty_set.graph`, `empty_set.op`, `empty_set.satisfies`, `empty_set.«def»` (derived), `empty_set.cong` (derived).
+
+**When to use.** Constants whose existence can be **characterized** by a predicate over already-built structure — `empty_set` and `universal_set` (via set comprehension) are the canonical fits. The framework is **not** suited to bare ADT primitives like `zero : ℕ`, which have no characterization in terms of pre-existing structure; those stay as primitive axioms in the Particular file.
+
 ## Naming conventions
 
 | Artifact | Naming |
@@ -186,7 +205,8 @@ Binary operations follow the same pattern with one critical design choice: **the
 | Right-determinacy theorem | `<name>_graph_right_determinacy` |
 | Operation (macro-generated) | `<name>` (NOT `<name>_operation`) |
 | Macro-generated symbol | `<name>_sym` |
-| Macro-generated defining axiom | `<name>_def` (or `<name>.«def»` through the struct) |
+| Macro-generated satisfies axiom | `<name>_satisfies` (or `<name>.satisfies` through the struct) |
+| Derived defining iff | `<name>.«def»` (theorem in the schema namespace; no `<name>_def` top-level axiom) |
 | Derived congruence | `<name>.cong` |
 | Old characterization (now derived) | name describing the assertion, e.g., `<name>_membership` |
 | Fiber of a binary graph | `<name>_graph.fiber x` (no `_at_first` suffix — we only ever fiber the first arg under the current curried design) |
@@ -203,11 +223,11 @@ Binary operations follow the same pattern with one critical design choice: **the
 
 - **Compound universes in the macro need parentheses** — `term:max` precedence: `(𝐒𝐞𝐭 U) ⟴ (𝐒𝐞𝐭 (𝐒𝐞𝐭 U))`.
 
-- **`<name>.«def»` needs French quotes** (Lean reserved word). The raw axiom `<name>_def` (no dot) also works.
+- **`<name>.«def»` needs French quotes** (Lean reserved word). It's now a derived theorem in the schema namespace, not a top-level axiom — there is no `<name>_def`. Use `<name>.satisfies` when you just need `graph.pred inputs (<name> inputs)` directly; reach for `<name>.«def»` only when the bidirectional iff is what the proof needs.
 
 - **`noncomputable`** is required on `<name>_graph` (depends on noncomputable proofs) and on the operation (axioms).
 
-- **Use `forall_elim` for the defining axiom and graph's cong** — same ND discipline as elsewhere; never term-mode application.
+- **Use `forall_elim` for `<name>.satisfies`, `<name>.«def»`, and graph's cong** — same ND discipline as elsewhere; never term-mode application.
 
 - **Don't hand-write the graph's cong proof**, even if it looks short. If `fromCongPred` can't synthesize, the body is using a connective without a `congruent_*` instance — fix the framework, not the operation. (Hand-writing also defeats the consistency guarantee: an inline cong proof can drift from what the body actually says.)
 
@@ -224,10 +244,10 @@ Binary operations follow the same pattern with one critical design choice: **the
 
 | Component | Status |
 |-----------|--------|
-| Unary (`UnaryOperationGraph`, `UnaryOperation`, `unary_operation` macro, `UnaryOperationGraph.fromCongPred`) | ✓ Complete |
-| Binary (`BinaryOperationGraph` with `.fiber`, curried `BinaryOperation`, `binary_operation` macro, `BinaryOperationGraph.fromCongPred`) | ✓ Complete |
+| Unary (`UnaryOperationGraph`, `UnaryOperation` with `satisfies` + derived `.def`/`.cong`, `unary_operation` macro, `UnaryOperationGraph.fromCongPred`) | ✓ Complete |
+| Binary (`BinaryOperationGraph` with `.fiber`, curried `BinaryOperation` with `satisfies` + derived `.def`/`.cong`, `binary_operation` macro, `BinaryOperationGraph.fromCongPred`) | ✓ Complete |
 | Auto-cong machinery | ✓ End-to-end for `¬`, `∧`, `∨`, `↔`, `∀`, `∃`, `∃!`, constants, and binary fibers. New connectives = add a file in `Schemas/CongruentPredicates/Unary/Properties/`. |
-| Constant (0-ary) | ✗ Pending — no `ConstantOperationGraph` / macro yet |
+| Constant (0-ary: `ConstantOperationGraph` with `.ltot`/`.rdet`, `ConstantOperation` with `Coe` + `satisfies` + derived `.def`/`.cong`, `constant` macro, `ConstantOperationGraph.fromCongPred`) | ✓ Complete |
 
 ## Related skills
 

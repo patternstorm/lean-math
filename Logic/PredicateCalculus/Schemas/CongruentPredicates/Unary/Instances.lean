@@ -1,3 +1,4 @@
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.True
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.False
 import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.Constant
+import Logic.PredicateCalculus.Schemas.CongruentPredicates.Unary.Instances.ConstantOperationGraph
