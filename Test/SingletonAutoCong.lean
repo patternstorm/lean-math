@@ -1,6 +1,6 @@
 import Universals.Sets
 import Universals.Sets.Predicates.Binary.Membership.Predicate
-import Universals.Sets.Predicates.Binary.Definitions.SingletonElemGraphPredicate
+import Universals.Sets.Universals.Singleton.Predicates.Binary.Definitions.SingletonElemGraphPredicate
 import Universals.Sets.Universals.Singleton.Universal
 
 namespace Test

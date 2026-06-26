@@ -7,7 +7,59 @@ description: This skill should be used when writing proofs in the lean-math proj
 
 ## Fundamental Rule
 
-**Never use Lean's built-in automation tactics.** This project uses explicit first-order logic proofs via custom natural deduction tactics. All Lean built-in tactics are forbidden. You can only use the custom natural deduction tactics defined in `Logic/NaturalDeduction/`.
+**Every deduction step in a proof must invoke a natural deduction rule.**
+
+This project uses explicit first-order logic proofs via custom natural deduction tactics defined in `Logic/NaturalDeduction/`. Two prohibitions follow:
+
+1. **No Lean built-in automation tactics.** `simp`, `omega`, `decide`, `rfl`, `exact`, `apply`, and every other built-in Lean tactic are forbidden.
+2. **No term-mode application that eliminates a `∀` or discharges an anonymous implication antecedent.** Each `∀`-elimination requires an explicit `forall_elim`; each implication discharge requires an explicit `modus_ponens`. Term-application that does either is forbidden, even though Lean would accept it. This applies uniformly to schema fields (`U.eq.sym a b h`), axioms, and theorems whose return type contains an anonymous `A → B`.
+
+Term application that does *neither* is fine:
+- Naming a theorem or axiom — identifier reference, no deduction.
+- Letting Lean elaborate an implicit argument like `{U: Universal}` — not a step the proof author writes.
+- **Passing a value to a named parameter `(h: A) : B`** — parameter-passing, declaratively distinct from discharging an antecedent. The hypothesis is an input to the theorem, not part of its return-type proposition.
+
+## Authoring Theorems: Prefer Named Parameters
+
+When declaring a theorem with hypotheses, prefer **named parameters** over folding hypotheses into the return type as anonymous antecedents:
+
+```lean
+-- ✗ Avoid — anonymous antecedent in return type
+theorem foo: A → B := by
+  assume(h₁: A)
+  ...
+
+-- ✓ Prefer — named parameter
+theorem foo (h: A) : B := by
+  ...
+```
+
+For *multiple* hypotheses, use **multiple named parameters**, not a single conjunction parameter or a chained implication:
+
+```lean
+-- ✓ Prefer — one named parameter per hypothesis
+theorem foo (h₁: A) (h₂: B) : C := by
+  ...
+
+-- ✗ Less preferred — single conjunction parameter (forces and_intro / and_elim at call sites)
+theorem foo (h: A ∧ B) : C := ...
+
+-- ✗ Forbidden — chained anonymous antecedents (consumer needs two modus_ponens)
+theorem foo: A → B → C := ...
+```
+
+Two reasons for the named-parameter style:
+
+1. **Cleaner proof body.** Each hypothesis arrives in the proof context pre-named. No `assume` step is needed to peel it off.
+2. **Cleaner consumer call sites.** Calling `foo h_a h_b` is parameter-passing (allowed). The alternative — wrapping every call in `by modus_ponens`, possibly multiple times — is verbose and obscures intent.
+
+**When the return type genuinely is an implication**, e.g., a schema axiom expressing `∀ x y, P x y → Q x y`, or a `forall_elim` result that the consumer is meant to `modus_ponens` later, that's a *result*, not an input — keep it in the return type. Multi-premise antecedents in this case use `∧`, not chained `→`:
+
+```lean
+-- Schema axiom: trans's antecedent is a result, packaged with ∧
+∀ (a: U.Particular), ∀ (b: U.Particular), ∀ (c: U.Particular),
+  (a =₍U₎ b ∧ b =₍U₎ c) → a =₍U₎ c
+```
 
 ## Custom Natural Deduction Tactics
 
@@ -73,13 +125,14 @@ have h₂: P → Q := by iff_elim_l2r h₁
 have h₃: Q → P := by iff_elim_r2l h₁
 ```
 
-**Elimination** — via `PC₀` helpers (term-mode, not tactics):
+**Elimination** — via `PC₀` named-parameter helpers:
 ```lean
 -- From h₁ : P ↔ Q and h₂ : P, derive Q
 have h₃: Q := PC₀.deductive_eq_l2r h₁ h₂
 -- From h₁ : P ↔ Q and h₂ : Q, derive P
 have h₃: P := PC₀.deductive_eq_r2l h₁ h₂
 ```
+These are term-mode calls, allowed because the helpers' signatures take `h₁` and `h₂` as **named parameters** (`deductive_eq_l2r {P Q: Prop} (h₁: P ↔ Q) (h₂: P) : Q`) — so this is parameter-passing, not implication discharge. See the *Fundamental Rule* on when term-mode application is and isn't allowed.
 
 ### Conjunction
 
@@ -355,7 +408,7 @@ have h₅: y =₍U₎ b := by modus_ponens h₄, h₃
 
 **Why this matters**: the framework's discipline is that every first-order reasoning step is visible. Term-mode application of a quantified schema field silently composes multiple `forall_elim`s with a `modus_ponens` into one term, hiding the structure of the proof. The longer form is the right form — every step has a name and a stated type, every elimination is a separate line.
 
-**Boundary**: this rule targets *schema fields with `∀`-quantifiers*. Term-mode application of propositional helpers like `PC₀.deductive_eq_l2r h₁ h₂` is fine — those are closed propositional theorems, not ND eliminations, so they don't hide any first-order steps.
+**Boundary**: this rule targets term-mode application that *eliminates a `∀`* or *discharges an anonymous implication antecedent* (per the *Fundamental Rule*). Term-mode application that **passes a value to a named parameter** is allowed — that is parameter-passing, declaratively distinct from elimination. Concretely, `PC₀.deductive_eq_l2r h₁ h₂` is fine because the helper is declared `(h₁: P ↔ Q) (h₂: P) : Q` — both hypotheses are named parameters, not anonymous antecedents. By contrast, `U.eq.sym a b h₅` is forbidden because `U.eq.sym`'s signature `∀ a, ∀ b, a =₍U₎ b → b =₍U₎ a` has no named parameters — every argument is either a `∀`-bound variable or an implication antecedent in the return type.
 
 ## Key Propositional Logic Helpers (`PC₀`)
 

@@ -1,0 +1,2 @@
+import Universals.Sets.Universals.Singleton.Predicates.Binary.SingletonOfGraph.Predicate
+import Universals.Sets.Universals.Singleton.Predicates.Binary.SingletonOfGraph.Properties

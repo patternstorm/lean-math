@@ -1,2 +1,1 @@
 import Universals.Sets.Predicates.Binary.Definitions.PowersetGraphPredicate
-import Universals.Sets.Predicates.Binary.Definitions.SingletonElemGraphPredicate

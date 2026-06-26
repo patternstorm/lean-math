@@ -19,14 +19,14 @@ open ND
 -- of a singleton set without separately tracking that it's the unique one).
 --
 -- Proof by Claude Opus 4.7 (claude-opus-4-7), 2026-06-21
-theorem unique_existence_implies_existence {U: Universal} {P: U.Particular → Prop}: (∃!₍U₎ (x: U.Particular), P x) → ∃ (x: U.Particular), P x := by
-  assume(h₀: ∃!₍U₎ (x: U.Particular), P x)
-  have h₁: (∃!₍U₎ (x: U.Particular), P x) ↔ (∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x)) := by forall_elim exists_unique_def, U, (x: U.Particular ↦ P x)
-  have h₂: ∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x) := PC₀.deductive_eq_l2r h₁ h₀
-  have ⟨(a: U.Particular), (h₃: P a ∧ (∀ (y: U.Particular), P y → y =₍U₎ a))⟩ := exists_elim h₂
-  have h₄: P a := by and_elim h₃
-  have h₅: ∃ (x: U.Particular), P x := by exists_intro h₄, a
-  iterate h₅
+theorem unique_existence_implies_existence {U: Universal} {P: U.Particular → Prop} (h₀: ∃!₍U₎ (x: U.Particular), P x):
+  ∃ (x: U.Particular), P x := by
+    have h₁: (∃!₍U₎ (x: U.Particular), P x) ↔ (∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x)) := by forall_elim exists_unique_def, U, (x: U.Particular ↦ P x)
+    have h₂: ∃ (x: U.Particular), P x ∧ (∀ (y: U.Particular), P y → y =₍U₎ x) := PC₀.deductive_eq_l2r h₁ h₀
+    have ⟨(a: U.Particular), (h₃: P a ∧ (∀ (y: U.Particular), P y → y =₍U₎ a))⟩ := exists_elim h₂
+    have h₄: P a := by and_elim h₃
+    have h₅: ∃ (x: U.Particular), P x := by exists_intro h₄, a
+    iterate h₅
 
 
 end PC₁

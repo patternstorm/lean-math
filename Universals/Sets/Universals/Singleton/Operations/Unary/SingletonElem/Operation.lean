@@ -1,7 +1,7 @@
 import Universe
 import Logic
 import Universals.Sets.Universal
-import Universals.Sets.Predicates.Binary.SingletonElemGraph
+import Universals.Sets.Universals.Singleton.Predicates.Binary.SingletonElemGraph
 import Universals.Sets.Universals.Singleton.Universal
 
 namespace Universe
